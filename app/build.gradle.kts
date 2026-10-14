@@ -53,6 +53,7 @@ android {
             proguardFiles("proguard-android-optimize.txt", "proguard-rules.pro")
 
             buildConfigField("String", "BUILD_TIME", "\"${getBuildTime(useLastCommitTime = true)}\"")
+            signingConfig = debug.signingConfig
         }
 
         val commonMatchingFallbacks = listOf(release.name)

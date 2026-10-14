@@ -20,6 +20,11 @@ tasks.register<Delete>("clean") {
 
 subprojects {
     tasks.matching { it.name.contains("AarMetadata") }.configureEach {
-        enabled = false
+        actions.clear()
+        doLast {
+            outputs.files.forEach { file ->
+                file.mkdirs()
+            }
+        }
     }
 }

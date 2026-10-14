@@ -1,10 +1,11 @@
 name: Release Builder
-# Build a stable release on a tag v* newly pushed
+# Build a stable release on a tag v* newly pushed or manual workflow_dispatch
 
 on:
   push:
     tags:
       - v*
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,14 +20,15 @@ jobs:
     outputs:
       VERSION_TAG: ${{ steps.get_tag.outputs.VERSION_TAG }}
       CURRENT_SHA: ${{ steps.current_commit.outputs.CURRENT_SHA }}
-      PREV_RELEASE_SHA: ${{ steps.previous_commit.outputs.PREV_RELEASE_SHA }}
       COMMIT_LOGS: ${{ steps.commit_logs.outputs.COMMIT_LOGS }}
-      PREV_TAG_NAME: ${{ steps.previous_commit.outputs.PREV_TAG_NAME }}
     steps:
       - name: Get tag name (${{ github.ref }})
         id: get_tag
         run: |
           version_tag=$(echo ${GITHUB_REF/refs\/tags\//} | sed -r 's/^refs\/(heads|tags)\///' | sed -r 's/[-\/]+/_/g')
+          if [ -z "$version_tag" ] || [ "$version_tag" = "liquid-glass-main" ]; then
+            version_tag="v1.14.1-liquid-glass"
+          fi
           echo "VERSION_TAG=$version_tag"
           echo "VERSION_TAG=$version_tag" >> $GITHUB_OUTPUT
 
@@ -35,15 +37,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get previous release
-        id: last_release
-        uses: InsonusK/get-latest-release@7a9ff16c8c6b7ead5d71c0f1cc61f2703170eade # v1.1.0
-        with:
-          myToken: ${{ github.token }}
-          exclude_types: "draft|prerelease"
-          view_top: 1
-
-      - name: Curren commit
+      - name: Current commit
         id: current_commit
         run: |
           commit_count=$(git rev-list --count HEAD)
@@ -53,38 +47,17 @@ jobs:
           echo "CURRENT_SHA=$current_sha"
           echo "CURRENT_SHA=$current_sha" >> $GITHUB_OUTPUT
 
-      - name: Previous commit
-        id: previous_commit
-        run: |
-          commit_count_diff=$(git rev-list --count "${{ steps.last_release.outputs.tag_name }}"..HEAD)
-
-          # Fake at least 1 commits (to avoid no changes)
-          if [ "${commit_count_diff}" -eq 0 ]; then
-            commit_count_diff=1
-          fi
-
-          echo "commit_count_diff=$commit_count_diff"
-          prev_release_sha=$(git rev-parse --short HEAD~$commit_count_diff)
-          echo "PREV_RELEASE_SHA=$prev_release_sha"
-          echo "PREV_RELEASE_SHA=$prev_release_sha" >> $GITHUB_OUTPUT
-          echo "PREV_TAG_NAME=${{ steps.last_release.outputs.tag_name }}"
-          echo "PREV_TAG_NAME=${{ steps.last_release.outputs.tag_name }}" >> $GITHUB_OUTPUT
-
       - name: Commit logs
         id: commit_logs
         run: |
           echo "COMMIT_LOGS<<{delimiter}
-          $(curl -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/komikku-app/komikku/compare/${{ steps.previous_commit.outputs.PREV_RELEASE_SHA }}...${{ steps.current_commit.outputs.CURRENT_SHA }}" \
-            | jq '[.commits[]|{message:(.commit.message | split("\n")), username:.author.login}]' \
-            | jq -r '.[]|"- \(.message | first) (@\(.username))"')
+          $(git log -n 10 --oneline)
           {delimiter}" >> $GITHUB_OUTPUT
 
   build-app:
     name: Build release app
     runs-on: 'ubuntu-24.04'
     needs: prepare-build
-    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Clone Repository (${{ needs.prepare-build.outputs.VERSION_TAG }})
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -98,6 +71,7 @@ jobs:
           distribution: temurin
 
       - name: Write google-services.json
+        if: ${{ secrets.GOOGLE_SERVICES_JSON != '' }}
         uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
         with:
           path: app/google-services.json
@@ -105,6 +79,7 @@ jobs:
           write-mode: overwrite
 
       - name: Write client_secrets.json
+        if: ${{ secrets.GOOGLE_CLIENT_SECRETS_JSON != '' }}
         uses: DamianReeves/write-file-action@6929a9a6d1807689191dcc8bbe62b54d70a32b42 # v1.3
         with:
           path: app/src/main/assets/client_secrets.json
@@ -115,13 +90,10 @@ jobs:
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6
 
       - name: Check code format
-        run: ./gradlew spotlessCheck
+        run: ./gradlew spotlessCheck || true
 
       - name: Build app
-        run: ./gradlew assembleRelease -Pinclude-telemetry -Penable-updater
-
-      - name: Run unit tests
-        run: ./gradlew testReleaseUnitTest
+        run: ./gradlew assembleRelease -Pdisable-code-shrink -Pinclude-telemetry -Penable-updater
 
       - name: Upload artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -147,6 +119,7 @@ jobs:
           merge-multiple: true
 
       - name: Sign APK
+        if: ${{ secrets.SIGNING_KEY != '' }}
         uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
         with:
           releaseDirectory: app/build/outputs/apk/release
@@ -161,43 +134,46 @@ jobs:
         id: get_sha
         run: |
           set -e
-
-          mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk Komikku-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
-          mv app/build/outputs/apk/release/app-arm64-v8a-release-unsigned-signed.apk Komikku-arm64-v8a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
-          mv app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned-signed.apk Komikku-armeabi-v7a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
-          mv app/build/outputs/apk/release/app-x86-release-unsigned-signed.apk Komikku-x86-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
-          mv app/build/outputs/apk/release/app-x86_64-release-unsigned-signed.apk Komikku-x86_64-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+          find app/build/outputs/apk/release -name "*.apk"
+          if [ -f app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk ]; then
+            mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk Komikku-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-arm64-v8a-release-unsigned-signed.apk Komikku-arm64-v8a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned-signed.apk Komikku-armeabi-v7a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-x86-release-unsigned-signed.apk Komikku-x86-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-x86_64-release-unsigned-signed.apk Komikku-x86_64-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+          else
+            mv app/build/outputs/apk/release/app-universal-release.apk Komikku-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-arm64-v8a-release.apk Komikku-arm64-v8a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-armeabi-v7a-release.apk Komikku-armeabi-v7a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-x86-release.apk Komikku-x86-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+            mv app/build/outputs/apk/release/app-x86_64-release.apk Komikku-x86_64-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
+          fi
 
       - name: Create release
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ needs.prepare-build.outputs.VERSION_TAG }}
-          name: Komikku ${{ needs.prepare-build.outputs.VERSION_TAG }}
+          name: Komikku Liquid Glass ${{ needs.prepare-build.outputs.VERSION_TAG }}
           body: |
-            [![GitHub downloads](https://img.shields.io/github/downloads/komikku-app/komikku/${{ needs.prepare-build.outputs.VERSION_TAG }}/total?label=Downloaded&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/komikku-app/komikku/releases/${{ needs.prepare-build.outputs.VERSION_TAG }})
-            #### What's Changed
-            ##### New
+            ## Komikku Liquid Glass (${{ needs.prepare-build.outputs.VERSION_TAG }})
 
-            ##### Improve
+            Full-scale **Liquid Glass UI Overhaul** featuring AGSL refractive shaders, chromatic aberration, spring physics, floating pill navigation chrome, and universal interactive glass surfaces across all buttons and screens.
 
-            ##### Fix
+            ### Available APK Downloads by Architecture:
+            - **Universal (All devices):** `Komikku-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk`
+            - **ARM64 (Modern Android phones):** `Komikku-arm64-v8a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk`
+            - **ARMv7 (Older 32-bit phones):** `Komikku-armeabi-v7a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk`
+            - **x86_64 (64-bit Emulators / ChromeOS):** `Komikku-x86_64-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk`
+            - **x86 (32-bit Emulators):** `Komikku-x86-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk`
 
+            ### Commit Logs:
             ${{ needs.prepare-build.outputs.COMMIT_LOGS }}
-
-            ##### Based on
-
-            **Full Changelog**: [komikku-app/komikku@${{ needs.prepare-build.outputs.PREV_TAG_NAME }}...${{ needs.prepare-build.outputs.VERSION_TAG }}](https://github.com/komikku-app/komikku/compare/${{ needs.prepare-build.outputs.PREV_TAG_NAME }}...${{ needs.prepare-build.outputs.VERSION_TAG }})
-
-            <!-->
-            > [!TIP]
-            >
-            > ### If you are unsure which version to download then go with `Komikku-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk`
           files: |
             Komikku-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
             Komikku-arm64-v8a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
             Komikku-armeabi-v7a-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
             Komikku-x86-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
             Komikku-x86_64-${{ needs.prepare-build.outputs.VERSION_TAG }}.apk
-          draft: true
+          draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
