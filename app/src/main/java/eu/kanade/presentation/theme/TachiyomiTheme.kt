@@ -13,6 +13,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.materialkolor.DynamicMaterialExpressiveTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Shapes
+import androidx.compose.ui.unit.dp
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.components.material.LiquidGlassConfig
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
@@ -20,6 +23,7 @@ import tachiyomi.presentation.core.util.collectAsState
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
+import eu.kanade.presentation.theme.colorscheme.CupertinoColorScheme
 import eu.kanade.presentation.theme.colorscheme.CloudflareColorScheme
 import eu.kanade.presentation.theme.colorscheme.CottoncandyColorScheme
 import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
@@ -113,6 +117,14 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     }
 }
 
+val CupertinoShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(14.dp),
+    medium = RoundedCornerShape(18.dp),
+    large = RoundedCornerShape(22.dp),
+    extraLarge = RoundedCornerShape(28.dp),
+)
+
 @Composable
 private fun BaseTachiyomiTheme(
     appTheme: AppTheme,
@@ -122,6 +134,7 @@ private fun BaseTachiyomiTheme(
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
     LiquidGlassThemeWrapper {
+        val isCupertino = appTheme == AppTheme.CUPERTINO || LocalLiquidGlassConfig.current.enabled
         MaterialExpressiveTheme(
             colorScheme = remember(appTheme, isDark, isAmoled) {
                 getThemeColorScheme(
@@ -131,6 +144,7 @@ private fun BaseTachiyomiTheme(
                     isAmoled = isAmoled,
                 )
             },
+            shapes = if (isCupertino) CupertinoShapes else MaterialTheme.shapes,
             content = content,
         )
     }
@@ -168,6 +182,7 @@ private fun getThemeColorScheme(
 
 private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
     AppTheme.DEFAULT to TachiyomiColorScheme,
+    AppTheme.CUPERTINO to CupertinoColorScheme,
     AppTheme.CATPPUCCIN to CatppuccinColorScheme,
     AppTheme.GREEN_APPLE to GreenAppleColorScheme,
     AppTheme.LAVENDER to LavenderColorScheme,

@@ -111,7 +111,7 @@ private fun AppThemesList(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = stringResource(appTheme.titleRes!!),
+                    text = if (appTheme == AppTheme.CUPERTINO) "Cupertino (iOS 26)" else stringResource(appTheme.titleRes!!),
                     modifier = Modifier
                         .fillMaxWidth()
                         .secondaryItemAlpha(),

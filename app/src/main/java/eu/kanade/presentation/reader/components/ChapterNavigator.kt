@@ -11,7 +11,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.SkipPrevious
@@ -84,17 +88,23 @@ fun ChapterNavigator(
     val layoutDirection = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
     val haptic = LocalHapticFeedback.current
 
-    // Match with toolbar background color set in ReaderActivity
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
     val backgroundColor = MaterialTheme.colorScheme
         .surfaceColorAtElevation(3.dp)
-        .copy(alpha = if (isSystemInDarkTheme()) 0.9f else 0.95f)
-    val buttonColor = IconButtonDefaults.filledIconButtonColors(
-        containerColor = backgroundColor,
-        disabledContainerColor = backgroundColor,
-        // KMK -->
-        contentColor = MaterialTheme.colorScheme.primary,
-        // KMK <--
-    )
+        .copy(alpha = if (isDark) 0.9f else 0.95f)
+    val buttonColor = if (isGlass) {
+        IconButtonDefaults.filledIconButtonColors(
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.primary,
+        )
+    } else {
+        IconButtonDefaults.filledIconButtonColors(
+            containerColor = backgroundColor,
+            disabledContainerColor = backgroundColor,
+            contentColor = MaterialTheme.colorScheme.primary,
+        )
+    }
     val textColor = MaterialTheme.colorScheme.onSurface
 
     // We explicitly handle direction based on the reader viewer rather than the system direction
@@ -109,6 +119,16 @@ fun ChapterNavigator(
                 enabled = if (isRtl) enabledNext else enabledPrevious,
                 onClick = if (isRtl) onNextChapter else onPreviousChapter,
                 colors = buttonColor,
+                modifier = if (isGlass) {
+                    Modifier.liquidGlassSurface(
+                        shape = CircleShape,
+                        blurRadius = 10.dp,
+                        refractionHeight = 12.dp,
+                        refractionAmount = 18.dp,
+                    )
+                } else {
+                    Modifier
+                },
             ) {
                 Icon(
                     imageVector = Icons.Outlined.SkipPrevious,
@@ -120,12 +140,26 @@ fun ChapterNavigator(
 
             if (totalPages > 1) {
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                    Row(
-                        modifier = Modifier
+                    val sliderModifier = if (isGlass) {
+                        Modifier
+                            .weight(1f)
+                            .liquidGlassSurface(
+                                shape = Capsule(),
+                                blurRadius = 14.dp,
+                                refractionHeight = 16.dp,
+                                refractionAmount = 24.dp,
+                                surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
+                            )
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                    } else {
+                        Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(24.dp))
                             .background(backgroundColor)
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp)
+                    }
+                    Row(
+                        modifier = sliderModifier,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(contentAlignment = Alignment.CenterEnd) {
@@ -177,6 +211,16 @@ fun ChapterNavigator(
                 enabled = if (isRtl) enabledPrevious else enabledNext,
                 onClick = if (isRtl) onPreviousChapter else onNextChapter,
                 colors = buttonColor,
+                modifier = if (isGlass) {
+                    Modifier.liquidGlassSurface(
+                        shape = CircleShape,
+                        blurRadius = 10.dp,
+                        refractionHeight = 12.dp,
+                        refractionAmount = 18.dp,
+                    )
+                } else {
+                    Modifier
+                },
             ) {
                 Icon(
                     imageVector = Icons.Outlined.SkipNext,
@@ -213,23 +257,39 @@ fun ChapterNavigatorVert(
             .padding(vertical = verticalPadding, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Match with toolbar background color set in ReaderActivity
+        val isGlass = LocalLiquidGlassConfig.current.enabled
+        val isDark = isSystemInDarkTheme()
         val backgroundColor = MaterialTheme.colorScheme
             .surfaceColorAtElevation(3.dp)
-            .copy(alpha = if (isSystemInDarkTheme()) 0.9f else 0.95f)
-        val buttonColor = IconButtonDefaults.filledIconButtonColors(
-            containerColor = backgroundColor,
-            disabledContainerColor = backgroundColor,
-            // KMK -->
-            contentColor = MaterialTheme.colorScheme.primary,
-            // KMK <--
-        )
+            .copy(alpha = if (isDark) 0.9f else 0.95f)
+        val buttonColor = if (isGlass) {
+            IconButtonDefaults.filledIconButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+            )
+        } else {
+            IconButtonDefaults.filledIconButtonColors(
+                containerColor = backgroundColor,
+                disabledContainerColor = backgroundColor,
+                contentColor = MaterialTheme.colorScheme.primary,
+            )
+        }
         val textColor = MaterialTheme.colorScheme.onSurface
 
         FilledIconButton(
             enabled = enabledPrevious,
             onClick = onPreviousChapter,
             colors = buttonColor,
+            modifier = if (isGlass) {
+                Modifier.liquidGlassSurface(
+                    shape = CircleShape,
+                    blurRadius = 10.dp,
+                    refractionHeight = 12.dp,
+                    refractionAmount = 18.dp,
+                )
+            } else {
+                Modifier
+            },
         ) {
             Icon(
                 imageVector = Icons.Outlined.SkipPrevious,
@@ -239,12 +299,26 @@ fun ChapterNavigatorVert(
         }
 
         if (totalPages > 1) {
-            Column(
-                modifier = Modifier
+            val sliderModifier = if (isGlass) {
+                Modifier
+                    .weight(1f)
+                    .liquidGlassSurface(
+                        shape = Capsule(),
+                        blurRadius = 14.dp,
+                        refractionHeight = 16.dp,
+                        refractionAmount = 24.dp,
+                        surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
+                    )
+                    .padding(vertical = 16.dp, horizontal = 4.dp)
+            } else {
+                Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(24.dp))
                     .background(backgroundColor)
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 16.dp)
+            }
+            Column(
+                modifier = sliderModifier,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
@@ -308,6 +382,16 @@ fun ChapterNavigatorVert(
             enabled = enabledNext,
             onClick = onNextChapter,
             colors = buttonColor,
+            modifier = if (isGlass) {
+                Modifier.liquidGlassSurface(
+                    shape = CircleShape,
+                    blurRadius = 10.dp,
+                    refractionHeight = 12.dp,
+                    refractionAmount = 18.dp,
+                )
+            } else {
+                Modifier
+            },
         ) {
             Icon(
                 imageVector = Icons.Outlined.SkipNext,

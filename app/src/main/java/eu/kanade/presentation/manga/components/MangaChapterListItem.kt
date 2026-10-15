@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Circle
@@ -102,8 +106,12 @@ fun MangaChapterListItem(
         swipeThreshold = swipeActionThreshold,
         backgroundUntilSwipeThreshold = MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
+        val isGlass = LocalLiquidGlassConfig.current.enabled
+        val itemShape = RoundedCornerShape(14.dp)
         Row(
             modifier = Modifier
+                .padding(horizontal = if (isGlass) 8.dp else 0.dp, vertical = 2.dp)
+                .clip(if (isGlass) itemShape else RectangleShape)
                 .selectedBackground(selected)
                 .combinedClickable(
                     onClick = onClick,

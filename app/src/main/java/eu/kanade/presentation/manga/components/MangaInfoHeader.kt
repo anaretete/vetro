@@ -155,40 +155,42 @@ fun MangaInfoBox(
             Color.Transparent,
             MaterialTheme.colorScheme.background,
         )
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(manga)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            // KMK -->
-            onSuccess = { result ->
-                val image = result.result.image
-                coverRatio.floatValue = image.height.toFloat() / image.width
-            },
-            // KMK <--
+        Box(
             modifier = Modifier
                 .matchParentSize()
-                .layerBackdrop(coverBackdrop)
-                .drawWithContent {
-                    drawContent()
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            colors = backdropGradientColors,
-                            // KMK -->
-                            startY = size.height / 2,
-                            // KMK <--
-                        ),
-                    )
-                }
+                .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.35f))
+                .blur(8.dp)
+                .layerBackdrop(coverBackdrop),
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(manga)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
                 // KMK -->
-                .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.4f))
-                .blur(7.dp)
-                // .blur(4.dp)
+                onSuccess = { result ->
+                    val image = result.result.image
+                    coverRatio.floatValue = image.height.toFloat() / image.width
+                },
                 // KMK <--
-                .alpha(0.2f),
-        )
+                modifier = Modifier
+                    .matchParentSize()
+                    .drawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                colors = backdropGradientColors,
+                                // KMK -->
+                                startY = size.height / 3,
+                                // KMK <--
+                            ),
+                        )
+                    }
+                    .alpha(0.45f),
+            )
+        }
 
         // Manga & source info
         CompositionLocalProvider(
@@ -1030,14 +1032,8 @@ private fun RowScope.MangaActionButton(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = Modifier
-            .weight(1f)
-            .liquidGlassSurface(
-                shape = RoundedCornerShape(16.dp),
-                blurRadius = 10.dp,
-                refractionHeight = 12.dp,
-                refractionAmount = 20.dp,
-            ),
+        modifier = Modifier.weight(1f),
+        shape = RoundedCornerShape(16.dp),
         onLongClick = onLongClick,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

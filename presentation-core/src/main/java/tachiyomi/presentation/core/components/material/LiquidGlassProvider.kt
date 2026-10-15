@@ -144,17 +144,18 @@ fun Modifier.liquidGlassSurface(
                 drawRect(surfaceColor)
             } else {
                 drawRect(baseTint)
-                drawRect(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            if (isDark) Color.White.copy(alpha = 0.09f) else Color.White.copy(alpha = 0.22f),
-                            Color.Transparent,
-                        ),
-                        start = Offset(0f, 0f),
-                        end = Offset(size.width * 0.5f, size.height),
-                    ),
-                )
             }
+            // Apple Cupertino visionOS specular luster highlight
+            drawRect(
+                Brush.linearGradient(
+                    colors = listOf(
+                        if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.25f),
+                        Color.Transparent,
+                    ),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width * 0.6f, size.height),
+                ),
+            )
         },
     )
 

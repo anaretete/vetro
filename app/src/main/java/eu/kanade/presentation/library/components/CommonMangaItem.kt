@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -23,6 +26,12 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
+import androidx.compose.ui.geometry.Offset
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableFloatState
@@ -156,27 +165,49 @@ private fun BoxScope.CoverTextOverlay(
     title: String,
     onClickContinueReading: (() -> Unit)? = null,
 ) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
+    val bannerShape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+
+    val overlayModifier = if (isGlass) {
+        Modifier
+            .fillMaxWidth()
+            .align(Alignment.BottomCenter)
+            .liquidGlassSurface(
+                shape = bannerShape,
+                blurRadius = 12.dp,
+                refractionHeight = 16.dp,
+                refractionAmount = 24.dp,
+                surfaceColor = if (isDark) Color(0x660A0A0C) else Color(0x55FFFFFF),
+            )
+            .drawBehind {
+                drawLine(
+                    color = Color.White.copy(alpha = if (isDark) 0.35f else 0.6f),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            }
+    } else {
+        Modifier
+            .clip(bannerShape)
             .background(
                 Brush.verticalGradient(
                     0f to Color.Transparent,
                     1f to Color(0xAA000000),
                 ),
             )
-            .fillMaxHeight(0.33f)
             .fillMaxWidth()
-            .align(Alignment.BottomCenter),
-    )
+            .align(Alignment.BottomCenter)
+    }
+
     Row(
-        modifier = Modifier.align(Alignment.BottomStart),
-        verticalAlignment = Alignment.Bottom,
+        modifier = overlayModifier
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         GridItemTitle(
-            modifier = Modifier
-                .weight(1f)
-                .padding(8.dp),
+            modifier = Modifier.weight(1f),
             title = title,
             style = MaterialTheme.typography.titleSmall.copy(
                 color = Color.White,
@@ -192,10 +223,7 @@ private fun BoxScope.CoverTextOverlay(
                 size = ContinueReadingButtonSizeSmall,
                 iconSize = ContinueReadingButtonIconSizeSmall,
                 onClick = onClickContinueReading,
-                modifier = Modifier.padding(
-                    end = ContinueReadingButtonGridPadding,
-                    bottom = ContinueReadingButtonGridPadding,
-                ),
+                modifier = Modifier.padding(start = ContinueReadingButtonGridPadding),
             )
         }
     }
@@ -337,29 +365,51 @@ private fun MangaGridCover(
     badgesEnd: (@Composable RowScope.() -> Unit)? = null,
     content: @Composable (BoxScope.() -> Unit)? = null,
 ) {
+    val coverBackdrop = rememberLayerBackdrop()
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(ratio),
+            .aspectRatio(ratio)
+            .clip(RoundedCornerShape(16.dp))
+            .then(
+                if (isGlass) {
+                    Modifier.border(
+                        width = 0.5.dp,
+                        color = Color.White.copy(alpha = 0.18f),
+                        shape = RoundedCornerShape(16.dp),
+                    )
+                } else {
+                    Modifier
+                },
+            ),
     ) {
-        cover()
-        content?.invoke(this)
-        if (badgesStart != null) {
-            BadgeGroup(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .align(Alignment.TopStart),
-                content = badgesStart,
-            )
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .layerBackdrop(coverBackdrop),
+        ) {
+            cover()
         }
+        CompositionLocalProvider(LocalLayerBackdrop provides coverBackdrop) {
+            content?.invoke(this)
+            if (badgesStart != null) {
+                BadgeGroup(
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .align(Alignment.TopStart),
+                    content = badgesStart,
+                )
+            }
 
-        if (badgesEnd != null) {
-            BadgeGroup(
-                modifier = Modifier
-                    .padding(4.dp)
-                    .align(Alignment.TopEnd),
-                content = badgesEnd,
-            )
+            if (badgesEnd != null) {
+                BadgeGroup(
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .align(Alignment.TopEnd),
+                    content = badgesEnd,
+                )
+            }
         }
     }
 }
@@ -395,14 +445,24 @@ private fun GridItemSelectable(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val shape = RoundedCornerShape(18.dp)
     Box(
         modifier = modifier
-            .clip(MaterialTheme.shapes.small)
+            .clip(shape)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
-            .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
+            .then(
+                if (isSelected) {
+                    Modifier.border(2.dp, MaterialTheme.colorScheme.primary, shape)
+                } else if (isGlass) {
+                    Modifier.border(0.5.dp, Color.White.copy(alpha = 0.12f), shape)
+                } else {
+                    Modifier
+                },
+            )
             .padding(4.dp),
     ) {
         val contentColor = if (isSelected) {
@@ -509,15 +569,24 @@ private fun ContinueReadingButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Box(modifier = modifier) {
         FilledIconButton(
             onClick = onClick,
-            shape = MaterialTheme.shapes.small,
+            shape = CircleShape,
             colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
-                contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer),
+                containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
+                contentColor = if (isGlass) Color.White else contentColorFor(MaterialTheme.colorScheme.primaryContainer),
             ),
-            modifier = Modifier.size(size),
+            modifier = Modifier
+                .size(size)
+                .liquidGlassSurface(
+                    shape = CircleShape,
+                    blurRadius = 8.dp,
+                    refractionHeight = 10.dp,
+                    refractionAmount = 16.dp,
+                    tintColor = MaterialTheme.colorScheme.primary,
+                ),
         ) {
             Icon(
                 imageVector = Icons.Filled.PlayArrow,
