@@ -54,8 +54,7 @@ fun ReaderBottomBar(
     val iconColor = MaterialTheme.colorScheme.primary
     // KMK <--
     Row(
-        modifier = modifier
-            .pointerInput(Unit) {},
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {

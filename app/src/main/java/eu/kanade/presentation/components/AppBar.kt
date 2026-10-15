@@ -1,5 +1,6 @@
 package eu.kanade.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -60,6 +62,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
@@ -152,6 +155,7 @@ fun AppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
     val bgAlpha = backgroundColor?.alpha ?: 1f
     val isAdaptiveTransparent = isGlass && !isActionMode && bgAlpha < 0.05f
 
@@ -171,18 +175,20 @@ fun AppBar(
         )
     }
     val appModifier = if (isGlass) {
-        val base = modifier
-            .statusBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 6.dp)
         if (!isAdaptiveTransparent) {
-            base.liquidGlassSurface(
-                shape = Capsule(),
-                blurRadius = 14.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 24.dp,
-            )
+            modifier
+                .fillMaxWidth()
+                .liquidGlassSurface(
+                    shape = RectangleShape,
+                    blurRadius = 24.dp,
+                    refractionHeight = 18.dp,
+                    refractionAmount = 26.dp,
+                    tintColor = MaterialTheme.colorScheme.surface.copy(
+                        alpha = if (isDark) 0.65f else 0.75f,
+                    ),
+                )
         } else {
-            base
+            modifier.fillMaxWidth()
         }
     } else {
         modifier
@@ -212,16 +218,16 @@ fun AppBar(
                                 if (isGlass) {
                                     Box(
                                         modifier = Modifier
-                                            .padding(start = 4.dp, end = 4.dp)
+                                            .padding(start = 8.dp, end = 4.dp)
                                             .size(38.dp)
                                             .then(
                                                 if (isAdaptiveTransparent) {
                                                     Modifier.liquidGlassSurface(
                                                         shape = CircleShape,
-                                                        blurRadius = 12.dp,
-                                                        refractionHeight = 14.dp,
-                                                        refractionAmount = 20.dp,
-                                                        tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f),
+                                                        blurRadius = 14.dp,
+                                                        refractionHeight = 16.dp,
+                                                        refractionAmount = 24.dp,
+                                                        tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.50f),
                                                     )
                                                 } else {
                                                     Modifier
@@ -267,14 +273,14 @@ fun AppBar(
                     if (isAdaptiveTransparent) {
                         Row(
                             modifier = Modifier
-                                .padding(end = 4.dp)
+                                .padding(end = 8.dp)
                                 .height(38.dp)
                                 .liquidGlassSurface(
                                     shape = Capsule(),
-                                    blurRadius = 12.dp,
-                                    refractionHeight = 14.dp,
-                                    refractionAmount = 20.dp,
-                                    tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f),
+                                    blurRadius = 14.dp,
+                                    refractionHeight = 16.dp,
+                                    refractionAmount = 24.dp,
+                                    tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.50f),
                                 )
                                 .padding(horizontal = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -287,8 +293,18 @@ fun AppBar(
                 },
                 colors = topAppBarColors,
                 scrollBehavior = scrollBehavior,
-                windowInsets = if (isGlass) WindowInsets(0) else TopAppBarDefaults.windowInsets,
+                windowInsets = TopAppBarDefaults.windowInsets,
             )
+            if (isGlass && !isAdaptiveTransparent) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(0.5.dp)
+                        .background(
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = if (isDark) 0.15f else 0.12f)
+                        ),
+                )
+            }
         }
     }
 }

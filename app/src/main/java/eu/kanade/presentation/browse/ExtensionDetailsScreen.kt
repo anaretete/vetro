@@ -28,7 +28,7 @@ import androidx.compose.material3.Icon
 import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.MaterialTheme
 import tachiyomi.presentation.core.components.material.OutlinedButton
-import androidx.compose.material3.Switch
+import tachiyomi.presentation.core.components.material.Switch
 import androidx.compose.material3.Text
 import tachiyomi.presentation.core.components.material.TextButton
 import androidx.compose.material3.VerticalDivider

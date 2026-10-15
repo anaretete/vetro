@@ -276,7 +276,7 @@ fun ReaderAppBars(
                     Modifier
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.navigationBars)
-                        .padding(horizontal = 24.dp, vertical = 6.dp)
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                         .height(56.dp)
                         .liquidGlassSurface(
                             shape = CircleShape,

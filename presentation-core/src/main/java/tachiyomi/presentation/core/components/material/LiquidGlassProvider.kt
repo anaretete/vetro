@@ -68,7 +68,7 @@ fun Modifier.liquidGlassSurface(
     tintColor: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
     exportedBackdrop: LayerBackdrop? = null,
-    isInteractive: Boolean = true,
+    isInteractive: Boolean = false,
 ): Modifier = composed {
     val config = LocalLiquidGlassConfig.current
     if (!config.enabled) return@composed this
@@ -167,9 +167,7 @@ fun Modifier.liquidGlassSurface(
         .then(backdropModifier)
         .then(
             if (isInteractive) {
-                Modifier
-                    .then(interactiveHighlight.modifier)
-                    .then(interactiveHighlight.gestureModifier)
+                interactiveHighlight.modifier
             } else {
                 Modifier
             },

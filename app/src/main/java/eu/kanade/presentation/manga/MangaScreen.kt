@@ -705,9 +705,9 @@ private fun MangaScreenSmallImpl(
                                 onClick = onContinueReading,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
-                                    .height(46.dp),
-                                shape = RoundedCornerShape(16.dp),
+                                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                                    .height(48.dp),
+                                shape = androidx.compose.foundation.shape.CircleShape,
                                 colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                                     containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
                                     contentColor = Color.White,
