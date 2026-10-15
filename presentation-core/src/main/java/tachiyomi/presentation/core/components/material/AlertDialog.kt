@@ -216,3 +216,52 @@ private val TextPadding = PaddingValues(bottom = 24.dp)
 
 private val MinWidth = 280.dp
 private val MaxWidth = 560.dp
+
+@Composable
+fun AlertDialog(
+    onDismissRequest: () -> Unit,
+    confirmButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    dismissButton: (@Composable () -> Unit)? = null,
+    icon: (@Composable () -> Unit)? = null,
+    title: (@Composable () -> Unit)? = null,
+    text: (@Composable () -> Unit)? = null,
+    shape: androidx.compose.ui.graphics.Shape = androidx.compose.material3.AlertDialogDefaults.shape,
+    containerColor: androidx.compose.ui.graphics.Color = androidx.compose.material3.AlertDialogDefaults.containerColor,
+    iconContentColor: androidx.compose.ui.graphics.Color = androidx.compose.material3.AlertDialogDefaults.iconContentColor,
+    titleContentColor: androidx.compose.ui.graphics.Color = androidx.compose.material3.AlertDialogDefaults.titleContentColor,
+    textContentColor: androidx.compose.ui.graphics.Color = androidx.compose.material3.AlertDialogDefaults.textContentColor,
+    tonalElevation: androidx.compose.ui.unit.Dp = androidx.compose.material3.AlertDialogDefaults.TonalElevation,
+    properties: androidx.compose.ui.window.DialogProperties = androidx.compose.ui.window.DialogProperties(),
+) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    if (isGlass) {
+        CupertinoAlertDialog(
+            onDismissRequest = onDismissRequest,
+            confirmButton = confirmButton,
+            modifier = modifier,
+            dismissButton = dismissButton,
+            title = title,
+            text = text,
+            properties = properties,
+        )
+    } else {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = onDismissRequest,
+            confirmButton = confirmButton,
+            modifier = modifier,
+            dismissButton = dismissButton,
+            icon = icon,
+            title = title,
+            text = text,
+            shape = shape,
+            containerColor = containerColor,
+            iconContentColor = iconContentColor,
+            titleContentColor = titleContentColor,
+            textContentColor = textContentColor,
+            tonalElevation = tonalElevation,
+            properties = properties,
+        )
+    }
+}
+

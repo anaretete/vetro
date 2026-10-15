@@ -326,7 +326,7 @@ object HomeScreen : Screen() {
             modifier = modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(NavigationBarDefaults.windowInsets)
-                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
                 .height(64.dp)
                 .liquidGlassSurface(
                     shape = CircleShape,
@@ -383,7 +383,7 @@ object HomeScreen : Screen() {
                             label = "TabIconScale",
                         )
 
-                        Column(
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
@@ -392,31 +392,33 @@ object HomeScreen : Screen() {
                                     indication = null,
                                     onClick = { onTabSelected(tab) },
                                 ),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Box(
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
                                 modifier = Modifier.graphicsLayer {
                                     scaleX = iconScale
                                     scaleY = iconScale
                                 },
-                                contentAlignment = Alignment.Center,
                             ) {
                                 CompositionLocalProvider(LocalContentColor provides tintColor) {
                                     NavigationIconItem(tab)
                                 }
-                            }
-                            if (alwaysShowLabel) {
-                                Text(
-                                    text = tabOptions.title,
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 10.sp,
-                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                                    ),
-                                    color = tintColor,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+                                if (alwaysShowLabel) {
+                                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = tabOptions.title,
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 10.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            letterSpacing = (-0.2).sp,
+                                        ),
+                                        color = tintColor,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                             }
                         }
                     }

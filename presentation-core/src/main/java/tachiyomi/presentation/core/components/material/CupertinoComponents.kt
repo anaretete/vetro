@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -61,7 +62,7 @@ fun CupertinoAlertDialog(
     BasicAlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier
-            .width(280.dp)
+            .widthIn(min = 270.dp, max = 320.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
                 blurRadius = 24.dp,
@@ -103,7 +104,9 @@ fun CupertinoAlertDialog(
                             lineHeight = 18.sp,
                         ),
                     ) {
-                        text()
+                        Box(modifier = Modifier.weight(1f, fill = false)) {
+                            text()
+                        }
                     }
                 }
             }

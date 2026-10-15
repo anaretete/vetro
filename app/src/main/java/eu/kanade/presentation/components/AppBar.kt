@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
@@ -195,21 +197,33 @@ fun AppBar(
                             // KMK <--
                             navigateUp?.let {
                                 if (isGlass) {
-                                    Box(
+                                    Row(
                                         modifier = Modifier
                                             .padding(start = 4.dp, end = 4.dp)
                                             .height(34.dp)
                                             .liquidGlassSurface(
-                                                shape = CircleShape,
+                                                shape = Capsule(),
                                                 blurRadius = 6.dp,
                                                 refractionHeight = 8.dp,
-                                                tintColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                                                tintColor = Color(0xFF0A84FF).copy(alpha = 0.20f),
                                             )
                                             .clickable(onClick = it)
                                             .padding(horizontal = 8.dp),
-                                        contentAlignment = Alignment.Center,
+                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        UpIcon(navigationIcon = navigationIcon)
+                                        UpIcon(
+                                            navigationIcon = navigationIcon,
+                                            modifier = Modifier.size(18.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = stringResource(MR.strings.action_bar_up_description),
+                                            style = MaterialTheme.typography.labelMedium.copy(
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = Color(0xFF0A84FF),
+                                            ),
+                                        )
                                     }
                                 } else {
                                     IconButton(onClick = it) {
@@ -227,7 +241,18 @@ fun AppBar(
                         }
                     }
                 },
-                title = titleContent,
+                title = {
+                    if (isGlass && navigateUp != null) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            titleContent()
+                        }
+                    } else {
+                        titleContent()
+                    }
+                },
                 actions = actions,
                 colors = topAppBarColors,
                 scrollBehavior = scrollBehavior,
@@ -244,7 +269,10 @@ fun AppBarTitle(
     subtitle: String? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = if (isGlass) Alignment.CenterHorizontally else Alignment.Start,
+    ) {
         title?.let {
             Text(
                 text = it,
@@ -252,6 +280,8 @@ fun AppBarTitle(
                     MaterialTheme.typography.titleMedium.copy(
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold,
+                        letterSpacing = (-0.3).sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     )
                 } else {
                     MaterialTheme.typography.titleLarge
@@ -265,6 +295,7 @@ fun AppBarTitle(
                 text = it,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontSize = 11.sp,
+                    textAlign = if (isGlass) androidx.compose.ui.text.style.TextAlign.Center else androidx.compose.ui.text.style.TextAlign.Start,
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

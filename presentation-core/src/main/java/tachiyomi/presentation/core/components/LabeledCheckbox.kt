@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import tachiyomi.presentation.core.components.material.CupertinoCheckmark
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.padding
 
 @Composable
@@ -24,6 +26,8 @@ fun LabeledCheckbox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+
     Row(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
@@ -40,11 +44,17 @@ fun LabeledCheckbox(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = null,
-            enabled = enabled,
-        )
+        if (isGlass) {
+            CupertinoCheckmark(
+                checked = checked,
+            )
+        } else {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = null,
+                enabled = enabled,
+            )
+        }
 
         Text(text = label)
     }

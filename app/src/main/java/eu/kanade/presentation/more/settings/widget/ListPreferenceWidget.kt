@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.AlertDialog
+import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -22,7 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.i18n.stringResource
@@ -86,6 +93,7 @@ private fun DialogRow(
     isSelected: Boolean,
     onSelected: () -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -97,14 +105,37 @@ private fun DialogRow(
             .fillMaxWidth()
             .minimumInteractiveComponentSize(),
     ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = null,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge.merge(),
-            modifier = Modifier.padding(start = 24.dp),
-        )
+        if (isGlass) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 17.sp,
+                    color = if (isSelected) Color(0xFF0A84FF) else MaterialTheme.colorScheme.onSurface,
+                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+            )
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = Color(0xFF0A84FF),
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .size(20.dp),
+                )
+            }
+        } else {
+            RadioButton(
+                selected = isSelected,
+                onClick = null,
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.merge(),
+                modifier = Modifier.padding(start = 24.dp),
+            )
+        }
     }
 }

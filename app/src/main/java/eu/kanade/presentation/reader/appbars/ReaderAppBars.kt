@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
@@ -115,9 +117,9 @@ fun ReaderAppBars(
     val topBarModifier = if (isGlass) {
         Modifier
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .liquidGlassSurface(
-                shape = com.kyant.shapes.Capsule(),
+                shape = RoundedCornerShape(22.dp),
                 blurRadius = 18.dp,
                 refractionHeight = 22.dp,
                 refractionAmount = 30.dp,
@@ -274,12 +276,13 @@ fun ReaderAppBars(
                     Modifier
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.navigationBars)
-                        .padding(horizontal = MaterialTheme.padding.small, vertical = 6.dp)
+                        .padding(horizontal = 24.dp, vertical = 6.dp)
+                        .height(56.dp)
                         .liquidGlassSurface(
-                            shape = RoundedCornerShape(24.dp),
-                            blurRadius = 16.dp,
-                            refractionHeight = 18.dp,
-                            refractionAmount = 26.dp,
+                            shape = CircleShape,
+                            blurRadius = 18.dp,
+                            refractionHeight = 22.dp,
+                            refractionAmount = 30.dp,
                         )
                 } else {
                     Modifier
