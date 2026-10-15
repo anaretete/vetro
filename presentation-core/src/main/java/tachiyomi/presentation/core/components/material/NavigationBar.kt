@@ -48,7 +48,7 @@ fun NavigationBar(
                 .padding(horizontal = 16.dp, vertical = 10.dp)
                 .height(68.dp)
                 .liquidGlassSurface(
-                    shape = CircleShape,
+                    shape = com.kyant.shapes.Capsule(),
                     blurRadius = 18.dp,
                     refractionHeight = 24.dp,
                     refractionAmount = 36.dp,

@@ -36,6 +36,7 @@ import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.time.LocalDate
+import kotlin.math.roundToInt
 
 object SettingsAppearanceScreen : SearchableSettings {
     @Suppress("unused")
@@ -77,6 +78,8 @@ object SettingsAppearanceScreen : SearchableSettings {
 
         val amoledPref = uiPreferences.themeDarkAmoled()
         val amoled by amoledPref.collectAsState()
+
+        val refractionStrength by uiPreferences.liquidGlassRefractionStrength().collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
@@ -160,6 +163,17 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Chromatic Aberration",
                     subtitle = "Prismatic color dispersion along curved glass borders",
                     enabled = uiPreferences.liquidGlassEnabled().get(),
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = (refractionStrength * 100).roundToInt(),
+                    valueRange = 25..200,
+                    title = "Refraction Strength",
+                    subtitle = "Adjust lens refraction depth and optical distortion",
+                    valueString = "${(refractionStrength * 100).roundToInt()}%",
+                    enabled = uiPreferences.liquidGlassEnabled().get(),
+                    onValueChanged = {
+                        uiPreferences.liquidGlassRefractionStrength().set(it / 100f)
+                    },
                 ),
             ),
         )

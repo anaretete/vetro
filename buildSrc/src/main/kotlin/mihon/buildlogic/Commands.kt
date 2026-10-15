@@ -35,11 +35,14 @@ fun Project.getBuildTime(useLastCommitTime: Boolean): String {
 }
 
 private fun Project.runCommand(command: String): String {
-    return providers.exec {
-        commandLine = command.split(" ")
-    }
-        .standardOutput
-        .asText
-        .get()
-        .trim()
+    return runCatching {
+        providers.exec {
+            commandLine = command.split(" ")
+            environment("GIT_CONFIG_NOSYSTEM", "1")
+        }
+            .standardOutput
+            .asText
+            .get()
+            .trim()
+    }.getOrDefault("1")
 }

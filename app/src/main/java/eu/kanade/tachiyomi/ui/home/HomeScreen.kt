@@ -21,6 +21,14 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.graphics.Color
+import tachiyomi.presentation.core.components.material.LiquidBottomTab
+import tachiyomi.presentation.core.components.material.LiquidBottomTabs
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -126,29 +134,84 @@ object HomeScreen : Screen() {
                             val bottomNavVisible by produceState(initialValue = true) {
                                 showBottomNavEvent.receiveAsFlow().collectLatest { value = it }
                             }
+                            val isGlass = LocalLiquidGlassConfig.current.enabled
+                            val isDark = isSystemInDarkTheme()
                             AnimatedVisibility(
                                 visible = bottomNavVisible,
                                 enter = expandVertically(),
                                 exit = shrinkVertically(),
                             ) {
-                                NavigationBar {
-                                    TABS
-                                        // SY -->
-                                        .fastFilter { it.isEnabled() }
-                                        // SY <--
-                                        .fastForEach {
+                                val enabledTabs = TABS
+                                    // SY -->
+                                    .fastFilter { it.isEnabled() }
+                                    // SY <--
+                                if (isGlass) {
+                                    val activeBackdrop = LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
+                                        drawRect(if (isDark) Color(0xFF141416) else Color(0xFFFAFAFA))
+                                    }
+                                    val selectedIndex = enabledTabs.indexOfFirst { tabNavigator.current::class == it::class }.coerceAtLeast(0)
+                                    LiquidBottomTabs(
+                                        selectedTabIndex = { selectedIndex },
+                                        onTabSelected = { index ->
+                                            val tab = enabledTabs.getOrNull(index) ?: return@LiquidBottomTabs
+                                            if (selectedIndex != index) {
+                                                tabNavigator.current = tab
+                                            } else {
+                                                scope.launch { tab.onReselect(navigator) }
+                                            }
+                                        },
+                                        backdrop = activeBackdrop,
+                                        tabsCount = enabledTabs.size,
+                                        modifier = Modifier
+                                            .navigationBarsPadding()
+                                            .padding(horizontal = 20.dp, vertical = 6.dp),
+                                    ) {
+                                        enabledTabs.fastForEach { tab ->
+                                            val isSelected = tabNavigator.current::class == tab::class
+                                            LiquidBottomTab(
+                                                onClick = {
+                                                    if (!isSelected) {
+                                                        tabNavigator.current = tab
+                                                    } else {
+                                                        scope.launch { tab.onReselect(navigator) }
+                                                    }
+                                                },
+                                            ) {
+                                                NavigationIconItem(tab)
+                                                if (alwaysShowLabel) {
+                                                    Text(
+                                                        text = tab.options.title,
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    NavigationBar {
+                                        enabledTabs.fastForEach {
                                             NavigationBarItem(it/* SY --> */, alwaysShowLabel/* SY <-- */)
                                         }
+                                    }
                                 }
                             }
                         }
                     },
                     contentWindowInsets = WindowInsets(0),
                 ) { contentPadding ->
+                    val isGlass = LocalLiquidGlassConfig.current.enabled
                     Box(
-                        modifier = Modifier
-                            .padding(contentPadding)
-                            .consumeWindowInsets(contentPadding),
+                        modifier = if (isGlass) {
+                            Modifier
+                                .fillMaxSize()
+                                .padding(top = contentPadding.calculateTopPadding())
+                        } else {
+                            Modifier
+                                .padding(contentPadding)
+                                .consumeWindowInsets(contentPadding)
+                        },
                     ) {
                         AnimatedContent(
                             targetState = tabNavigator.current,

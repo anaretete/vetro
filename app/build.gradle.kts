@@ -301,6 +301,7 @@ dependencies {
     implementation(libs.palette.ktx)
     implementation(libs.haze)
     implementation(libs.kyant.backdrop)
+    implementation(libs.kyant.shapes)
     implementation(libs.chrisbanes.haze.materials)
     implementation(compose.colorpicker)
     implementation(projects.flagkit)

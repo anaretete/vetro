@@ -49,6 +49,7 @@ dependencies {
     implementation(androidx.paging.compose)
     implementation(kotlinx.immutables)
 
+    api(libs.kyant.shapes)
     implementation(libs.kyant.backdrop)
     implementation(libs.chrisbanes.haze)
 }
