@@ -223,7 +223,6 @@ fun TextButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
     val baseModifier = if (onLongClick != null) {
         modifier.combinedClickable(
             interactionSource = interactionSource,
@@ -238,18 +237,12 @@ fun TextButton(
 
     M3TextButton(
         onClick = onClick,
-        modifier = baseModifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-            blurRadius = 8.dp,
-            refractionHeight = 10.dp,
-            refractionAmount = 16.dp,
-        ),
+        modifier = baseModifier,
         enabled = enabled,
         shape = shape,
-        colors = if (isGlass) M3ButtonDefaults.textButtonColors(containerColor = Color.Transparent) else colors,
-        elevation = if (isGlass) null else elevation,
-        border = if (isGlass) null else border,
+        colors = colors,
+        elevation = elevation,
+        border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         content = content,

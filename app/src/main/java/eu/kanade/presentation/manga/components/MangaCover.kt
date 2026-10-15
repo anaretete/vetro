@@ -5,7 +5,10 @@ package eu.kanade.presentation.manga.components
 import androidx.annotation.ColorInt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
@@ -75,9 +78,24 @@ enum class MangaCover(val ratio: Float) {
         var succeed by remember { mutableStateOf(false) }
         // KMK <--
 
+        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+        val actualShape = if (isGlass) androidx.compose.foundation.shape.RoundedCornerShape(12.dp) else shape
+        val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+
         val modifierColored = modifier
             .aspectRatio(ratio)
-            .clip(shape)
+            .clip(actualShape)
+            .then(
+                if (isGlass) {
+                    Modifier.border(
+                        0.5.dp,
+                        if (isDark) Color.White.copy(alpha = 0.18f) else Color.Black.copy(alpha = 0.08f),
+                        actualShape,
+                    )
+                } else {
+                    Modifier
+                },
+            )
             // KMK -->
             .alpha(if (succeed) alpha else 1f)
             .background(bgColor ?: CoverPlaceholderColor)

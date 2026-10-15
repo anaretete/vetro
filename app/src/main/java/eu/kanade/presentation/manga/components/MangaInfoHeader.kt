@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.appendInlineContent
@@ -290,22 +291,26 @@ fun MangaActionRow(
     }
 
     val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
     val actionRowModifier = if (isGlass) {
         modifier
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .liquidGlassSurface(
-                shape = RoundedCornerShape(20.dp),
-                blurRadius = 16.dp,
-                refractionHeight = 18.dp,
-                refractionAmount = 26.dp,
-                tintColor = if (isSystemInDarkTheme()) Color(0xFF222226).copy(alpha = 0.55f) else Color(0xFFF6F6F6).copy(alpha = 0.70f),
+                shape = RoundedCornerShape(18.dp),
+                blurRadius = 18.dp,
+                refractionHeight = 20.dp,
+                refractionAmount = 30.dp,
+                tintColor = if (isDark) Color(0xFF202024).copy(alpha = 0.55f) else Color(0xFFF2F2F7).copy(alpha = 0.70f),
             )
-            .padding(horizontal = 4.dp, vertical = 6.dp)
+            .padding(horizontal = 2.dp, vertical = 4.dp)
     } else {
         modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)
     }
 
-    Row(modifier = actionRowModifier) {
+    Row(
+        modifier = actionRowModifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         MangaActionButton(
             title = if (favorite) {
                 stringResource(MR.strings.in_library)
@@ -313,10 +318,18 @@ fun MangaActionRow(
                 stringResource(MR.strings.add_to_library)
             },
             icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-            color = if (favorite) MaterialTheme.colorScheme.primary else defaultActionButtonColor,
+            color = if (favorite) (if (isGlass) Color(0xFFFF2D55) else MaterialTheme.colorScheme.primary) else defaultActionButtonColor,
             onClick = onAddToLibraryClicked,
             onLongClick = onEditCategory,
         )
+        if (isGlass) {
+            Box(
+                modifier = Modifier
+                    .width(0.5.dp)
+                    .height(26.dp)
+                    .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+            )
+        }
         MangaActionButton(
             title = when (nextUpdateDays) {
                 null -> stringResource(MR.strings.not_applicable)
@@ -346,6 +359,14 @@ fun MangaActionRow(
             },
             onClick = { onEditIntervalClicked?.invoke() },
         )
+        if (isGlass) {
+            Box(
+                modifier = Modifier
+                    .width(0.5.dp)
+                    .height(26.dp)
+                    .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+            )
+        }
         MangaActionButton(
             title = if (trackingCount == 0) {
                 stringResource(MR.strings.manga_tracking_tab)
@@ -353,20 +374,36 @@ fun MangaActionRow(
                 pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
             },
             icon = if (trackingCount == 0) Icons.Outlined.Sync else Icons.Outlined.Done,
-            color = if (trackingCount == 0) defaultActionButtonColor else MaterialTheme.colorScheme.primary,
+            color = if (trackingCount == 0) defaultActionButtonColor else (if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary),
             onClick = onTrackingClicked,
         )
         if (onWebViewClicked != null) {
+            if (isGlass) {
+                Box(
+                    modifier = Modifier
+                        .width(0.5.dp)
+                        .height(26.dp)
+                        .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+                )
+            }
             MangaActionButton(
                 title = stringResource(MR.strings.action_web_view),
                 icon = Icons.Outlined.Public,
-                color = MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
+                color = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
                 onClick = onWebViewClicked,
                 onLongClick = onWebViewLongClicked,
             )
         }
         // SY -->
         if (onMergeClicked != null) {
+            if (isGlass) {
+                Box(
+                    modifier = Modifier
+                        .width(0.5.dp)
+                        .height(26.dp)
+                        .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+                )
+            }
             MangaActionButton(
                 title = stringResource(SYMR.strings.merge),
                 icon = Icons.AutoMirrored.Outlined.CallMerge,
@@ -1051,22 +1088,27 @@ private fun RowScope.MangaActionButton(
     TextButton(
         onClick = onClick,
         modifier = Modifier.weight(1f),
-        shape = if (isGlass) RoundedCornerShape(14.dp) else RoundedCornerShape(16.dp),
+        shape = if (isGlass) RoundedCornerShape(12.dp) else RoundedCornerShape(16.dp),
+        contentPadding = PaddingValues(vertical = if (isGlass) 6.dp else 8.dp),
         onLongClick = onLongClick,
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(if (isGlass) 22.dp else 20.dp),
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(3.dp))
             Text(
                 text = title,
                 color = color,
                 fontSize = 11.sp,
-                fontWeight = if (isGlass) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
+                fontWeight = if (isGlass) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal,
+                letterSpacing = if (isGlass) (-0.2).sp else 0.sp,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

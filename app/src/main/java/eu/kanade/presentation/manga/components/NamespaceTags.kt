@@ -169,8 +169,25 @@ fun TagsChip(
     pureDarkMode: Boolean = false,
     // KMK <--
 ) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-        if (onClick != null) {
+        if (isGlass) {
+            tachiyomi.presentation.core.components.material.SuggestionChip(
+                modifier = modifier,
+                onClick = onClick ?: {},
+                shape = androidx.compose.foundation.shape.CircleShape,
+                label = {
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+            )
+        } else if (onClick != null) {
             // KMK -->
             if (borderM3 != null || pureDarkMode) {
                 // KMK <--

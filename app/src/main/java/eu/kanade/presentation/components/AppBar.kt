@@ -152,10 +152,16 @@ fun AppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val bgAlpha = backgroundColor?.alpha ?: 1f
+    val isAdaptiveTransparent = isGlass && !isActionMode && bgAlpha < 0.05f
+
     val topAppBarColors = if (isGlass) {
         TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Transparent,
             scrolledContainerColor = Color.Transparent,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
         )
     } else {
         TopAppBarDefaults.topAppBarColors(
@@ -165,20 +171,27 @@ fun AppBar(
         )
     }
     val appModifier = if (isGlass) {
-        modifier
+        val base = modifier
             .statusBarsPadding()
             .padding(horizontal = 12.dp, vertical = 6.dp)
-            .liquidGlassSurface(
+        if (!isAdaptiveTransparent) {
+            base.liquidGlassSurface(
                 shape = Capsule(),
                 blurRadius = 14.dp,
                 refractionHeight = 16.dp,
                 refractionAmount = 24.dp,
             )
+        } else {
+            base
+        }
     } else {
         modifier
     }
 
-    androidx.compose.runtime.CompositionLocalProvider(LocalInGlassBar provides isGlass) {
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalInGlassBar provides isGlass,
+        LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+    ) {
         Column(
             modifier = appModifier,
         ) {
@@ -197,32 +210,29 @@ fun AppBar(
                             // KMK <--
                             navigateUp?.let {
                                 if (isGlass) {
-                                    Row(
+                                    Box(
                                         modifier = Modifier
                                             .padding(start = 4.dp, end = 4.dp)
-                                            .height(34.dp)
-                                            .liquidGlassSurface(
-                                                shape = Capsule(),
-                                                blurRadius = 6.dp,
-                                                refractionHeight = 8.dp,
-                                                tintColor = Color(0xFF0A84FF).copy(alpha = 0.20f),
+                                            .size(38.dp)
+                                            .then(
+                                                if (isAdaptiveTransparent) {
+                                                    Modifier.liquidGlassSurface(
+                                                        shape = CircleShape,
+                                                        blurRadius = 12.dp,
+                                                        refractionHeight = 14.dp,
+                                                        refractionAmount = 20.dp,
+                                                        tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f),
+                                                    )
+                                                } else {
+                                                    Modifier
+                                                },
                                             )
-                                            .clickable(onClick = it)
-                                            .padding(horizontal = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
+                                            .clickable(onClick = it),
+                                        contentAlignment = Alignment.Center,
                                     ) {
                                         UpIcon(
                                             navigationIcon = navigationIcon,
-                                            modifier = Modifier.size(18.dp),
-                                        )
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        Text(
-                                            text = stringResource(MR.strings.action_bar_up_description),
-                                            style = MaterialTheme.typography.labelMedium.copy(
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                color = Color(0xFF0A84FF),
-                                            ),
+                                            modifier = Modifier.size(20.dp),
                                         )
                                     }
                                 } else {
@@ -253,7 +263,28 @@ fun AppBar(
                         titleContent()
                     }
                 },
-                actions = actions,
+                actions = {
+                    if (isAdaptiveTransparent) {
+                        Row(
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .height(38.dp)
+                                .liquidGlassSurface(
+                                    shape = Capsule(),
+                                    blurRadius = 12.dp,
+                                    refractionHeight = 14.dp,
+                                    refractionAmount = 20.dp,
+                                    tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f),
+                                )
+                                .padding(horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            actions()
+                        }
+                    } else {
+                        actions()
+                    }
+                },
                 colors = topAppBarColors,
                 scrollBehavior = scrollBehavior,
                 windowInsets = if (isGlass) WindowInsets(0) else TopAppBarDefaults.windowInsets,

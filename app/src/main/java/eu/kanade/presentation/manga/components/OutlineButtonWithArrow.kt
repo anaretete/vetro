@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import tachiyomi.presentation.core.components.material.padding
 
 @Composable
@@ -29,29 +31,37 @@ fun OutlinedButtonWithArrow(
     modifier: Modifier = Modifier,
     icon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward,
 ) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     OutlinedButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                horizontal = MaterialTheme.padding.medium,
-                vertical = MaterialTheme.padding.small,
+                horizontal = 16.dp,
+                vertical = 6.dp,
             ),
         colors = ButtonDefaults.outlinedButtonColors(),
-        shape = RoundedCornerShape(8.dp),
+        shape = if (isGlass) RoundedCornerShape(16.dp) else RoundedCornerShape(8.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = text,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = if (isGlass) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Medium,
+                    letterSpacing = if (isGlass) (-0.2f).sp else 0.sp,
+                ),
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Icon(
                 imageVector = icon,
-                contentDescription = "Arrow",
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
             )
         }
     }

@@ -62,9 +62,10 @@ fun RelatedMangaCardRow(
     val mangas = relatedMangas.filterIsInstance<RelatedManga.Success>().map { it.mangaList }.flatten()
     val loading = relatedMangas.filterIsInstance<RelatedManga.Loading>().firstOrNull()
 
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     LazyRow(
-        contentPadding = PaddingValues(MaterialTheme.padding.small),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+        contentPadding = PaddingValues(horizontal = if (isGlass) 16.dp else MaterialTheme.padding.small, vertical = MaterialTheme.padding.small),
+        horizontalArrangement = Arrangement.spacedBy(if (isGlass) 12.dp else MaterialTheme.padding.extraSmall),
     ) {
         items(mangas, key = { "related-row-${it.id}" }) {
             val manga by getManga(it)

@@ -3,9 +3,12 @@ package eu.kanade.presentation.manga
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -13,10 +16,14 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -30,6 +37,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallExtendedFloatingActionButton
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -526,8 +537,14 @@ private fun MangaScreenSmallImpl(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            val isFABVisible = remember(chapters) {
-                chapters.fastAny { !it.chapter.read } && !isAnySelected
+            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+            val hasUnread = remember(chapters) {
+                chapters.fastAny { !it.chapter.read }
+            }
+            val isFABVisible = if (isGlass) {
+                hasUnread && !isAnySelected && chapterListState.firstVisibleItemIndex > 1
+            } else {
+                hasUnread && !isAnySelected
             }
             SmallExtendedFloatingActionButton(
                 text = {
@@ -545,6 +562,19 @@ private fun MangaScreenSmallImpl(
                     visible = isFABVisible,
                     alignment = Alignment.BottomEnd,
                 )
+                    .then(
+                        if (isGlass) {
+                            Modifier.liquidGlassSurface(
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                blurRadius = 14.dp,
+                                refractionHeight = 18.dp,
+                                refractionAmount = 28.dp,
+                                tintColor = Color(0xFF007AFF),
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
                     // KMK -->
                     .offset { IntOffset(offsetX.roundToInt(), 0) }
                     .onGloballyPositioned { coordinates ->
@@ -569,7 +599,7 @@ private fun MangaScreenSmallImpl(
                             }
                         }
                     },
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
                 // KMK <--
             )
         },
@@ -606,7 +636,7 @@ private fun MangaScreenSmallImpl(
                     contentPadding = PaddingValues(
                         start = contentPadding.calculateStartPadding(layoutDirection),
                         end = contentPadding.calculateEndPadding(layoutDirection),
-                        bottom = contentPadding.calculateBottomPadding(),
+                        bottom = contentPadding.calculateBottomPadding() + 80.dp,
                     ),
                 ) {
                     item(
@@ -656,6 +686,51 @@ private fun MangaScreenSmallImpl(
                             interval = state.manga.fetchInterval,
                             // KMK <--
                         )
+                    }
+
+                    item(
+                        key = "HERO_RESUME_CTA",
+                        contentType = "HERO_RESUME_CTA",
+                    ) {
+                        val hasUnread = remember(chapters) {
+                            chapters.fastAny { !it.chapter.read }
+                        }
+                        if (hasUnread) {
+                            val isReading = remember(state.chapters) {
+                                state.chapters.fastAny { it.chapter.read }
+                            }
+                            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+                            val buttonText = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start)
+                            tachiyomi.presentation.core.components.material.Button(
+                                onClick = onContinueReading,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .height(46.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                    containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
+                                    contentColor = Color.White,
+                                ),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.PlayArrow,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = buttonText,
+                                    style = MaterialTheme.typography.labelLarge.copy(
+                                        fontSize = 15.sp,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                        letterSpacing = (-0.2f).sp,
+                                        color = Color.White,
+                                    ),
+                                )
+                            }
+                        }
                     }
 
                     // SY -->
@@ -982,6 +1057,7 @@ private fun MangaScreenLargeImpl(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
+            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
             val isFABVisible = remember(chapters) {
                 chapters.fastAny { !it.chapter.read } && !isAnySelected
             }
@@ -1003,6 +1079,19 @@ private fun MangaScreenLargeImpl(
                     visible = isFABVisible,
                     alignment = Alignment.BottomEnd,
                 )
+                    .then(
+                        if (isGlass) {
+                            Modifier.liquidGlassSurface(
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                blurRadius = 14.dp,
+                                refractionHeight = 18.dp,
+                                refractionAmount = 28.dp,
+                                tintColor = Color(0xFF007AFF),
+                            )
+                        } else {
+                            Modifier
+                        },
+                    )
                     // KMK -->
                     .offset { IntOffset(offsetX.roundToInt(), 0) }
                     .onGloballyPositioned { coordinates ->
@@ -1027,7 +1116,7 @@ private fun MangaScreenLargeImpl(
                             }
                         }
                     },
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = if (tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
                 // KMK <--
             )
         },
