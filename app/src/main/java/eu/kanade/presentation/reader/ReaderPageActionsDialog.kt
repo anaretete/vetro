@@ -1,198 +1,257 @@
 package eu.kanade.presentation.reader
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Photo
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import tachiyomi.presentation.core.components.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import eu.kanade.presentation.components.AdaptiveSheet
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
-import tachiyomi.presentation.core.components.ActionButton
-import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.components.material.CupertinoActionSheetCard
+import tachiyomi.presentation.core.components.material.CupertinoAlertDialog
+import tachiyomi.presentation.core.components.material.CupertinoCancelPill
 import tachiyomi.presentation.core.i18n.stringResource
 
 @Composable
 fun ReaderPageActionsDialog(
     onDismissRequest: () -> Unit,
-    onSetAsCover: (/* SY --> */useExtraPage: Boolean/* SY <-- */) -> Unit,
-    onShare: (copyToClipboard: Boolean, /* SY --> */useExtraPage: Boolean/* SY <-- */) -> Unit,
-    onSave: (/* SY --> */useExtraPage: Boolean/* SY <-- */) -> Unit,
-    // SY -->
+    onSetAsCover: (useExtraPage: Boolean) -> Unit,
+    onShare: (copyToClipboard: Boolean, useExtraPage: Boolean) -> Unit,
+    onSave: (useExtraPage: Boolean) -> Unit,
     onShareCombined: (copyToClipboard: Boolean) -> Unit,
     onSaveCombined: () -> Unit,
     hasExtraPage: Boolean,
-    // SY <--
 ) {
     var showSetCoverDialog by remember { mutableStateOf(false) }
-    // SY -->
     var useExtraPage by remember { mutableStateOf(false) }
-    // SY <--
 
-    AdaptiveSheet(onDismissRequest = onDismissRequest) {
-        Column(modifier = Modifier.padding(vertical = 16.dp)) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDismissRequest,
+                )
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .navigationBarsPadding(),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {},
+                    ),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(
-                        // SY -->
-                        if (hasExtraPage) {
-                            SYMR.strings.action_set_first_page_cover
-                        } else {
-                            MR.strings.set_as_cover
-                        },
-                        // SY <--
-                    ),
-                    icon = Icons.Outlined.Photo,
-                    onClick = { showSetCoverDialog = true },
-                )
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(
-                        // SY -->
-                        if (hasExtraPage) {
-                            KMR.strings.action_copy_to_clipboard_first_page
-                        } else {
-                            MR.strings.action_copy_to_clipboard
-                        },
-                        // SY <--
-                    ),
-                    icon = Icons.Outlined.ContentCopy,
-                    onClick = {
-                        // SY -->
-                        onShare(true, false)
-                        // SY <--
-                        onDismissRequest()
-                    },
-                )
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(
-                        // SY -->
-                        if (hasExtraPage) {
-                            SYMR.strings.action_share_first_page
-                        } else {
-                            MR.strings.action_share
-                        },
-                        // SY <--
-                    ),
-                    icon = Icons.Outlined.Share,
-                    onClick = {
-                        // SY -->
-                        onShare(false, false)
-                        // SY <--
-                        onDismissRequest()
-                    },
-                )
-                ActionButton(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(
-                        // SY -->
-                        if (hasExtraPage) {
-                            SYMR.strings.action_save_first_page
-                        } else {
-                            MR.strings.action_save
-                        },
-                        // SY <--
-                    ),
-                    icon = Icons.Outlined.Save,
-                    onClick = {
-                        // SY -->
-                        onSave(false)
-                        // SY <--
-                        onDismissRequest()
-                    },
-                )
-            }
-            if (hasExtraPage) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+                CupertinoActionSheetCard(
+                    modifier = if (hasExtraPage) Modifier.verticalScroll(rememberScrollState()) else Modifier,
                 ) {
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(SYMR.strings.action_set_second_page_cover),
+                    CupertinoActionItem(
+                        title = stringResource(
+                            if (hasExtraPage) SYMR.strings.action_set_first_page_cover else MR.strings.set_as_cover,
+                        ),
                         icon = Icons.Outlined.Photo,
                         onClick = {
+                            useExtraPage = false
                             showSetCoverDialog = true
                         },
                     )
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(KMR.strings.action_copy_to_clipboard_second_page),
+
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    )
+
+                    CupertinoActionItem(
+                        title = stringResource(
+                            if (hasExtraPage) KMR.strings.action_copy_to_clipboard_first_page else MR.strings.action_copy_to_clipboard,
+                        ),
                         icon = Icons.Outlined.ContentCopy,
                         onClick = {
-                            onShare(true, true)
+                            onShare(true, false)
                             onDismissRequest()
                         },
                     )
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(SYMR.strings.action_share_second_page),
+
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    )
+
+                    CupertinoActionItem(
+                        title = stringResource(
+                            if (hasExtraPage) SYMR.strings.action_share_first_page else MR.strings.action_share,
+                        ),
                         icon = Icons.Outlined.Share,
                         onClick = {
-                            onShare(false, true)
+                            onShare(false, false)
                             onDismissRequest()
                         },
                     )
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(SYMR.strings.action_save_second_page),
+
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    )
+
+                    CupertinoActionItem(
+                        title = stringResource(
+                            if (hasExtraPage) SYMR.strings.action_save_first_page else MR.strings.action_save,
+                        ),
                         icon = Icons.Outlined.Save,
                         onClick = {
-                            onSave(true)
+                            onSave(false)
                             onDismissRequest()
                         },
                     )
+
+                    if (hasExtraPage) {
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(SYMR.strings.action_set_second_page_cover),
+                            icon = Icons.Outlined.Photo,
+                            onClick = {
+                                useExtraPage = true
+                                showSetCoverDialog = true
+                            },
+                        )
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(KMR.strings.action_copy_to_clipboard_second_page),
+                            icon = Icons.Outlined.ContentCopy,
+                            onClick = {
+                                onShare(true, true)
+                                onDismissRequest()
+                            },
+                        )
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(SYMR.strings.action_share_second_page),
+                            icon = Icons.Outlined.Share,
+                            onClick = {
+                                onShare(false, true)
+                                onDismissRequest()
+                            },
+                        )
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(SYMR.strings.action_save_second_page),
+                            icon = Icons.Outlined.Save,
+                            onClick = {
+                                onSave(true)
+                                onDismissRequest()
+                            },
+                        )
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(KMR.strings.action_copy_to_clipboard_combined_page),
+                            icon = Icons.Outlined.ContentCopy,
+                            onClick = {
+                                onShareCombined(true)
+                                onDismissRequest()
+                            },
+                        )
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(SYMR.strings.action_share_combined_page),
+                            icon = Icons.Outlined.Share,
+                            onClick = {
+                                onShareCombined(false)
+                                onDismissRequest()
+                            },
+                        )
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+
+                        CupertinoActionItem(
+                            title = stringResource(SYMR.strings.action_save_combined_page),
+                            icon = Icons.Outlined.Save,
+                            onClick = {
+                                onSaveCombined()
+                                onDismissRequest()
+                            },
+                        )
+                    }
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
-                ) {
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(KMR.strings.action_copy_to_clipboard_combined_page),
-                        icon = Icons.Outlined.ContentCopy,
-                        onClick = {
-                            onShareCombined(true)
-                            onDismissRequest()
-                        },
-                    )
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(SYMR.strings.action_share_combined_page),
-                        icon = Icons.Outlined.Share,
-                        onClick = {
-                            onShareCombined(false)
-                            onDismissRequest()
-                        },
-                    )
-                    ActionButton(
-                        modifier = Modifier.weight(1f),
-                        title = stringResource(SYMR.strings.action_save_combined_page),
-                        icon = Icons.Outlined.Save,
-                        onClick = {
-                            onSaveCombined()
-                            onDismissRequest()
-                        },
-                    )
-                }
+
+                CupertinoCancelPill(
+                    onClick = onDismissRequest,
+                    text = stringResource(MR.strings.action_cancel),
+                )
             }
         }
     }
@@ -200,13 +259,45 @@ fun ReaderPageActionsDialog(
     if (showSetCoverDialog) {
         SetCoverDialog(
             onConfirm = {
-                // SY -->
                 onSetAsCover(useExtraPage)
                 showSetCoverDialog = false
                 useExtraPage = false
-                // SY <--
             },
             onDismiss = { showSetCoverDialog = false },
+        )
+    }
+}
+
+@Composable
+private fun CupertinoActionItem(
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isDestructive: Boolean = false,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Normal,
+                color = if (isDestructive) Color(0xFFFF3B30) else MaterialTheme.colorScheme.onSurface,
+            ),
+        )
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (isDestructive) Color(0xFFFF3B30) else Color(0xFF0A84FF),
+            modifier = Modifier.size(22.dp),
         )
     }
 }
@@ -216,20 +307,41 @@ private fun SetCoverDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    CupertinoAlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(MR.strings.set_as_cover))
+        },
         text = {
             Text(stringResource(MR.strings.confirm_set_image_as_cover))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(MR.strings.action_ok))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onConfirm),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(MR.strings.action_ok),
+                    color = Color(0xFF0A84FF),
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(MR.strings.action_cancel))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onDismiss),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(MR.strings.action_cancel),
+                    color = Color(0xFF0A84FF),
+                    fontWeight = FontWeight.Normal,
+                )
             }
         },
-        onDismissRequest = onDismiss,
     )
 }

@@ -43,6 +43,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import tachiyomi.presentation.core.components.material.CupertinoGrabber
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -59,6 +67,10 @@ fun AdaptiveSheet(
 ) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
+    val sheetBg = if (isDark) Color(0xFF202024).copy(alpha = 0.75f) else Color(0xFFFBFBFB).copy(alpha = 0.85f)
+
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
         val alpha by animateFloatAsState(
@@ -72,6 +84,38 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
+        val tabletShape = RoundedCornerShape(24.dp)
+        val tabletModifier: Modifier = if (isGlass) {
+            Modifier
+                .requiredWidthIn(max = 460.dp)
+                .clickable(
+                    interactionSource = null,
+                    indication = null,
+                    onClick = {},
+                )
+                .systemBarsPadding()
+                .padding(vertical = 16.dp)
+                .liquidGlassSurface(
+                    shape = tabletShape,
+                    blurRadius = 22.dp,
+                    refractionHeight = 24.dp,
+                    refractionAmount = 32.dp,
+                    tintColor = sheetBg,
+                )
+                .then(modifier)
+        } else {
+            Modifier
+                .requiredWidthIn(max = 460.dp)
+                .clickable(
+                    interactionSource = null,
+                    indication = null,
+                    onClick = {},
+                )
+                .systemBarsPadding()
+                .padding(vertical = 16.dp)
+                .then(modifier)
+        }
+
         Box(
             modifier = Modifier
                 .clickable(
@@ -84,18 +128,9 @@ fun AdaptiveSheet(
             contentAlignment = Alignment.Center,
         ) {
             Surface(
-                modifier = Modifier
-                    .requiredWidthIn(max = 460.dp)
-                    .clickable(
-                        interactionSource = null,
-                        indication = null,
-                        onClick = {},
-                    )
-                    .systemBarsPadding()
-                    .padding(vertical = 16.dp)
-                    .then(modifier),
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = tabletModifier,
+                shape = tabletShape,
+                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
                 content = {
                     BackHandler(
                         enabled = remember { derivedStateOf { alpha > 0f } }.value,
@@ -123,6 +158,8 @@ fun AdaptiveSheet(
                 scope.launch { anchoredDraggableState.animateTo(1) }
             }
         }
+        val bottomSheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+
         Box(
             modifier = Modifier
                 .clickable(
@@ -140,53 +177,77 @@ fun AdaptiveSheet(
                 },
             contentAlignment = Alignment.BottomCenter,
         ) {
-            Surface(
-                modifier = Modifier
-                    .widthIn(max = 460.dp)
-                    .clickable(
-                        interactionSource = null,
-                        indication = null,
-                        onClick = {},
-                    )
-                    .then(
-                        if (enableSwipeDismiss) {
-                            Modifier.nestedScroll(
-                                remember(anchoredDraggableState) {
-                                    anchoredDraggableState.preUpPostDownNestedScrollConnection {
-                                        scope.launch { anchoredDraggableState.settle(sheetAnimationSpec) }
-                                    }
-                                },
-                            )
-                        } else {
-                            Modifier
-                        },
-                    )
-                    .then(modifier)
-                    .offset {
-                        IntOffset(
-                            0,
-                            anchoredDraggableState.offset
-                                .takeIf { it.isFinite() }
-                                ?.roundToInt()
-                                ?: 0,
+            val phoneBaseModifier = Modifier
+                .widthIn(max = 460.dp)
+                .clickable(
+                    interactionSource = null,
+                    indication = null,
+                    onClick = {},
+                )
+                .then(
+                    if (enableSwipeDismiss) {
+                        Modifier.nestedScroll(
+                            remember(anchoredDraggableState) {
+                                anchoredDraggableState.preUpPostDownNestedScrollConnection {
+                                    scope.launch { anchoredDraggableState.settle(sheetAnimationSpec) }
+                                }
+                            },
                         )
-                    }
-                    .anchoredDraggable(
-                        state = anchoredDraggableState,
-                        orientation = Orientation.Vertical,
-                        enabled = enableSwipeDismiss,
-                        flingBehavior = flingBehavior,
+                    } else {
+                        Modifier
+                    },
+                )
+                .then(modifier)
+                .offset {
+                    IntOffset(
+                        0,
+                        anchoredDraggableState.offset
+                            .takeIf { it.isFinite() }
+                            ?.roundToInt()
+                            ?: 0,
                     )
-                    .navigationBarsPadding()
-                    .statusBarsPadding(),
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                }
+                .anchoredDraggable(
+                    state = anchoredDraggableState,
+                    orientation = Orientation.Vertical,
+                    enabled = enableSwipeDismiss,
+                    flingBehavior = flingBehavior,
+                )
+                .navigationBarsPadding()
+                .statusBarsPadding()
+
+            val phoneModifier: Modifier = if (isGlass) {
+                phoneBaseModifier.liquidGlassSurface(
+                    shape = bottomSheetShape,
+                    blurRadius = 22.dp,
+                    refractionHeight = 24.dp,
+                    refractionAmount = 32.dp,
+                    tintColor = sheetBg,
+                )
+            } else {
+                phoneBaseModifier
+            }
+
+            Surface(
+                modifier = phoneModifier,
+                shape = bottomSheetShape,
+                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
                 content = {
                     BackHandler(
                         enabled = anchoredDraggableState.targetValue == 0,
                         onBack = internalOnDismissRequest,
                     )
-                    content()
+                    if (isGlass) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            CupertinoGrabber()
+                            content()
+                        }
+                    } else {
+                        content()
+                    }
                 },
             )
 

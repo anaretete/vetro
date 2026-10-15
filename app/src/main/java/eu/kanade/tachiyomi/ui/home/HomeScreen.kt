@@ -5,28 +5,49 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.ui.graphics.Color
-import tachiyomi.presentation.core.components.material.LiquidBottomTab
-import tachiyomi.presentation.core.components.material.LiquidBottomTabs
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
@@ -146,49 +167,19 @@ object HomeScreen : Screen() {
                                     .fastFilter { it.isEnabled() }
                                     // SY <--
                                 if (isGlass) {
-                                    val activeBackdrop = LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
-                                        drawRect(if (isDark) Color(0xFF141416) else Color(0xFFFAFAFA))
-                                    }
-                                    val selectedIndex = enabledTabs.indexOfFirst { tabNavigator.current::class == it::class }.coerceAtLeast(0)
-                                    LiquidBottomTabs(
-                                        selectedTabIndex = { selectedIndex },
-                                        onTabSelected = { index ->
-                                            val tab = enabledTabs.getOrNull(index) ?: return@LiquidBottomTabs
-                                            if (selectedIndex != index) {
+                                    val currentTab = tabNavigator.current
+                                    CupertinoLiquidNavBar(
+                                        tabs = enabledTabs,
+                                        currentTab = currentTab,
+                                        onTabSelected = { tab ->
+                                            if (currentTab.key != tab.key) {
                                                 tabNavigator.current = tab
                                             } else {
                                                 scope.launch { tab.onReselect(navigator) }
                                             }
                                         },
-                                        backdrop = activeBackdrop,
-                                        tabsCount = enabledTabs.size,
-                                        modifier = Modifier
-                                            .navigationBarsPadding()
-                                            .padding(horizontal = 20.dp, vertical = 6.dp),
-                                    ) {
-                                        enabledTabs.fastForEach { tab ->
-                                            val isSelected = tabNavigator.current::class == tab::class
-                                            LiquidBottomTab(
-                                                onClick = {
-                                                    if (!isSelected) {
-                                                        tabNavigator.current = tab
-                                                    } else {
-                                                        scope.launch { tab.onReselect(navigator) }
-                                                    }
-                                                },
-                                            ) {
-                                                NavigationIconItem(tab)
-                                                if (alwaysShowLabel) {
-                                                    Text(
-                                                        text = tab.options.title,
-                                                        style = MaterialTheme.typography.labelSmall,
-                                                        maxLines = 1,
-                                                        overflow = TextOverflow.Ellipsis,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
+                                        alwaysShowLabel = alwaysShowLabel,
+                                    )
                                 } else {
                                     NavigationBar {
                                         enabledTabs.fastForEach {
@@ -316,6 +307,122 @@ object HomeScreen : Screen() {
             },
             alwaysShowLabel = /* SY --> */alwaysShowLabel, /* SY <-- */
         )
+    }
+
+    @Composable
+    private fun CupertinoLiquidNavBar(
+        tabs: List<eu.kanade.presentation.util.Tab>,
+        currentTab: cafe.adriel.voyager.navigator.tab.Tab,
+        onTabSelected: (eu.kanade.presentation.util.Tab) -> Unit,
+        modifier: Modifier = Modifier,
+        alwaysShowLabel: Boolean = true,
+    ) {
+        val navBarExportedBackdrop = com.kyant.backdrop.backdrops.rememberLayerBackdrop()
+        val selectedIndex = remember(currentTab, tabs) {
+            tabs.indexOfFirst { it.key == currentTab.key }.coerceAtLeast(0)
+        }
+
+        BoxWithConstraints(
+            modifier = modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(NavigationBarDefaults.windowInsets)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .height(64.dp)
+                .liquidGlassSurface(
+                    shape = CircleShape,
+                    blurRadius = 22.dp,
+                    refractionHeight = 26.dp,
+                    refractionAmount = 38.dp,
+                    exportedBackdrop = navBarExportedBackdrop,
+                )
+                .padding(4.dp),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            val tabWidth = maxWidth / tabs.size.coerceAtLeast(1)
+            val indicatorOffset by animateDpAsState(
+                targetValue = tabWidth * selectedIndex,
+                animationSpec = spring(
+                    dampingRatio = 0.76f,
+                    stiffness = Spring.StiffnessMediumLow,
+                ),
+                label = "iOSNavBarPillOffset",
+            )
+
+            CompositionLocalProvider(LocalLayerBackdrop provides navBarExportedBackdrop) {
+                // 1. Sliding Refractive iOS Glass Pill Indicator (Always tracks selectedIndex reactively!)
+                Box(
+                    modifier = Modifier
+                        .offset(x = indicatorOffset)
+                        .width(tabWidth)
+                        .fillMaxHeight()
+                        .liquidGlassSurface(
+                            shape = CircleShape,
+                            blurRadius = 8.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 28.dp,
+                            tintColor = Color(0xFF0A84FF).copy(alpha = 0.30f),
+                        ),
+                )
+
+                // 2. Interactive Tab Items Foreground
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    tabs.forEach { tab ->
+                        val isSelected = currentTab.key == tab.key
+                        val tabOptions = tab.options
+                        val tintColor by animateColorAsState(
+                            targetValue = if (isSelected) Color(0xFF0A84FF) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                            label = "TabTintColor",
+                        )
+                        val iconScale by animateFloatAsState(
+                            targetValue = if (isSelected) 1.10f else 1.0f,
+                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                            label = "TabIconScale",
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClick = { onTabSelected(tab) },
+                                ),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Box(
+                                modifier = Modifier.graphicsLayer {
+                                    scaleX = iconScale
+                                    scaleY = iconScale
+                                },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CompositionLocalProvider(LocalContentColor provides tintColor) {
+                                    NavigationIconItem(tab)
+                                }
+                            }
+                            if (alwaysShowLabel) {
+                                Text(
+                                    text = tabOptions.title,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp,
+                                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                    ),
+                                    color = tintColor,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Composable

@@ -7,6 +7,7 @@ import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -288,7 +289,23 @@ fun MangaActionRow(
         }
     }
 
-    Row(modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+    val actionRowModifier = if (isGlass) {
+        modifier
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .liquidGlassSurface(
+                shape = RoundedCornerShape(20.dp),
+                blurRadius = 16.dp,
+                refractionHeight = 18.dp,
+                refractionAmount = 26.dp,
+                tintColor = if (isSystemInDarkTheme()) Color(0xFF222226).copy(alpha = 0.55f) else Color(0xFFF6F6F6).copy(alpha = 0.70f),
+            )
+            .padding(horizontal = 4.dp, vertical = 6.dp)
+    } else {
+        modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)
+    }
+
+    Row(modifier = actionRowModifier) {
         MangaActionButton(
             title = if (favorite) {
                 stringResource(MR.strings.in_library)
@@ -1030,10 +1047,11 @@ private fun RowScope.MangaActionButton(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
 ) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     TextButton(
         onClick = onClick,
         modifier = Modifier.weight(1f),
-        shape = RoundedCornerShape(16.dp),
+        shape = if (isGlass) RoundedCornerShape(14.dp) else RoundedCornerShape(16.dp),
         onLongClick = onLongClick,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1047,8 +1065,11 @@ private fun RowScope.MangaActionButton(
             Text(
                 text = title,
                 color = color,
-                fontSize = 12.sp,
+                fontSize = 11.sp,
+                fontWeight = if (isGlass) androidx.compose.ui.text.font.FontWeight.Medium else androidx.compose.ui.text.font.FontWeight.Normal,
                 textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

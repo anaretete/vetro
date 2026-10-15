@@ -17,9 +17,12 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -191,8 +194,27 @@ fun AppBar(
                         Row {
                             // KMK <--
                             navigateUp?.let {
-                                IconButton(onClick = it) {
-                                    UpIcon(navigationIcon = navigationIcon)
+                                if (isGlass) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(start = 4.dp, end = 4.dp)
+                                            .height(34.dp)
+                                            .liquidGlassSurface(
+                                                shape = CircleShape,
+                                                blurRadius = 6.dp,
+                                                refractionHeight = 8.dp,
+                                                tintColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                                            )
+                                            .clickable(onClick = it)
+                                            .padding(horizontal = 8.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        UpIcon(navigationIcon = navigationIcon)
+                                    }
+                                } else {
+                                    IconButton(onClick = it) {
+                                        UpIcon(navigationIcon = navigationIcon)
+                                    }
                                 }
                             }
                             // KMK -->
@@ -221,10 +243,19 @@ fun AppBarTitle(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Column(modifier = modifier) {
         title?.let {
             Text(
                 text = it,
+                style = if (isGlass) {
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                } else {
+                    MaterialTheme.typography.titleLarge
+                },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -232,7 +263,9 @@ fun AppBarTitle(
         subtitle?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 11.sp,
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.basicMarquee(
@@ -374,11 +407,26 @@ fun SearchToolbar(
                 focusManager.moveFocus(FocusDirection.Next)
             }
 
+            val isGlass = LocalLiquidGlassConfig.current.enabled
+            val searchFieldModifier = if (isGlass) {
+                Modifier
+                    .fillMaxWidth()
+                    .height(38.dp)
+                    .liquidGlassSurface(
+                        shape = CircleShape,
+                        blurRadius = 8.dp,
+                        refractionHeight = 10.dp,
+                        tintColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.40f),
+                    )
+                    .padding(horizontal = 12.dp)
+            } else {
+                Modifier.fillMaxWidth()
+            }
+
             BasicTextField(
                 value = searchQuery,
                 onValueChange = onChangeSearchQuery,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = searchFieldModifier
                     .focusRequester(focusRequester)
                     .runOnEnterKeyPressed(action = searchAndClearFocus)
                     .showSoftKeyboard(remember { searchQuery.isEmpty() })
@@ -386,7 +434,7 @@ fun SearchToolbar(
                 textStyle = MaterialTheme.typography.titleMedium.copy(
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Normal,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { searchAndClearFocus() }),

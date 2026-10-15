@@ -12,13 +12,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -111,11 +114,13 @@ fun ReaderAppBars(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val topBarModifier = if (isGlass) {
         Modifier
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
             .liquidGlassSurface(
-                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
-                blurRadius = 16.dp,
-                refractionHeight = 18.dp,
-                refractionAmount = 26.dp,
+                shape = com.kyant.shapes.Capsule(),
+                blurRadius = 18.dp,
+                refractionHeight = 22.dp,
+                refractionAmount = 30.dp,
             )
             .clickable(onClick = onClickTopAppBar)
     } else {
@@ -124,13 +129,14 @@ fun ReaderAppBars(
             .clickable(onClick = onClickTopAppBar)
     }
 
-    Column(modifier = Modifier.fillMaxHeight()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = visible,
             enter = slideInVertically(initialOffsetY = { -it }, animationSpec = readerBarsSlideAnimationSpec) +
                 fadeIn(animationSpec = readerBarsFadeAnimationSpec),
             exit = slideOutVertically(targetOffsetY = { -it }, animationSpec = readerBarsSlideAnimationSpec) +
                 fadeOut(animationSpec = readerBarsFadeAnimationSpec),
+            modifier = Modifier.align(Alignment.TopCenter),
         ) {
             // SY -->
             Column {
@@ -183,9 +189,7 @@ fun ReaderAppBars(
                         animationSpec = readerBarsSlideAnimationSpec,
                     ) +
                         fadeOut(animationSpec = readerBarsFadeAnimationSpec),
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.Start),
+                    modifier = Modifier.align(Alignment.CenterStart),
                 ) {
                     ChapterNavigator(
                         isRtl = isRtl,
@@ -217,9 +221,7 @@ fun ReaderAppBars(
                         animationSpec = readerBarsSlideAnimationSpec,
                     ) +
                         fadeOut(animationSpec = readerBarsFadeAnimationSpec),
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.End),
+                    modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
                     ChapterNavigator(
                         isRtl = isRtl,
@@ -238,7 +240,7 @@ fun ReaderAppBars(
                 }
             }
             // KMK <--
-            else -> Spacer(modifier = Modifier.weight(1f))
+            else -> {}
         }
 
         AnimatedVisibility(
@@ -247,6 +249,7 @@ fun ReaderAppBars(
                 fadeIn(animationSpec = readerBarsFadeAnimationSpec),
             exit = slideOutVertically(targetOffsetY = { it }, animationSpec = readerBarsSlideAnimationSpec) +
                 fadeOut(animationSpec = readerBarsFadeAnimationSpec),
+            modifier = Modifier.align(Alignment.BottomCenter),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small)) {
                 // SY -->

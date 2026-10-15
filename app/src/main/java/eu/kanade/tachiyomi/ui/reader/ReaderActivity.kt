@@ -339,10 +339,19 @@ class ReaderActivity : BaseActivity() {
             }
 
             val readerPageBackdrop = rememberLayerBackdrop()
+
+            // 1. Background layer capturing content
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .layerBackdrop(readerPageBackdrop),
+            ) {
+                ContentOverlay(state = state)
+            }
+
+            // 2. Foreground sibling overlay consuming backdrop (NOT inside layerBackdrop)
+            Box(
+                modifier = Modifier.fillMaxSize(),
             ) {
                 if (!state.menuVisible && showPageNumber) {
                     ReaderPageIndicator(
@@ -355,8 +364,6 @@ class ReaderActivity : BaseActivity() {
                             .navigationBarsPadding(),
                     )
                 }
-
-                ContentOverlay(state = state)
 
                 CompositionLocalProvider(LocalLayerBackdrop provides readerPageBackdrop) {
                     AppBars(state = state)

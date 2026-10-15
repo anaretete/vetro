@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.CheckBox
 import androidx.compose.material.icons.rounded.CheckBoxOutlineBlank
 import androidx.compose.material.icons.rounded.DisabledByDefault
@@ -54,8 +56,11 @@ import dev.icerock.moko.resources.StringResource
 import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.preference.toggle
+import tachiyomi.presentation.core.components.material.CupertinoCheckmark
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.Slider
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.theme.header
@@ -147,13 +152,20 @@ fun CheckboxItem(label: String, pref: Preference<Boolean>) {
 
 @Composable
 fun CheckboxItem(label: String, checked: Boolean, onClick: () -> Unit) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     BaseSettingsItem(
         label = label,
         widget = {
-            Checkbox(
-                checked = checked,
-                onCheckedChange = null,
-            )
+            if (isGlass) {
+                CupertinoCheckmark(
+                    checked = checked,
+                )
+            } else {
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = null,
+                )
+            }
         },
         onClick = onClick,
     )
@@ -161,13 +173,20 @@ fun CheckboxItem(label: String, checked: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun RadioItem(label: String, selected: Boolean, onClick: () -> Unit) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     BaseSettingsItem(
         label = label,
         widget = {
-            RadioButton(
-                selected = selected,
-                onClick = null,
-            )
+            if (isGlass) {
+                CupertinoCheckmark(
+                    checked = selected,
+                )
+            } else {
+                RadioButton(
+                    selected = selected,
+                    onClick = null,
+                )
+            }
         },
         onClick = onClick,
     )
@@ -341,6 +360,8 @@ fun TriStateItem(
     enabled: Boolean = true,
     onClick: ((TriState) -> Unit)?,
 ) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+
     Row(
         modifier = Modifier
             .clickable(
@@ -363,22 +384,49 @@ fun TriStateItem(
     ) {
         val stateAlpha = if (enabled && onClick != null) 1f else DISABLED_ALPHA
 
-        Icon(
-            imageVector = when (state) {
-                TriState.DISABLED -> Icons.Rounded.CheckBoxOutlineBlank
-                TriState.ENABLED_IS -> Icons.Rounded.CheckBox
-                TriState.ENABLED_NOT -> Icons.Rounded.DisabledByDefault
-            },
-            contentDescription = null,
-            tint = if (!enabled || state == TriState.DISABLED) {
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = stateAlpha)
-            } else {
-                when (onClick) {
-                    null -> MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ALPHA)
-                    else -> MaterialTheme.colorScheme.primary
+        if (isGlass) {
+            when (state) {
+                TriState.ENABLED_IS -> CupertinoCheckmark(checked = true)
+                TriState.DISABLED -> CupertinoCheckmark(checked = false)
+                TriState.ENABLED_NOT -> {
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .liquidGlassSurface(
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                blurRadius = 6.dp,
+                                refractionHeight = 8.dp,
+                                tintColor = Color(0xFFFF3B30).copy(alpha = 0.85f),
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
                 }
-            },
-        )
+            }
+        } else {
+            Icon(
+                imageVector = when (state) {
+                    TriState.DISABLED -> Icons.Rounded.CheckBoxOutlineBlank
+                    TriState.ENABLED_IS -> Icons.Rounded.CheckBox
+                    TriState.ENABLED_NOT -> Icons.Rounded.DisabledByDefault
+                },
+                contentDescription = null,
+                tint = if (!enabled || state == TriState.DISABLED) {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = stateAlpha)
+                } else {
+                    when (onClick) {
+                        null -> MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ALPHA)
+                        else -> MaterialTheme.colorScheme.primary
+                    }
+                },
+            )
+        }
         Text(
             text = label,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
