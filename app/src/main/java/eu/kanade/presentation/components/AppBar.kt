@@ -17,11 +17,16 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import com.kyant.shapes.Capsule
 import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.LocalContentColor
+import tachiyomi.presentation.core.components.material.LocalInGlassBar
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.material3.MaterialTheme
@@ -155,52 +160,58 @@ fun AppBar(
         )
     }
     val appModifier = if (isGlass) {
-        modifier.liquidGlassSurface(
-            shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
-            blurRadius = 16.dp,
-            refractionHeight = 18.dp,
-            refractionAmount = 28.dp,
-        )
+        modifier
+            .statusBarsPadding()
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .liquidGlassSurface(
+                shape = Capsule(),
+                blurRadius = 14.dp,
+                refractionHeight = 16.dp,
+                refractionAmount = 24.dp,
+            )
     } else {
         modifier
     }
 
-    Column(
-        modifier = appModifier,
-    ) {
-        TopAppBar(
-            navigationIcon = {
-                if (isActionMode) {
-                    IconButton(onClick = onCancelActionMode) {
-                        Icon(
-                            imageVector = Icons.Outlined.Close,
-                            contentDescription = stringResource(MR.strings.action_cancel),
-                        )
-                    }
-                } else {
-                    // KMK -->
-                    Row {
-                        // KMK <--
-                        navigateUp?.let {
-                            IconButton(onClick = it) {
-                                UpIcon(navigationIcon = navigationIcon)
-                            }
+    androidx.compose.runtime.CompositionLocalProvider(LocalInGlassBar provides isGlass) {
+        Column(
+            modifier = appModifier,
+        ) {
+            TopAppBar(
+                navigationIcon = {
+                    if (isActionMode) {
+                        IconButton(onClick = onCancelActionMode) {
+                            Icon(
+                                imageVector = Icons.Outlined.Close,
+                                contentDescription = stringResource(MR.strings.action_cancel),
+                            )
                         }
+                    } else {
                         // KMK -->
-                        goHome?.let {
-                            IconButton(onClick = { it.invoke() }) {
-                                UpIcon(navigationIcon = Icons.Filled.Home)
+                        Row {
+                            // KMK <--
+                            navigateUp?.let {
+                                IconButton(onClick = it) {
+                                    UpIcon(navigationIcon = navigationIcon)
+                                }
                             }
+                            // KMK -->
+                            goHome?.let {
+                                IconButton(onClick = { it.invoke() }) {
+                                    UpIcon(navigationIcon = Icons.Filled.Home)
+                                }
+                            }
+                            // KMK <--
                         }
-                        // KMK <--
                     }
-                }
-            },
-            title = titleContent,
-            actions = actions,
-            colors = topAppBarColors,
-            scrollBehavior = scrollBehavior,
-        )
+                },
+                title = titleContent,
+                actions = actions,
+                colors = topAppBarColors,
+                scrollBehavior = scrollBehavior,
+                windowInsets = if (isGlass) WindowInsets(0) else TopAppBarDefaults.windowInsets,
+            )
+        }
     }
 }
 

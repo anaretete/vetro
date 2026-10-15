@@ -204,9 +204,7 @@ object HomeScreen : Screen() {
                     val isGlass = LocalLiquidGlassConfig.current.enabled
                     Box(
                         modifier = if (isGlass) {
-                            Modifier
-                                .fillMaxSize()
-                                .padding(top = contentPadding.calculateTopPadding())
+                            Modifier.fillMaxSize()
                         } else {
                             Modifier
                                 .padding(contentPadding)

@@ -15,6 +15,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.kyant.shapes.RoundedRectangle
 
 @Composable
 fun AlertDialogContent(
@@ -75,9 +76,22 @@ fun AlertDialogContent(
     title: (@Composable () -> Unit)? = null,
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val dialogModifier = if (isGlass) {
+        modifier
+            .sizeIn(minWidth = MinWidth, maxWidth = MaxWidth)
+            .liquidGlassSurface(
+                shape = RoundedRectangle(28.dp),
+                blurRadius = 16.dp,
+                refractionHeight = 20.dp,
+                refractionAmount = 32.dp,
+            )
+    } else {
+        modifier
+            .sizeIn(minWidth = MinWidth, maxWidth = MaxWidth)
+    }
     Column(
-        modifier = modifier
-            .sizeIn(minWidth = MinWidth, maxWidth = MaxWidth),
+        modifier = dialogModifier,
     ) {
         if (icon != null || title != null) {
             Column(

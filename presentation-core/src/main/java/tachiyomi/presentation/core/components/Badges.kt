@@ -28,7 +28,10 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.kyant.shapes.Capsule
 import kotlinx.collections.immutable.persistentMapOf
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 
 @Composable
 fun BadgeGroup(
@@ -36,11 +39,23 @@ fun BadgeGroup(
     shape: Shape = MaterialTheme.shapes.extraSmall,
     content: @Composable RowScope.() -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val groupModifier = if (isGlass) {
+        modifier
+            .liquidGlassSurface(
+                shape = Capsule(),
+                blurRadius = 6.dp,
+                refractionHeight = 6.dp,
+                refractionAmount = 10.dp,
+            )
+            .height(18.dp)
+    } else {
+        modifier
+            .clip(shape)
+            .height(18.dp)
+    }
     Row(
-        modifier = modifier.clip(shape)
-            // KMK -->
-            .height(18.dp),
-        // KMK <--
+        modifier = groupModifier,
     ) {
         content()
     }
@@ -54,12 +69,19 @@ fun Badge(
     textColor: Color = MaterialTheme.colorScheme.onSecondary,
     shape: Shape = RectangleShape,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Text(
         text = text,
         modifier = modifier
             .clip(shape)
-            .background(color)
-            .padding(horizontal = 3.dp, vertical = 1.dp),
+            .then(
+                if (isGlass) {
+                    Modifier.background(color.copy(alpha = 0.45f))
+                } else {
+                    Modifier.background(color)
+                },
+            )
+            .padding(horizontal = 4.dp, vertical = 1.dp),
         color = textColor,
         fontWeight = FontWeight.Medium,
         maxLines = 1,

@@ -18,13 +18,18 @@
 
 package tachiyomi.presentation.core.components.material
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.luminance
 import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -156,12 +161,27 @@ fun Scaffold(
                 }
             },
             content = { innerPadding ->
+                val isDark = containerColor.luminance() < 0.5f
+                val ambientBackdrop = rememberCanvasBackdrop {
+                    drawRect(containerColor)
+                    drawRect(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                if (isDark) Color(0x33FFFFFF) else Color(0x22000000),
+                                Color.Transparent,
+                            ),
+                            center = Offset(size.width * 0.5f, size.height * 0.3f),
+                            radius = size.maxDimension * 0.85f,
+                        ),
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .background(containerColor)
                         .layerBackdrop(scaffoldBackdrop),
                 ) {
-                    CompositionLocalProvider(LocalLayerBackdrop provides null) {
+                    CompositionLocalProvider(LocalLayerBackdrop provides ambientBackdrop) {
                         content(innerPadding)
                     }
                 }

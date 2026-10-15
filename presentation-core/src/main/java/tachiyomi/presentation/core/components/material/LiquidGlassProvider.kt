@@ -50,6 +50,12 @@ val LocalLiquidGlassConfig = staticCompositionLocalOf { LiquidGlassConfig() }
 val LocalLayerBackdrop = staticCompositionLocalOf<Backdrop?> { null }
 
 /**
+ * Indicates whether a component is nested inside an existing Liquid Glass bar or capsule.
+ * Child icon buttons use this to avoid drawing redundant, high-contrast outer lens rims.
+ */
+val LocalInGlassBar = staticCompositionLocalOf { false }
+
+/**
  * Universal Modifier that transforms ANY Composable (Button, IconButton, FAB, Chip, NavBar, AppBar)
  * into a refractive, spring-animated Kyant Liquid Glass lens with AGSL shaders.
  */
@@ -138,6 +144,16 @@ fun Modifier.liquidGlassSurface(
                 drawRect(surfaceColor)
             } else {
                 drawRect(baseTint)
+                drawRect(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            if (isDark) Color.White.copy(alpha = 0.09f) else Color.White.copy(alpha = 0.22f),
+                            Color.Transparent,
+                        ),
+                        start = Offset(0f, 0f),
+                        end = Offset(size.width * 0.5f, size.height),
+                    ),
+                )
             }
         },
     )

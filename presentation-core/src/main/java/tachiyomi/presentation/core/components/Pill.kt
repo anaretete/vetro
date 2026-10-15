@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 
 @Composable
 fun Pill(
@@ -22,11 +25,24 @@ fun Pill(
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     style: TextStyle = LocalTextStyle.current,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val pillModifier = if (isGlass) {
+        modifier
+            .padding(start = 4.dp)
+            .liquidGlassSurface(
+                shape = Capsule(),
+                blurRadius = 6.dp,
+                refractionHeight = 8.dp,
+                refractionAmount = 10.dp,
+            )
+    } else {
+        modifier.padding(start = 4.dp)
+    }
+
     Surface(
-        modifier = modifier
-            .padding(start = 4.dp),
-        shape = MaterialTheme.shapes.extraLarge,
-        color = color,
+        modifier = pillModifier,
+        shape = if (isGlass) Capsule() else MaterialTheme.shapes.extraLarge,
+        color = if (isGlass) Color.Transparent else color,
         contentColor = contentColor,
     ) {
         Box(

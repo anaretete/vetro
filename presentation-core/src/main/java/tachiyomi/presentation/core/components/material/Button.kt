@@ -266,15 +266,21 @@ fun IconButton(
     content: @Composable () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    M3IconButton(
-        onClick = onClick,
-        modifier = modifier.liquidGlassSurface(
+    val inGlassBar = LocalInGlassBar.current
+    val buttonModifier = if (isGlass && !inGlassBar) {
+        modifier.liquidGlassSurface(
             shape = CircleShape,
             interactionSource = interactionSource,
             blurRadius = 10.dp,
             refractionHeight = 12.dp,
             refractionAmount = 18.dp,
-        ),
+        )
+    } else {
+        modifier
+    }
+    M3IconButton(
+        onClick = onClick,
+        modifier = buttonModifier,
         enabled = enabled,
         colors = if (isGlass) IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent) else colors,
         interactionSource = interactionSource,
@@ -293,13 +299,19 @@ fun FilledIconButton(
     content: @Composable () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    M3FilledIconButton(
-        onClick = onClick,
-        modifier = modifier.liquidGlassSurface(
+    val inGlassBar = LocalInGlassBar.current
+    val buttonModifier = if (isGlass && !inGlassBar) {
+        modifier.liquidGlassSurface(
             shape = shape,
             interactionSource = interactionSource,
             tintColor = MaterialTheme.colorScheme.primary,
-        ),
+        )
+    } else {
+        modifier
+    }
+    M3FilledIconButton(
+        onClick = onClick,
+        modifier = buttonModifier,
         enabled = enabled,
         shape = shape,
         colors = if (isGlass) IconButtonDefaults.filledIconButtonColors(containerColor = Color.Transparent) else colors,
@@ -319,13 +331,19 @@ fun FilledTonalIconButton(
     content: @Composable () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    M3FilledTonalIconButton(
-        onClick = onClick,
-        modifier = modifier.liquidGlassSurface(
+    val inGlassBar = LocalInGlassBar.current
+    val buttonModifier = if (isGlass && !inGlassBar) {
+        modifier.liquidGlassSurface(
             shape = shape,
             interactionSource = interactionSource,
             tintColor = MaterialTheme.colorScheme.secondaryContainer,
-        ),
+        )
+    } else {
+        modifier
+    }
+    M3FilledTonalIconButton(
+        onClick = onClick,
+        modifier = buttonModifier,
         enabled = enabled,
         shape = shape,
         colors = if (isGlass) IconButtonDefaults.filledTonalIconButtonColors(containerColor = Color.Transparent) else colors,

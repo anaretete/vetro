@@ -38,6 +38,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalInGlassBar
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -90,94 +95,111 @@ fun MangaBottomActionMenu(
         exit = shrinkVertically(shrinkTowards = Alignment.Bottom),
     ) {
         val scope = rememberCoroutineScope()
-        Surface(
-            modifier = modifier,
-            shape = MaterialTheme.shapes.large.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-            val haptic = LocalHapticFeedback.current
-            val confirm = remember { mutableStateListOf(false, false, false, false, false, false, false) }
-            var resetJob by remember { mutableStateOf<Job?>(null) }
-            val onLongClickItem: (Int) -> Unit = { toConfirmIndex ->
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                confirm.indices.forEach { i -> confirm[i] = i == toConfirmIndex }
-                resetJob?.cancel()
-                resetJob = scope.launch {
-                    delay(1.seconds)
-                    if (isActive) confirm[toConfirmIndex] = false
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .padding(
-                        WindowInsets.navigationBars
-                            .only(WindowInsetsSides.Bottom)
-                            .asPaddingValues(),
-                    )
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+        val isGlass = LocalLiquidGlassConfig.current.enabled
+        val menuModifier = if (isGlass) {
+            modifier
+                .padding(horizontal = 14.dp, vertical = 6.dp)
+                .liquidGlassSurface(
+                    shape = Capsule(),
+                    blurRadius = 14.dp,
+                    refractionHeight = 16.dp,
+                    refractionAmount = 24.dp,
+                )
+        } else {
+            modifier
+        }
+        val menuShape = if (isGlass) Capsule() else MaterialTheme.shapes.large.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)
+        val menuColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh
+        androidx.compose.runtime.CompositionLocalProvider(LocalInGlassBar provides isGlass) {
+            Surface(
+                modifier = menuModifier,
+                shape = menuShape,
+                color = menuColor,
             ) {
-                if (onBookmarkClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_bookmark),
-                        icon = Icons.Outlined.BookmarkAdd,
-                        toConfirm = confirm[0],
-                        onLongClick = { onLongClickItem(0) },
-                        onClick = onBookmarkClicked,
-                    )
+                val haptic = LocalHapticFeedback.current
+                val confirm = remember { mutableStateListOf(false, false, false, false, false, false, false) }
+                var resetJob by remember { mutableStateOf<Job?>(null) }
+                val onLongClickItem: (Int) -> Unit = { toConfirmIndex ->
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    confirm.indices.forEach { i -> confirm[i] = i == toConfirmIndex }
+                    resetJob?.cancel()
+                    resetJob = scope.launch {
+                        delay(1.seconds)
+                        if (isActive) confirm[toConfirmIndex] = false
+                    }
                 }
-                if (onRemoveBookmarkClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_remove_bookmark),
-                        icon = Icons.Outlined.BookmarkRemove,
-                        toConfirm = confirm[1],
-                        onLongClick = { onLongClickItem(1) },
-                        onClick = onRemoveBookmarkClicked,
-                    )
-                }
-                if (onMarkAsReadClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_mark_as_read),
-                        icon = Icons.Outlined.DoneAll,
-                        toConfirm = confirm[2],
-                        onLongClick = { onLongClickItem(2) },
-                        onClick = onMarkAsReadClicked,
-                    )
-                }
-                if (onMarkAsUnreadClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_mark_as_unread),
-                        icon = Icons.Outlined.RemoveDone,
-                        toConfirm = confirm[3],
-                        onLongClick = { onLongClickItem(3) },
-                        onClick = onMarkAsUnreadClicked,
-                    )
-                }
-                if (onMarkPreviousAsReadClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_mark_previous_as_read),
-                        icon = ImageVector.vectorResource(R.drawable.ic_done_prev_24dp),
-                        toConfirm = confirm[4],
-                        onLongClick = { onLongClickItem(4) },
-                        onClick = onMarkPreviousAsReadClicked,
-                    )
-                }
-                if (onDownloadClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_download),
-                        icon = Icons.Outlined.Download,
-                        toConfirm = confirm[5],
-                        onLongClick = { onLongClickItem(5) },
-                        onClick = onDownloadClicked,
-                    )
-                }
-                if (onDeleteClicked != null) {
-                    Button(
-                        title = stringResource(MR.strings.action_delete),
-                        icon = Icons.Outlined.Delete,
-                        toConfirm = confirm[6],
-                        onLongClick = { onLongClickItem(6) },
-                        onClick = onDeleteClicked,
-                    )
+                Row(
+                    modifier = Modifier
+                        .padding(
+                            WindowInsets.navigationBars
+                                .only(WindowInsetsSides.Bottom)
+                                .asPaddingValues(),
+                        )
+                        .padding(horizontal = 8.dp, vertical = 12.dp),
+                ) {
+                    if (onBookmarkClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_bookmark),
+                            icon = Icons.Outlined.BookmarkAdd,
+                            toConfirm = confirm[0],
+                            onLongClick = { onLongClickItem(0) },
+                            onClick = onBookmarkClicked,
+                        )
+                    }
+                    if (onRemoveBookmarkClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_remove_bookmark),
+                            icon = Icons.Outlined.BookmarkRemove,
+                            toConfirm = confirm[1],
+                            onLongClick = { onLongClickItem(1) },
+                            onClick = onRemoveBookmarkClicked,
+                        )
+                    }
+                    if (onMarkAsReadClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_mark_as_read),
+                            icon = Icons.Outlined.DoneAll,
+                            toConfirm = confirm[2],
+                            onLongClick = { onLongClickItem(2) },
+                            onClick = onMarkAsReadClicked,
+                        )
+                    }
+                    if (onMarkAsUnreadClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_mark_as_unread),
+                            icon = Icons.Outlined.RemoveDone,
+                            toConfirm = confirm[3],
+                            onLongClick = { onLongClickItem(3) },
+                            onClick = onMarkAsUnreadClicked,
+                        )
+                    }
+                    if (onMarkPreviousAsReadClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_mark_previous_as_read),
+                            icon = ImageVector.vectorResource(R.drawable.ic_done_prev_24dp),
+                            toConfirm = confirm[4],
+                            onLongClick = { onLongClickItem(4) },
+                            onClick = onMarkPreviousAsReadClicked,
+                        )
+                    }
+                    if (onDownloadClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_download),
+                            icon = Icons.Outlined.Download,
+                            toConfirm = confirm[5],
+                            onLongClick = { onLongClickItem(5) },
+                            onClick = onDownloadClicked,
+                        )
+                    }
+                    if (onDeleteClicked != null) {
+                        Button(
+                            title = stringResource(MR.strings.action_delete),
+                            icon = Icons.Outlined.Delete,
+                            toConfirm = confirm[6],
+                            onLongClick = { onLongClickItem(6) },
+                            onClick = onDeleteClicked,
+                        )
+                    }
                 }
             }
         }
