@@ -33,6 +33,9 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedRectangularShape
 
 @Immutable
 data class LiquidGlassConfig(
@@ -120,19 +123,28 @@ fun Modifier.liquidGlassSurface(
         if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.35f)
     }
 
+    val safeShape = when (shape) {
+        is CornerBasedShape -> shape
+        is RoundedRectangularShape -> shape
+        else -> RoundedCornerShape(0.dp)
+    }
+
     val backdropModifier = Modifier.drawBackdrop(
         backdrop = activeBackdrop,
-        shape = { shape },
+        shape = { safeShape },
         exportedBackdrop = exportedBackdrop,
         effects = {
             vibrancy()
             blur(blurRadius.toPx())
-            lens(
-                refractionHeight = refractionHeight.toPx() * config.refractionMultiplier,
-                refractionAmount = dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier,
-                depthEffect = true,
-                chromaticAberration = config.chromaticAberration,
-            )
+            try {
+                lens(
+                    refractionHeight = refractionHeight.toPx() * config.refractionMultiplier,
+                    refractionAmount = dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier,
+                    depthEffect = true,
+                    chromaticAberration = config.chromaticAberration,
+                )
+            } catch (_: UnsupportedOperationException) {
+            }
         },
         highlight = { Highlight.Default },
         shadow = { Shadow.Default },

@@ -62,7 +62,6 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
@@ -179,7 +178,7 @@ fun AppBar(
             modifier
                 .fillMaxWidth()
                 .liquidGlassSurface(
-                    shape = RectangleShape,
+                    shape = RoundedCornerShape(0.dp),
                     blurRadius = 24.dp,
                     refractionHeight = 18.dp,
                     refractionAmount = 26.dp,
