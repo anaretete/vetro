@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.more.settings.LocalPreferenceHighlighted
 import eu.kanade.presentation.more.settings.LocalPreferenceMinHeight
 import kotlinx.coroutines.delay
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -45,6 +46,7 @@ internal fun BasePreferenceWidget(
 ) {
     val highlighted = LocalPreferenceHighlighted.current
     val minHeight = LocalPreferenceMinHeight.current
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Row(
         modifier = modifier
             .highlightBackground(highlighted)
@@ -55,7 +57,7 @@ internal fun BasePreferenceWidget(
     ) {
         if (icon != null) {
             Box(
-                modifier = Modifier.padding(start = PrefsHorizontalPadding, end = 8.dp),
+                modifier = Modifier.padding(start = PrefsHorizontalPadding, end = if (isGlass) 12.dp else 8.dp),
                 content = { icon() },
             )
         }
@@ -66,7 +68,10 @@ internal fun BasePreferenceWidget(
         ) {
             if (!title.isNullOrBlank()) {
                 Text(
-                    modifier = Modifier.padding(horizontal = PrefsHorizontalPadding),
+                    modifier = Modifier.padding(
+                        start = if (icon != null) 0.dp else PrefsHorizontalPadding,
+                        end = PrefsHorizontalPadding,
+                    ),
                     text = title,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2,
@@ -119,7 +124,7 @@ internal fun Modifier.highlightBackground(highlighted: Boolean): Modifier {
     return this.background(color = highlight)
 }
 
-internal val TrailingWidgetBuffer = 16.dp
+internal val TrailingWidgetBuffer = 12.dp
 internal val PrefsHorizontalPadding = 16.dp
-internal val PrefsVerticalPadding = 16.dp
-internal val TitleFontSize = 16.sp
+internal val PrefsVerticalPadding = 11.dp
+internal val TitleFontSize = 17.sp

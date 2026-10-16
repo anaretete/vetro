@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import tachiyomi.presentation.core.components.material.CupertinoCheckmark
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.padding
@@ -40,11 +42,18 @@ fun LabeledCheckbox(
                         onCheckedChange(!checked)
                     }
                 },
-            ),
+            )
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        horizontalArrangement = if (isGlass) Arrangement.SpaceBetween else Arrangement.spacedBy(MaterialTheme.padding.small),
     ) {
         if (isGlass) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
             CupertinoCheckmark(
                 checked = checked,
             )
@@ -54,8 +63,7 @@ fun LabeledCheckbox(
                 onCheckedChange = null,
                 enabled = enabled,
             )
+            Text(text = label)
         }
-
-        Text(text = label)
     }
 }

@@ -101,31 +101,46 @@ fun PreferenceScreen(
                                     PreferenceGroupHeader(title = chunk.group.title)
                                 }
                             }
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                                        .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
-                                        .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
-                                ) {
-                                    Column {
-                                        chunk.group.preferenceItems.forEachIndexed { itemIndex, item ->
-                                            PreferenceItem(
-                                                item = item,
-                                                highlightKey = highlightKey,
-                                            )
-                                            if (itemIndex < chunk.group.preferenceItems.lastIndex) {
-                                                HorizontalDivider(
-                                                    modifier = Modifier.padding(
-                                                        start = if (item.icon != null) 54.dp else 16.dp,
-                                                    ),
-                                                    thickness = 0.5.dp,
-                                                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                            val trailingInfoItems = chunk.group.preferenceItems
+                                .takeLastWhile { it is Preference.PreferenceItem.InfoPreference }
+                            val cardItems = chunk.group.preferenceItems
+                                .dropLast(trailingInfoItems.size)
+
+                            if (cardItems.isNotEmpty()) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                                            .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
+                                            .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
+                                    ) {
+                                        Column {
+                                            cardItems.forEachIndexed { itemIndex, item ->
+                                                PreferenceItem(
+                                                    item = item,
+                                                    highlightKey = highlightKey,
                                                 )
+                                                if (itemIndex < cardItems.lastIndex) {
+                                                    HorizontalDivider(
+                                                        modifier = Modifier.padding(
+                                                            start = if (item.icon != null) 58.dp else 16.dp,
+                                                        ),
+                                                        thickness = 0.5.dp,
+                                                        color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                                    )
+                                                }
                                             }
                                         }
                                     }
+                                }
+                            }
+                            trailingInfoItems.forEach { infoItem ->
+                                item {
+                                    PreferenceItem(
+                                        item = infoItem,
+                                        highlightKey = highlightKey,
+                                    )
                                 }
                             }
                             item {
@@ -133,31 +148,46 @@ fun PreferenceScreen(
                             }
                         }
                         is PreferenceGroupChunk.Standalone -> {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                                        .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
-                                        .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
-                                ) {
-                                    Column {
-                                        chunk.items.forEachIndexed { itemIndex, item ->
-                                            PreferenceItem(
-                                                item = item,
-                                                highlightKey = highlightKey,
-                                            )
-                                            if (itemIndex < chunk.items.lastIndex) {
-                                                HorizontalDivider(
-                                                    modifier = Modifier.padding(
-                                                        start = if (item.icon != null) 54.dp else 16.dp,
-                                                    ),
-                                                    thickness = 0.5.dp,
-                                                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                            val trailingInfoItems = chunk.items
+                                .takeLastWhile { it is Preference.PreferenceItem.InfoPreference }
+                            val cardItems = chunk.items
+                                .dropLast(trailingInfoItems.size)
+
+                            if (cardItems.isNotEmpty()) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                                            .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
+                                            .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
+                                    ) {
+                                        Column {
+                                            cardItems.forEachIndexed { itemIndex, item ->
+                                                PreferenceItem(
+                                                    item = item,
+                                                    highlightKey = highlightKey,
                                                 )
+                                                if (itemIndex < cardItems.lastIndex) {
+                                                    HorizontalDivider(
+                                                        modifier = Modifier.padding(
+                                                            start = if (item.icon != null) 58.dp else 16.dp,
+                                                        ),
+                                                        thickness = 0.5.dp,
+                                                        color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                                    )
+                                                }
                                             }
                                         }
                                     }
+                                }
+                            }
+                            trailingInfoItems.forEach { infoItem ->
+                                item {
+                                    PreferenceItem(
+                                        item = infoItem,
+                                        highlightKey = highlightKey,
+                                    )
                                 }
                             }
                             item {

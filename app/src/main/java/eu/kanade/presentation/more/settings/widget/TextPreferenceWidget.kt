@@ -24,6 +24,7 @@ import tachiyomi.presentation.core.util.secondaryItemAlpha
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 
 @Composable
@@ -36,6 +37,7 @@ fun TextPreferenceWidget(
     icon: Any? = null,
     // KMK <--
     iconTint: Color = MaterialTheme.colorScheme.primary,
+    iconContent: @Composable (() -> Unit)? = null,
     widget: @Composable (() -> Unit)? = null,
     onPreferenceClick: (() -> Unit)? = null,
 ) {
@@ -58,14 +60,24 @@ fun TextPreferenceWidget(
         title = title,
         subcomponent = if (!subtitle.isNullOrBlank()) {
             {
+                val textStartPadding = if (icon != null || iconContent != null) 0.dp else PrefsHorizontalPadding
+                val subtitleStyle = if (isGlass) {
+                    MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 13.sp,
+                        lineHeight = 17.sp,
+                        color = Color(0xFF8E8E93),
+                    )
+                } else {
+                    MaterialTheme.typography.bodySmall
+                }
                 // SY -->
                 if (subtitle is AnnotatedString) {
                     Text(
                         text = subtitle,
                         modifier = Modifier
-                            .padding(horizontal = PrefsHorizontalPadding)
+                            .padding(start = textStartPadding, end = PrefsHorizontalPadding)
                             .secondaryItemAlpha(),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = subtitleStyle,
                         maxLines = 10,
                     )
                 } else {
@@ -73,9 +85,9 @@ fun TextPreferenceWidget(
                     Text(
                         text = subtitle.toString(),
                         modifier = Modifier
-                            .padding(horizontal = PrefsHorizontalPadding)
+                            .padding(start = textStartPadding, end = PrefsHorizontalPadding)
                             .secondaryItemAlpha(),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = subtitleStyle,
                         maxLines = 10,
                     )
                 }
@@ -83,22 +95,26 @@ fun TextPreferenceWidget(
         } else {
             null
         },
-        icon = {
-            if (icon != null && icon is ImageVector) {
-                Icon(
-                    imageVector = icon,
-                    tint = iconTint,
-                    contentDescription = null,
-                )
+        icon = iconContent ?: if (icon != null) {
+            {
+                if (icon is ImageVector) {
+                    Icon(
+                        imageVector = icon,
+                        tint = iconTint,
+                        contentDescription = null,
+                    )
                 // KMK -->
-            } else if (icon != null && icon is Painter) {
-                Icon(
-                    painter = icon,
-                    tint = iconTint,
-                    contentDescription = null,
-                )
+                } else if (icon is Painter) {
+                    Icon(
+                        painter = icon,
+                        tint = iconTint,
+                        contentDescription = null,
+                    )
                 // KMK <--
+                }
             }
+        } else {
+            null
         },
         onClick = onPreferenceClick,
         widget = effectiveWidget,

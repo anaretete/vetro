@@ -2,14 +2,22 @@ package eu.kanade.presentation.more.settings.screen.about
 
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,11 +25,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.RoundedRectangle
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.more.LogoHeader
@@ -78,6 +91,10 @@ class AboutScreen : Screen() {
         var isCheckingWhatsComing by remember { mutableStateOf(false) }
         // KMK <--
 
+        val isGlass = LocalLiquidGlassConfig.current.enabled
+        val isDark = isSystemInDarkTheme()
+        val containerColor = if (isGlass) (if (isDark) Color(0xFF000000) else Color(0xFFF2F2F7)) else MaterialTheme.colorScheme.background
+
         Scaffold(
             topBar = { scrollBehavior ->
                 AppBar(
@@ -86,6 +103,7 @@ class AboutScreen : Screen() {
                     scrollBehavior = scrollBehavior,
                 )
             },
+            containerColor = containerColor,
         ) { contentPadding ->
             ScrollbarLazyColumn(
                 contentPadding = contentPadding,
@@ -94,100 +112,253 @@ class AboutScreen : Screen() {
                     LogoHeader()
                 }
 
-                item {
-                    TextPreferenceWidget(
-                        title = stringResource(MR.strings.version),
-                        subtitle = getVersionName(withBuildDate = true),
-                        onPreferenceClick = {
-                            val deviceInfo = CrashLogUtil(context).getDebugInfo()
-                            context.copyToClipboard("Debug information", deviceInfo)
-                        },
-                    )
-                }
-
-                if (updaterEnabled) {
+                if (isGlass) {
                     item {
-                        TextPreferenceWidget(
-                            title = stringResource(MR.strings.check_for_updates),
-                            widget = {
-                                AnimatedVisibility(visible = isCheckingUpdates) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(28.dp),
-                                        strokeWidth = 3.dp,
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                                .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
+                                .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
+                        ) {
+                            Column {
+                                TextPreferenceWidget(
+                                    title = stringResource(MR.strings.version),
+                                    subtitle = getVersionName(withBuildDate = true),
+                                    onPreferenceClick = {
+                                        val deviceInfo = CrashLogUtil(context).getDebugInfo()
+                                        context.copyToClipboard("Debug information", deviceInfo)
+                                    },
+                                )
+                                if (updaterEnabled) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        thickness = 0.5.dp,
+                                        color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                    )
+                                    TextPreferenceWidget(
+                                        title = stringResource(MR.strings.check_for_updates),
+                                        widget = {
+                                            AnimatedVisibility(visible = isCheckingUpdates) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(28.dp),
+                                                    strokeWidth = 3.dp,
+                                                )
+                                            }
+                                        },
+                                        onPreferenceClick = {
+                                            if (!isCheckingUpdates) {
+                                                scope.launch {
+                                                    isCheckingUpdates = true
+
+                                                    checkVersion(
+                                                        context = context,
+                                                        onAvailableUpdate = { result ->
+                                                            val updateScreen = NewUpdateScreen(
+                                                                versionName = result.release.version,
+                                                                changelogInfo = result.release.info,
+                                                                releaseLink = result.release.releaseLink,
+                                                                downloadLink = result.release.downloadLink,
+                                                            )
+                                                            navigator.push(updateScreen)
+                                                        },
+                                                        onFinish = {
+                                                            isCheckingUpdates = false
+                                                        },
+                                                    )
+                                                }
+                                            }
+                                        },
                                     )
                                 }
-                            },
-                            onPreferenceClick = {
-                                if (!isCheckingUpdates) {
-                                    scope.launch {
-                                        isCheckingUpdates = true
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    thickness = 0.5.dp,
+                                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                )
+                                TextPreferenceWidget(
+                                    title = stringResource(MR.strings.whats_new),
+                                    widget = {
+                                        AnimatedVisibility(visible = isCheckingWhatsNew) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(28.dp),
+                                                strokeWidth = 3.dp,
+                                            )
+                                        }
+                                    },
+                                    onPreferenceClick = {
+                                        if (!isCheckingWhatsNew) {
+                                            scope.launch {
+                                                isCheckingWhatsNew = true
 
-                                        checkVersion(
-                                            context = context,
-                                            onAvailableUpdate = { result ->
-                                                val updateScreen = NewUpdateScreen(
-                                                    versionName = result.release.version,
-                                                    changelogInfo = result.release.info,
-                                                    releaseLink = result.release.releaseLink,
-                                                    downloadLink = result.release.downloadLink,
+                                                getReleaseNotes(
+                                                    context = context,
+                                                    onAvailableUpdate = { result ->
+                                                        val whatsNewScreen = WhatsNewScreen(
+                                                            currentVersion = BuildConfig.VERSION_NAME,
+                                                            versionName = result.release.version,
+                                                            changelogInfo = result.release.info,
+                                                            releaseLink = result.release.releaseLink,
+                                                        )
+                                                        navigator.push(whatsNewScreen)
+                                                    },
+                                                    onFinish = {
+                                                        isCheckingWhatsNew = false
+                                                    },
                                                 )
-                                                navigator.push(updateScreen)
-                                            },
-                                            onFinish = {
-                                                isCheckingUpdates = false
-                                            },
-                                        )
-                                    }
-                                }
-                            },
-                        )
-                    }
-                }
+                                            }
+                                        }
+                                    },
+                                )
+                                if (isReleaseBuildType || isDebugBuildType) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        thickness = 0.5.dp,
+                                        color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                    )
+                                    TextPreferenceWidget(
+                                        title = stringResource(KMR.strings.whats_coming),
+                                        widget = {
+                                            AnimatedVisibility(visible = isCheckingWhatsComing) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(28.dp),
+                                                    strokeWidth = 3.dp,
+                                                )
+                                            }
+                                        },
+                                        onPreferenceClick = {
+                                            if (!isCheckingWhatsComing) {
+                                                scope.launch {
+                                                    isCheckingWhatsComing = true
 
-                // KMK -->
-                item {
-                    TextPreferenceWidget(
-                        title = stringResource(MR.strings.whats_new),
-                        widget = {
-                            AnimatedVisibility(visible = isCheckingWhatsNew) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(28.dp),
-                                    strokeWidth = 3.dp,
+                                                    checkVersion(
+                                                        context = context,
+                                                        onAvailableUpdate = { result ->
+                                                            val updateScreen = ComingUpdatesScreen(
+                                                                versionName = result.release.version,
+                                                                changelogInfo = result.release.info,
+                                                                releaseLink = result.release.releaseLink,
+                                                                downloadLink = result.release.downloadLink,
+                                                            )
+                                                            navigator.push(updateScreen)
+                                                        },
+                                                        onFinish = {
+                                                            isCheckingWhatsComing = false
+                                                        },
+                                                        peekIntoPreview = true,
+                                                    )
+                                                }
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                                .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
+                                .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
+                        ) {
+                            Column {
+                                TextPreferenceWidget(
+                                    title = stringResource(MR.strings.help_translate),
+                                    onPreferenceClick = {
+                                        uriHandler.openUri(
+                                            "https://hosted.weblate.org/engage/komikku-app/",
+                                        )
+                                    },
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    thickness = 0.5.dp,
+                                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                )
+                                TextPreferenceWidget(
+                                    title = stringResource(MR.strings.licenses),
+                                    onPreferenceClick = { navigator.push(OpenSourceLicensesScreen()) },
+                                )
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    thickness = 0.5.dp,
+                                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                )
+                                TextPreferenceWidget(
+                                    title = stringResource(MR.strings.privacy_policy),
+                                    onPreferenceClick = { uriHandler.openUri("https://komikku-app.github.io/privacy/") },
                                 )
                             }
-                        },
-                        onPreferenceClick = {
-                            if (!isCheckingWhatsNew) {
-                                scope.launch {
-                                    isCheckingWhatsNew = true
+                        }
+                    }
 
-                                    getReleaseNotes(
-                                        context = context,
-                                        onAvailableUpdate = { result ->
-                                            val whatsNewScreen = WhatsNewScreen(
-                                                currentVersion = BuildConfig.VERSION_NAME,
-                                                versionName = result.release.version,
-                                                changelogInfo = result.release.info,
-                                                releaseLink = result.release.releaseLink,
-                                            )
-                                            navigator.push(whatsNewScreen)
-                                        },
-                                        onFinish = {
-                                            isCheckingWhatsNew = false
-                                        },
-                                    )
-                                }
-                            }
-                        },
-                    )
-                }
-
-                if (isReleaseBuildType || isDebugBuildType) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                } else {
                     item {
                         TextPreferenceWidget(
-                            title = stringResource(KMR.strings.whats_coming),
+                            title = stringResource(MR.strings.version),
+                            subtitle = getVersionName(withBuildDate = true),
+                            onPreferenceClick = {
+                                val deviceInfo = CrashLogUtil(context).getDebugInfo()
+                                context.copyToClipboard("Debug information", deviceInfo)
+                            },
+                        )
+                    }
+
+                    if (updaterEnabled) {
+                        item {
+                            TextPreferenceWidget(
+                                title = stringResource(MR.strings.check_for_updates),
+                                widget = {
+                                    AnimatedVisibility(visible = isCheckingUpdates) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(28.dp),
+                                            strokeWidth = 3.dp,
+                                        )
+                                    }
+                                },
+                                onPreferenceClick = {
+                                    if (!isCheckingUpdates) {
+                                        scope.launch {
+                                            isCheckingUpdates = true
+
+                                            checkVersion(
+                                                context = context,
+                                                onAvailableUpdate = { result ->
+                                                    val updateScreen = NewUpdateScreen(
+                                                        versionName = result.release.version,
+                                                        changelogInfo = result.release.info,
+                                                        releaseLink = result.release.releaseLink,
+                                                        downloadLink = result.release.downloadLink,
+                                                    )
+                                                    navigator.push(updateScreen)
+                                                },
+                                                onFinish = {
+                                                    isCheckingUpdates = false
+                                                },
+                                            )
+                                        }
+                                    }
+                                },
+                            )
+                        }
+                    }
+
+                    // KMK -->
+                    item {
+                        TextPreferenceWidget(
+                            title = stringResource(MR.strings.whats_new),
                             widget = {
-                                AnimatedVisibility(visible = isCheckingWhatsComing) {
+                                AnimatedVisibility(visible = isCheckingWhatsNew) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(28.dp),
                                         strokeWidth = 3.dp,
@@ -195,57 +366,96 @@ class AboutScreen : Screen() {
                                 }
                             },
                             onPreferenceClick = {
-                                if (!isCheckingWhatsComing) {
+                                if (!isCheckingWhatsNew) {
                                     scope.launch {
-                                        isCheckingWhatsComing = true
+                                        isCheckingWhatsNew = true
 
-                                        checkVersion(
+                                        getReleaseNotes(
                                             context = context,
                                             onAvailableUpdate = { result ->
-                                                val updateScreen = ComingUpdatesScreen(
+                                                val whatsNewScreen = WhatsNewScreen(
+                                                    currentVersion = BuildConfig.VERSION_NAME,
                                                     versionName = result.release.version,
                                                     changelogInfo = result.release.info,
                                                     releaseLink = result.release.releaseLink,
-                                                    downloadLink = result.release.downloadLink,
                                                 )
-                                                navigator.push(updateScreen)
+                                                navigator.push(whatsNewScreen)
                                             },
                                             onFinish = {
-                                                isCheckingWhatsComing = false
+                                                isCheckingWhatsNew = false
                                             },
-                                            peekIntoPreview = true,
                                         )
                                     }
                                 }
                             },
                         )
                     }
-                }
-                // KMK <--
 
-                item {
-                    TextPreferenceWidget(
-                        title = stringResource(MR.strings.help_translate),
-                        onPreferenceClick = {
-                            uriHandler.openUri(
-                                "https://hosted.weblate.org/engage/komikku-app/",
+                    if (isReleaseBuildType || isDebugBuildType) {
+                        item {
+                            TextPreferenceWidget(
+                                title = stringResource(KMR.strings.whats_coming),
+                                widget = {
+                                    AnimatedVisibility(visible = isCheckingWhatsComing) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(28.dp),
+                                            strokeWidth = 3.dp,
+                                        )
+                                    }
+                                },
+                                onPreferenceClick = {
+                                    if (!isCheckingWhatsComing) {
+                                        scope.launch {
+                                            isCheckingWhatsComing = true
+
+                                            checkVersion(
+                                                context = context,
+                                                onAvailableUpdate = { result ->
+                                                    val updateScreen = ComingUpdatesScreen(
+                                                        versionName = result.release.version,
+                                                        changelogInfo = result.release.info,
+                                                        releaseLink = result.release.releaseLink,
+                                                        downloadLink = result.release.downloadLink,
+                                                    )
+                                                    navigator.push(updateScreen)
+                                                },
+                                                onFinish = {
+                                                    isCheckingWhatsComing = false
+                                                },
+                                                peekIntoPreview = true,
+                                            )
+                                        }
+                                    }
+                                },
                             )
-                        },
-                    )
-                }
+                        }
+                    }
+                    // KMK <--
 
-                item {
-                    TextPreferenceWidget(
-                        title = stringResource(MR.strings.licenses),
-                        onPreferenceClick = { navigator.push(OpenSourceLicensesScreen()) },
-                    )
-                }
+                    item {
+                        TextPreferenceWidget(
+                            title = stringResource(MR.strings.help_translate),
+                            onPreferenceClick = {
+                                uriHandler.openUri(
+                                    "https://hosted.weblate.org/engage/komikku-app/",
+                                )
+                            },
+                        )
+                    }
 
-                item {
-                    TextPreferenceWidget(
-                        title = stringResource(MR.strings.privacy_policy),
-                        onPreferenceClick = { uriHandler.openUri("https://komikku-app.github.io/privacy/") },
-                    )
+                    item {
+                        TextPreferenceWidget(
+                            title = stringResource(MR.strings.licenses),
+                            onPreferenceClick = { navigator.push(OpenSourceLicensesScreen()) },
+                        )
+                    }
+
+                    item {
+                        TextPreferenceWidget(
+                            title = stringResource(MR.strings.privacy_policy),
+                            onPreferenceClick = { uriHandler.openUri("https://komikku-app.github.io/privacy/") },
+                        )
+                    }
                 }
 
                 item {

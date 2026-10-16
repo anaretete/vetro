@@ -65,12 +65,17 @@ fun <T> ListPreferenceWidget(
                 title = title,
                 subcomponent = if (!effectiveSubtitle.isNullOrBlank()) {
                     {
+                        val textStartPadding = if (icon != null) 0.dp else PrefsHorizontalPadding
                         Text(
                             text = effectiveSubtitle,
                             modifier = Modifier
-                                .padding(horizontal = PrefsHorizontalPadding)
+                                .padding(start = textStartPadding, end = PrefsHorizontalPadding)
                                 .secondaryItemAlpha(),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 13.sp,
+                                lineHeight = 17.sp,
+                                color = Color(0xFF8E8E93),
+                            ),
                             maxLines = 10,
                         )
                     }

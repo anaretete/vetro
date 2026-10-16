@@ -2,11 +2,21 @@ package eu.kanade.presentation.more.settings.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
+import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.RoundedRectangle
+import tachiyomi.presentation.core.components.material.CupertinoIconBadge
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ChromeReaderMode
 import androidx.compose.material.icons.outlined.Code
@@ -85,7 +95,15 @@ object SettingsMainScreen : Screen() {
     fun Content(twoPane: Boolean) {
         val navigator = LocalNavigator.currentOrThrow
         val backPress = LocalBackPress.currentOrThrow
-        val containerColor = if (twoPane) getPalerSurface() else MaterialTheme.colorScheme.surface
+        val isGlass = LocalLiquidGlassConfig.current.enabled
+        val isDark = isSystemInDarkTheme()
+        val containerColor = if (isGlass) {
+            if (isDark) Color(0xFF000000) else Color(0xFFF2F2F7)
+        } else if (twoPane) {
+            getPalerSurface()
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
         val topBarState = rememberTopAppBarState()
 
         Scaffold(
@@ -112,7 +130,10 @@ object SettingsMainScreen : Screen() {
             content = { contentPadding ->
                 val state = rememberLazyListState()
                 // SY -->
-                val items = items.filter { it.screen !is SearchableSettings || it.screen.isEnabled() }
+                val items = allItems.filter { it.screen !is SearchableSettings || it.screen.isEnabled() }
+                val filteredGroups = groups.map { grp ->
+                    grp.filter { it.screen !is SearchableSettings || it.screen.isEnabled() }
+                }.filter { it.isNotEmpty() }
                 // SY <--
                 val indexSelected = if (twoPane) {
                     items.indexOfFirst { it.screen::class == navigator.items.first()::class }
@@ -133,36 +154,85 @@ object SettingsMainScreen : Screen() {
                     state = state,
                     contentPadding = contentPadding,
                 ) {
-                    itemsIndexed(
-                        items = items,
-                        key = { _, item -> "settings-main-${item.hashCode()}" },
-                    ) { index, item ->
-                        val selected = indexSelected == index
-                        var modifier: Modifier = Modifier
-                        var contentColor = LocalContentColor.current
-                        if (twoPane) {
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .clip(RoundedCornerShape(24.dp))
-                                .then(
-                                    if (selected) {
-                                        Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
-                                    } else {
-                                        Modifier
-                                    },
-                                )
-                            if (selected) {
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    if (isGlass) {
+                        item {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        filteredGroups.forEach { cardItems ->
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                                        .clip(RoundedRectangle(20.dp, RoundedCornerStyle.Continuous))
+                                        .background(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)),
+                                ) {
+                                    Column {
+                                        cardItems.forEachIndexed { itemIndex, item ->
+                                            val selected = indexSelected == items.indexOf(item)
+                                            var rowModifier = Modifier.fillMaxWidth()
+                                            if (twoPane && selected) {
+                                                rowModifier = rowModifier.background(MaterialTheme.colorScheme.surfaceVariant)
+                                            }
+                                            TextPreferenceWidget(
+                                                modifier = rowModifier,
+                                                title = stringResource(item.titleRes),
+                                                subtitle = item.formatSubtitle(),
+                                                iconContent = {
+                                                    CupertinoIconBadge(
+                                                        icon = item.icon,
+                                                        backgroundColor = item.badgeColor,
+                                                    )
+                                                },
+                                                onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
+                                            )
+                                            if (itemIndex < cardItems.lastIndex) {
+                                                HorizontalDivider(
+                                                    modifier = Modifier.padding(start = 58.dp),
+                                                    thickness = 0.5.dp,
+                                                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            item {
+                                Spacer(modifier = Modifier.height(10.dp))
                             }
                         }
-                        CompositionLocalProvider(LocalContentColor provides contentColor) {
-                            TextPreferenceWidget(
-                                modifier = modifier,
-                                title = stringResource(item.titleRes),
-                                subtitle = item.formatSubtitle(),
-                                icon = item.icon,
-                                onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
-                            )
+                    } else {
+                        itemsIndexed(
+                            items = items,
+                            key = { _, item -> "settings-main-${item.hashCode()}" },
+                        ) { index, item ->
+                            val selected = indexSelected == index
+                            var modifier: Modifier = Modifier
+                            var contentColor = LocalContentColor.current
+                            if (twoPane) {
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .clip(RoundedCornerShape(24.dp))
+                                    .then(
+                                        if (selected) {
+                                            Modifier.background(MaterialTheme.colorScheme.surfaceVariant)
+                                        } else {
+                                            Modifier
+                                        },
+                                    )
+                                if (selected) {
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            }
+                            CompositionLocalProvider(LocalContentColor provides contentColor) {
+                                TextPreferenceWidget(
+                                    modifier = modifier,
+                                    title = stringResource(item.titleRes),
+                                    subtitle = item.formatSubtitle(),
+                                    icon = item.icon,
+                                    onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
+                                )
+                            }
                         }
                     }
                 }
@@ -179,38 +249,47 @@ object SettingsMainScreen : Screen() {
         val subtitleRes: StringResource,
         val formatSubtitle: @Composable () -> String = { stringResource(subtitleRes) },
         val icon: ImageVector,
+        val badgeColor: Color,
         val screen: VoyagerScreen,
     )
 
-    private val items = listOf(
+    private val group1 = listOf(
         Item(
             titleRes = MR.strings.pref_category_appearance,
             subtitleRes = MR.strings.pref_appearance_summary,
             icon = Icons.Outlined.Palette,
+            badgeColor = Color(0xFF5856D6),
             screen = SettingsAppearanceScreen,
         ),
         Item(
             titleRes = MR.strings.pref_category_library,
             subtitleRes = MR.strings.pref_library_summary,
             icon = Icons.Outlined.CollectionsBookmark,
+            badgeColor = Color(0xFF007AFF),
             screen = SettingsLibraryScreen,
         ),
         Item(
             titleRes = MR.strings.pref_category_reader,
             subtitleRes = MR.strings.pref_reader_summary,
             icon = Icons.AutoMirrored.Outlined.ChromeReaderMode,
+            badgeColor = Color(0xFFFF9500),
             screen = SettingsReaderScreen,
         ),
         Item(
             titleRes = MR.strings.pref_category_downloads,
             subtitleRes = MR.strings.pref_downloads_summary,
             icon = Icons.Outlined.GetApp,
+            badgeColor = Color(0xFF34C759),
             screen = SettingsDownloadScreen,
         ),
+    )
+
+    private val group2 = listOf(
         Item(
             titleRes = MR.strings.pref_category_tracking,
             subtitleRes = MR.strings.pref_tracking_summary,
             icon = Icons.Outlined.Sync,
+            badgeColor = Color(0xFF30B0C7),
             screen = SettingsTrackingScreen,
         ),
         // AM (CONNECTIONS) -->
@@ -218,6 +297,7 @@ object SettingsMainScreen : Screen() {
             titleRes = KMR.strings.pref_category_connections,
             subtitleRes = KMR.strings.pref_connections_summary,
             icon = Icons.Outlined.Link,
+            badgeColor = Color(0xFF5AC8FA),
             screen = SettingsConnectionScreen,
         ),
         // <-- AM (CONNECTIONS)
@@ -225,38 +305,50 @@ object SettingsMainScreen : Screen() {
             titleRes = MR.strings.browse,
             subtitleRes = MR.strings.pref_browse_summary,
             icon = Icons.Outlined.Explore,
+            badgeColor = Color(0xFF0A84FF),
             screen = SettingsBrowseScreen,
-        ),
-        Item(
-            titleRes = MR.strings.label_data_storage,
-            subtitleRes = MR.strings.pref_backup_summary,
-            icon = Icons.Outlined.Storage,
-            screen = SettingsDataScreen,
-        ),
-        Item(
-            titleRes = MR.strings.pref_category_security,
-            subtitleRes = MR.strings.pref_security_summary,
-            icon = Icons.Outlined.Security,
-            screen = SettingsSecurityScreen,
         ),
         // SY -->
         Item(
             titleRes = SYMR.strings.pref_category_eh,
             subtitleRes = SYMR.strings.pref_ehentai_summary,
             icon = EhAssets.EhLogo,
+            badgeColor = Color(0xFFFF2D55),
             screen = SettingsEhScreen,
         ),
         Item(
             titleRes = SYMR.strings.pref_category_mangadex,
             subtitleRes = SYMR.strings.pref_mangadex_summary,
             icon = EhAssets.MangadexLogo,
+            badgeColor = Color(0xFFFF9500),
             screen = SettingsMangadexScreen,
         ),
         // SY <--
+    )
+
+    private val group3 = listOf(
+        Item(
+            titleRes = MR.strings.label_data_storage,
+            subtitleRes = MR.strings.pref_backup_summary,
+            icon = Icons.Outlined.Storage,
+            badgeColor = Color(0xFFAF52DE),
+            screen = SettingsDataScreen,
+        ),
+        Item(
+            titleRes = MR.strings.pref_category_security,
+            subtitleRes = MR.strings.pref_security_summary,
+            icon = Icons.Outlined.Security,
+            badgeColor = Color(0xFFFF3B30),
+            screen = SettingsSecurityScreen,
+        ),
+    )
+
+    private val group4 = listOf(
         Item(
             titleRes = MR.strings.pref_category_advanced,
             subtitleRes = MR.strings.pref_advanced_summary,
             icon = Icons.Outlined.Code,
+            badgeColor = Color(0xFF8E8E93),
             screen = SettingsAdvancedScreen,
         ),
         Item(
@@ -266,7 +358,11 @@ object SettingsMainScreen : Screen() {
                 "${stringResource(MR.strings.app_name)} ${AboutScreen.getVersionName(withBuildDate = false)}"
             },
             icon = Icons.Outlined.Info,
+            badgeColor = Color(0xFF8E8E93),
             screen = AboutScreen(),
         ),
     )
+
+    private val groups = listOf(group1, group2, group3, group4)
+    private val allItems = groups.flatten()
 }

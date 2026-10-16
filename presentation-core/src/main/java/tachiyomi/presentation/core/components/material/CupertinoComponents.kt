@@ -39,7 +39,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import com.kyant.shapes.Capsule
+import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.RoundedRectangle
 
 /**
  * Authentic Apple iOS 26 / Cupertino Alert Dialog
@@ -297,5 +303,46 @@ fun CupertinoCancelPill(
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
         )
+    }
+}
+
+/**
+ * iOS Authentic Inset Grouped Squircle Icon Badge
+ * 30dp continuous squircle container with vibrant background and centered white icon.
+ */
+@Composable
+fun CupertinoIconBadge(
+    icon: Any,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier,
+    badgeSize: Dp = 30.dp,
+    iconSize: Dp = 18.dp,
+    iconTint: Color = Color.White,
+) {
+    Box(
+        modifier = modifier
+            .size(badgeSize)
+            .clip(RoundedRectangle(7.dp, RoundedCornerStyle.Continuous))
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (icon) {
+            is ImageVector -> {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(iconSize),
+                )
+            }
+            is Painter -> {
+                Icon(
+                    painter = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(iconSize),
+                )
+            }
+        }
     }
 }
