@@ -85,23 +85,24 @@ object SettingsAppearanceScreen : SearchableSettings {
             title = stringResource(MR.strings.pref_category_theme),
             preferenceItems = persistentListOf(
                 Preference.PreferenceItem.CustomPreference(
+                    title = stringResource(MR.strings.pref_category_theme),
+                ) {
+                    AppThemeModePreferenceWidget(
+                        value = themeMode,
+                        onItemClick = {
+                            themeModePref.set(it)
+                            setAppCompatDelegateThemeMode(it)
+                        },
+                    )
+                },
+                Preference.PreferenceItem.CustomPreference(
                     title = stringResource(MR.strings.pref_app_theme),
                 ) {
-                    Column {
-                        AppThemeModePreferenceWidget(
-                            value = themeMode,
-                            onItemClick = {
-                                themeModePref.set(it)
-                                setAppCompatDelegateThemeMode(it)
-                            },
-                        )
-
-                        AppThemePreferenceWidget(
-                            value = appTheme,
-                            amoled = amoled,
-                            onItemClick = { appThemePref.set(it) },
-                        )
-                    }
+                    AppThemePreferenceWidget(
+                        value = appTheme,
+                        amoled = amoled,
+                        onItemClick = { appThemePref.set(it) },
+                    )
                 },
                 // KMK -->
                 Preference.PreferenceItem.TextPreference(

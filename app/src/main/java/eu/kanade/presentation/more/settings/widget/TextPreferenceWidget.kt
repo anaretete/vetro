@@ -21,6 +21,11 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.ui.unit.dp
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+
 @Composable
 fun TextPreferenceWidget(
     modifier: Modifier = Modifier,
@@ -34,6 +39,20 @@ fun TextPreferenceWidget(
     widget: @Composable (() -> Unit)? = null,
     onPreferenceClick: (() -> Unit)? = null,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveWidget: @Composable (() -> Unit)? = widget ?: if (isGlass && onPreferenceClick != null) {
+        {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Color(0xFF8E8E93).copy(alpha = 0.7f),
+                modifier = Modifier.size(18.dp),
+            )
+        }
+    } else {
+        null
+    }
+
     BasePreferenceWidget(
         modifier = modifier,
         title = title,
@@ -82,7 +101,7 @@ fun TextPreferenceWidget(
             }
         },
         onClick = onPreferenceClick,
-        widget = widget,
+        widget = effectiveWidget,
     )
 }
 
