@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -129,7 +130,7 @@ fun TabbedScreen(
                 ) { page ->
                     tabs[page].content(
                         PaddingValues(
-                            top = contentPadding.calculateTopPadding() + 56.dp,
+                            top = contentPadding.calculateTopPadding() + 52.dp,
                             bottom = contentPadding.calculateBottomPadding() + 80.dp,
                         ),
                         snackbarHostState,
@@ -138,26 +139,20 @@ fun TabbedScreen(
 
                 Box(
                     modifier = Modifier
-                        .padding(top = contentPadding.calculateTopPadding())
+                        .padding(top = contentPadding.calculateTopPadding(), start = 14.dp, end = 14.dp, bottom = 6.dp)
+                        .fillMaxWidth()
                         .zIndex(2f),
                 ) {
-                    androidx.compose.runtime.CompositionLocalProvider(LocalInGlassBar provides true) {
-                        PrimaryTabRow(
-                            selectedTabIndex = state.currentPage,
-                            modifier = tabRowModifier,
-                            containerColor = Color.Transparent,
-                            divider = {},
-                        ) {
-                            tabs.forEachIndexed { index, tab ->
-                                Tab(
-                                    selected = state.currentPage == index,
-                                    onClick = { scope.launch { state.animateScrollToPage(index) } },
-                                    text = { TabText(text = stringResource(tab.titleRes), badgeCount = tab.badgeNumber) },
-                                    unselectedContentColor = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        }
-                    }
+                    tachiyomi.presentation.core.components.material.CupertinoSegmentedControl(
+                        selectedTabIndex = state.currentPage,
+                        onTabSelected = { index ->
+                            scope.launch { state.animateScrollToPage(index) }
+                        },
+                        tabs = tabs.map { tab ->
+                            stringResource(tab.titleRes) to tab.badgeNumber
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
         } else {

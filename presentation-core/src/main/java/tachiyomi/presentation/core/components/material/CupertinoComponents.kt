@@ -1,16 +1,26 @@
 package tachiyomi.presentation.core.components.material
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,19 +40,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.Dp
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedCornerStyle
 import com.kyant.shapes.RoundedRectangle
@@ -342,6 +354,115 @@ fun CupertinoIconBadge(
                     tint = iconTint,
                     modifier = Modifier.size(iconSize),
                 )
+            }
+        }
+    }
+}
+
+/**
+ * iOS Authentic Segmented Control with sliding pill indicator
+ */
+@Composable
+fun CupertinoSegmentedControl(
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit,
+    tabs: List<Pair<String, Int?>>,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = isSystemInDarkTheme()
+    val trackBg = if (isDark) Color(0x33767680) else Color(0x1F767680)
+    val thumbBg = if (isDark) Color(0xFF636366) else Color.White
+    val textSelected = if (isDark) Color.White else Color(0xFF000000)
+    val textUnselected = if (isDark) Color(0xFF8E8E93) else Color(0xFF636366)
+
+    BoxWithConstraints(
+        modifier = modifier
+            .height(36.dp)
+            .clip(Capsule())
+            .background(trackBg)
+            .padding(2.dp),
+    ) {
+        val tabCount = tabs.size.coerceAtLeast(1)
+        val tabWidth = maxWidth / tabCount
+        val indicatorOffset by animateDpAsState(
+            targetValue = tabWidth * selectedTabIndex,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
+            label = "tab_indicator",
+        )
+
+        // Sliding thumb pill
+        Box(
+            modifier = Modifier
+                .width(tabWidth)
+                .fillMaxHeight()
+                .offset(x = indicatorOffset)
+                .clip(Capsule())
+                .background(thumbBg),
+        )
+
+        // Tab titles
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            tabs.forEachIndexed { index, (title, badgeCount) ->
+                val selected = index == selectedTabIndex
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(Capsule())
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            onTabSelected(index)
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(horizontal = 2.dp),
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 12.5.sp,
+                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                                letterSpacing = (-0.2).sp,
+                            ),
+                            color = if (selected) textSelected else textUnselected,
+                            maxLines = 1,
+                            overflow = TextOverflow.Clip,
+                        )
+                        if (badgeCount != null && badgeCount > 0) {
+                            Spacer(Modifier.width(3.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(Capsule())
+                                    .background(
+                                        if (selected) {
+                                            Color(0xFFFF3B30)
+                                        } else {
+                                            (if (isDark) Color.White else Color.Black).copy(alpha = 0.15f)
+                                        }
+                                    )
+                                    .padding(horizontal = 4.dp, vertical = 1.dp),
+                            ) {
+                                Text(
+                                    text = "$badgeCount",
+                                    color = if (selected) Color.White else textUnselected,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

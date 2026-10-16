@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 import soup.compose.material.motion.animation.materialSharedAxisX
 import soup.compose.material.motion.animation.rememberSlideDistance
 import tachiyomi.i18n.MR
@@ -66,12 +67,21 @@ fun OnboardingScreen(
             }
         },
     ) {
+        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+        val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+        val cardShape = if (isGlass) com.kyant.shapes.RoundedRectangle(20.dp, com.kyant.shapes.RoundedCornerStyle.Continuous) else MaterialTheme.shapes.small
+        val cardBg = if (isGlass) {
+            if (isDark) androidx.compose.ui.graphics.Color(0xFF1C1C1E) else androidx.compose.ui.graphics.Color(0xFFFFFFFF)
+        } else {
+            MaterialTheme.colorScheme.surfaceVariant
+        }
+
         Box(
             modifier = Modifier
                 .padding(vertical = MaterialTheme.padding.small)
-                .clip(MaterialTheme.shapes.small)
+                .clip(cardShape)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(cardBg),
         ) {
             AnimatedContent(
                 targetState = currentStep,

@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
+import tachiyomi.presentation.core.components.material.LiquidButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -701,34 +702,63 @@ private fun MangaScreenSmallImpl(
                             }
                             val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                             val buttonText = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start)
-                            tachiyomi.presentation.core.components.material.Button(
-                                onClick = onContinueReading,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                                    .height(48.dp),
-                                shape = androidx.compose.foundation.shape.CircleShape,
-                                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                    containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
+                            if (isGlass) {
+                                LiquidButton(
+                                    onClick = onContinueReading,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                                        .height(48.dp),
+                                    tint = Color(0xFF007AFF),
                                     contentColor = Color.White,
-                                ),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.PlayArrow,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = buttonText,
-                                    style = MaterialTheme.typography.labelLarge.copy(
-                                        fontSize = 15.sp,
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                        letterSpacing = (-0.2f).sp,
-                                        color = Color.White,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.PlayArrow,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = buttonText,
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontSize = 15.sp,
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                            letterSpacing = (-0.2f).sp,
+                                            color = Color.White,
+                                        ),
+                                    )
+                                }
+                            } else {
+                                tachiyomi.presentation.core.components.material.Button(
+                                    onClick = onContinueReading,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                                        .height(48.dp),
+                                    shape = androidx.compose.foundation.shape.CircleShape,
+                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = Color.White,
                                     ),
-                                )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.PlayArrow,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = buttonText,
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontSize = 15.sp,
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                            letterSpacing = (-0.2f).sp,
+                                            color = Color.White,
+                                        ),
+                                    )
+                                }
                             }
                         }
                     }

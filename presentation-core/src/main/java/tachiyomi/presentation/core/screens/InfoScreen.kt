@@ -20,6 +20,7 @@ import androidx.compose.material3.NavigationBarDefaults
 import tachiyomi.presentation.core.components.material.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -31,6 +32,16 @@ import androidx.compose.ui.zIndex
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.util.secondaryItemAlpha
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import com.kyant.backdrop.catalog.components.LiquidButton
+import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.RoundedRectangle
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 
 @Composable
 fun InfoScreen(
@@ -44,13 +55,25 @@ fun InfoScreen(
     onRejectClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
+
     Scaffold(
         bottomBar = {
             val strokeWidth = Dp.Hairline
-            val borderColor = MaterialTheme.colorScheme.outline
+            val borderColor = if (isGlass) {
+                if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA)
+            } else {
+                MaterialTheme.colorScheme.outline
+            }
+            val bottomBg = if (isGlass) {
+                if (isDark) Color(0xFF121212) else Color(0xFFF9F9F9)
+            } else {
+                MaterialTheme.colorScheme.background
+            }
             Column(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(bottomBg)
                     .drawBehind {
                         drawLine(
                             borderColor,
@@ -65,19 +88,50 @@ fun InfoScreen(
                         vertical = MaterialTheme.padding.small,
                     ),
             ) {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = canAccept,
-                    onClick = onAcceptClick,
-                ) {
-                    Text(text = acceptText)
-                }
-                if (rejectText != null && onRejectClick != null) {
-                    OutlinedButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = onRejectClick,
+                if (isGlass) {
+                    LiquidButton(
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        enabled = canAccept,
+                        onClick = onAcceptClick,
+                        tint = Color(0xFF007AFF),
+                        shape = RoundedRectangle(14.dp, RoundedCornerStyle.Continuous),
                     ) {
-                        Text(text = rejectText)
+                        Text(
+                            text = acceptText,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = Color.White,
+                        )
+                    }
+                    if (rejectText != null && onRejectClick != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LiquidButton(
+                            modifier = Modifier.fillMaxWidth().height(50.dp),
+                            onClick = onRejectClick,
+                            tint = Color(0xFF8E8E93),
+                            shape = RoundedRectangle(14.dp, RoundedCornerStyle.Continuous),
+                        ) {
+                            Text(
+                                text = rejectText,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = if (isDark) Color.White else Color(0xFF1C1C1E),
+                            )
+                        }
+                    }
+                } else {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = canAccept,
+                        onClick = onAcceptClick,
+                    ) {
+                        Text(text = acceptText)
+                    }
+                    if (rejectText != null && onRejectClick != null) {
+                        OutlinedButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = onRejectClick,
+                        ) {
+                            Text(text = rejectText)
+                        }
                     }
                 }
             }
@@ -101,14 +155,32 @@ fun InfoScreen(
                 .padding(top = 48.dp)
                 .padding(horizontal = MaterialTheme.padding.medium),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(bottom = MaterialTheme.padding.small)
-                    .size(48.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
+            if (isGlass) {
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = MaterialTheme.padding.medium)
+                        .size(64.dp)
+                        .clip(RoundedRectangle(16.dp, RoundedCornerStyle.Continuous))
+                        .background(Color(0xFF007AFF)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp),
+                        tint = Color.White,
+                    )
+                }
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(bottom = MaterialTheme.padding.small)
+                        .size(48.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
             Text(
                 text = headingText,
                 style = MaterialTheme.typography.headlineLarge,

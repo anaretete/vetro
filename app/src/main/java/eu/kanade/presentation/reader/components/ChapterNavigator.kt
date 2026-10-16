@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.kyant.shapes.Capsule
@@ -247,17 +248,20 @@ fun ChapterNavigatorVert(
     onPageIndexChange: (Int) -> Unit,
 ) {
     val isTabletUi = isTabletUi()
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val verticalPadding = if (isTabletUi) 24.dp else 8.dp
+    val topPadding = if (isGlass) 92.dp else verticalPadding
+    val bottomPadding = if (isGlass) 108.dp else verticalPadding
 
     val haptic = LocalHapticFeedback.current
 
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(vertical = verticalPadding, horizontal = 8.dp),
+            .systemBarsPadding()
+            .padding(top = topPadding, bottom = bottomPadding, start = 8.dp, end = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val isGlass = LocalLiquidGlassConfig.current.enabled
         val isDark = isSystemInDarkTheme()
         val backgroundColor = MaterialTheme.colorScheme
             .surfaceColorAtElevation(3.dp)

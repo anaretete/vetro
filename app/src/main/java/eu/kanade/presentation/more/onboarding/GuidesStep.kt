@@ -3,6 +3,7 @@ package eu.kanade.presentation.more.onboarding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import tachiyomi.presentation.core.components.material.Button
 import androidx.compose.material3.HorizontalDivider
@@ -28,16 +29,34 @@ internal class GuidesStep(
     override fun Content() {
         val handler = LocalUriHandler.current
 
+        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
         ) {
             Text(stringResource(MR.strings.onboarding_guides_new_user, stringResource(MR.strings.app_name)))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { handler.openUri(GETTING_STARTED_URL) },
-            ) {
-                Text(stringResource(MR.strings.getting_started_guide))
+
+            if (isGlass) {
+                com.kyant.backdrop.catalog.components.LiquidButton(
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    onClick = { handler.openUri(GETTING_STARTED_URL) },
+                    tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
+                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                ) {
+                    Text(
+                        text = stringResource(MR.strings.getting_started_guide),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                        color = androidx.compose.ui.graphics.Color.White,
+                    )
+                }
+            } else {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { handler.openUri(GETTING_STARTED_URL) },
+                ) {
+                    Text(stringResource(MR.strings.getting_started_guide))
+                }
             }
 
             HorizontalDivider(
@@ -46,11 +65,27 @@ internal class GuidesStep(
             )
 
             Text(stringResource(MR.strings.onboarding_guides_returning_user, stringResource(MR.strings.app_name)))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onRestoreBackup,
-            ) {
-                Text(stringResource(MR.strings.pref_restore_backup))
+
+            if (isGlass) {
+                com.kyant.backdrop.catalog.components.LiquidButton(
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    onClick = onRestoreBackup,
+                    tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
+                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                ) {
+                    Text(
+                        text = stringResource(MR.strings.pref_restore_backup),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                        color = androidx.compose.ui.graphics.Color.White,
+                    )
+                }
+            } else {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onRestoreBackup,
+                ) {
+                    Text(stringResource(MR.strings.pref_restore_backup))
+                }
             }
         }
     }

@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tachiyomi.presentation.core.components.material.padding
 
+import tachiyomi.presentation.core.components.material.LiquidButton
+import com.kyant.shapes.Capsule
+
 @Composable
 fun OutlinedButtonWithArrow(
     text: String,
@@ -32,37 +35,67 @@ fun OutlinedButtonWithArrow(
     icon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward,
 ) {
     val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = 16.dp,
-                vertical = 6.dp,
-            ),
-        colors = ButtonDefaults.outlinedButtonColors(),
-        shape = if (isGlass) RoundedCornerShape(16.dp) else RoundedCornerShape(8.dp),
-    ) {
-        Row(
-            modifier = Modifier
+    if (isGlass) {
+        LiquidButton(
+            onClick = onClick,
+            modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 16.dp, vertical = 6.dp),
+            shape = Capsule(),
+            surfaceColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
         ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = if (isGlass) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Medium,
-                    letterSpacing = if (isGlass) (-0.2f).sp else 0.sp,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                        letterSpacing = (-0.2f).sp,
+                    ),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
+    } else {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 6.dp,
                 ),
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-            )
+            colors = ButtonDefaults.outlinedButtonColors(),
+            shape = RoundedCornerShape(8.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
     }
 }

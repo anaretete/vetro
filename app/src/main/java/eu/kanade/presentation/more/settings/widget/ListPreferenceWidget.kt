@@ -95,36 +95,38 @@ fun <T> ListPreferenceWidget(
                 },
                 onClick = { isPopupExpanded = true },
                 widget = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            text = currentLabel,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 17.sp,
-                                color = Color(0xFF8E8E93),
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = Color(0xFF8E8E93).copy(alpha = 0.7f),
-                            modifier = Modifier.size(18.dp),
+                    Box(contentAlignment = Alignment.CenterEnd) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(
+                                text = currentLabel,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 17.sp,
+                                    color = Color(0xFF8E8E93),
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = Color(0xFF8E8E93).copy(alpha = 0.7f),
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+
+                        CupertinoFrostedPopupMenu(
+                            expanded = isPopupExpanded,
+                            onDismissRequest = { isPopupExpanded = false },
+                            entries = entries,
+                            selectedValue = value,
+                            onSelect = onValueChange,
+                            modifier = Modifier.heightIn(max = 360.dp),
                         )
                     }
                 },
-            )
-
-            CupertinoFrostedPopupMenu(
-                expanded = isPopupExpanded,
-                onDismissRequest = { isPopupExpanded = false },
-                entries = entries,
-                selectedValue = value,
-                onSelect = onValueChange,
-                modifier = Modifier.heightIn(max = 360.dp),
             )
         }
     } else {

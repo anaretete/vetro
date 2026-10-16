@@ -21,13 +21,25 @@ fun MangaInfoButtons(
     if (showRecommendsButton || showMergeWithAnotherButton) {
         Column(Modifier.fillMaxWidth()) {
             if (showMergeWithAnotherButton) {
-                Button(
-                    onClick = onMergeWithAnotherClicked,
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                ) {
-                    Text(stringResource(SYMR.strings.merge_with_another_source))
+                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+                if (isGlass) {
+                    tachiyomi.presentation.core.components.material.LiquidButton(
+                        onClick = onMergeWithAnotherClicked,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                    ) {
+                        Text(stringResource(SYMR.strings.merge_with_another_source))
+                    }
+                } else {
+                    Button(
+                        onClick = onMergeWithAnotherClicked,
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                    ) {
+                        Text(stringResource(SYMR.strings.merge_with_another_source))
+                    }
                 }
             }
             if (showRecommendsButton) {

@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenu
@@ -91,12 +93,13 @@ fun <T> CupertinoFrostedPopupMenu(
     offset: DpOffset = DpOffset(0.dp, 4.dp),
 ) {
     val isDark = isSystemInDarkTheme()
+    val scrollState = rememberScrollState()
 
     CupertinoFrostedPopup(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         offset = offset,
-        modifier = modifier,
+        modifier = modifier.verticalScroll(scrollState),
     ) {
         val entryList = remember(entries) { entries.toList() }
         entryList.forEachIndexed { index, (key, label) ->

@@ -32,35 +32,60 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tanh
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.Dp
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+
 @Composable
 fun LiquidButton(
     onClick: () -> Unit,
-    backdrop: Backdrop,
     modifier: Modifier = Modifier,
+    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    enabled: Boolean = true,
     isInteractive: Boolean = true,
     tint: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
-    content: @Composable RowScope.() -> Unit
+    contentColor: Color = Color.Unspecified,
+    shape: Shape = CircleShape,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    content: @Composable RowScope.() -> Unit,
 ) {
     val animationScope = rememberCoroutineScope()
 
     val interactiveHighlight = remember(animationScope) {
         InteractiveHighlight(
-            animationScope = animationScope
+            animationScope = animationScope,
         )
+    }
+
+    val effectiveContentColor = if (contentColor.isSpecified) {
+        contentColor
+    } else if (tint.isSpecified && tint != Color.Transparent) {
+        Color.White
+    } else {
+        MaterialTheme.colorScheme.onSurface
     }
 
     Row(
         modifier
+            .alpha(if (enabled) 1f else 0.45f)
             .drawBackdrop(
                 backdrop = backdrop,
-                shape = { Capsule() },
+                shape = { shape },
                 effects = {
                     vibrancy()
-                    blur(2f.dp.toPx())
-                    lens(12f.dp.toPx(), 24f.dp.toPx())
+                    blur(3f.dp.toPx())
+                    lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
                 },
-                layerBlock = if (isInteractive) {
+                layerBlock = if (isInteractive && enabled) {
                     {
                         val width = size.width
                         val height = size.height
@@ -91,32 +116,35 @@ fun LiquidButton(
                 onDrawSurface = {
                     if (tint.isSpecified) {
                         drawRect(tint, blendMode = BlendMode.Hue)
-                        drawRect(tint.copy(alpha = 0.75f))
+                        drawRect(tint.copy(alpha = 0.78f))
                     }
                     if (surfaceColor.isSpecified) {
                         drawRect(surfaceColor)
                     }
-                }
+                },
             )
             .clickable(
+                enabled = enabled,
                 interactionSource = null,
                 indication = if (isInteractive) null else LocalIndication.current,
                 role = Role.Button,
-                onClick = onClick
+                onClick = onClick,
             )
             .then(
-                if (isInteractive) {
+                if (isInteractive && enabled) {
                     Modifier
                         .then(interactiveHighlight.modifier)
                         .then(interactiveHighlight.gestureModifier)
                 } else {
                     Modifier
-                }
+                },
             )
-            .height(48f.dp)
-            .padding(horizontal = 16f.dp),
+            .padding(contentPadding),
         horizontalArrangement = Arrangement.spacedBy(8f.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
-        content = content
-    )
+    ) {
+        CompositionLocalProvider(LocalContentColor provides effectiveContentColor) {
+            content()
+        }
+    }
 }

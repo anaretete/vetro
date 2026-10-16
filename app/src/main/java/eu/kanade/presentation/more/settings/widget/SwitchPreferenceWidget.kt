@@ -21,6 +21,7 @@ fun SwitchPreferenceWidget(
     // KMK -->
     /** Can be either [ImageVector] or [Painter] */
     icon: Any? = null,
+    iconContent: @Composable (() -> Unit)? = null,
     // KMK <--
     checked: Boolean = false,
     onCheckedChanged: (Boolean) -> Unit,
@@ -30,6 +31,7 @@ fun SwitchPreferenceWidget(
         title = title,
         subtitle = subtitle,
         icon = icon,
+        iconContent = iconContent,
         widget = {
             Switch(
                 checked = checked,

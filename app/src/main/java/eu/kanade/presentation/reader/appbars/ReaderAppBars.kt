@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
@@ -117,6 +118,7 @@ fun ReaderAppBars(
     val topBarModifier = if (isGlass) {
         Modifier
             .statusBarsPadding()
+            .displayCutoutPadding()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(22.dp),

@@ -19,7 +19,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import tachiyomi.presentation.core.components.material.OutlinedButton
-import androidx.compose.material3.Switch
+import tachiyomi.presentation.core.components.material.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -30,6 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import com.kyant.backdrop.catalog.components.LiquidButton
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -233,18 +243,51 @@ internal class PermissionStep : OnboardingStep {
             headlineContent = { Text(text = title) },
             supportingContent = { Text(text = subtitle) },
             trailingContent = {
-                OutlinedButton(
-                    enabled = !granted,
-                    onClick = onButtonClick,
-                ) {
+                val isGlass = LocalLiquidGlassConfig.current.enabled
+                if (isGlass) {
                     if (granted) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(Capsule())
+                                .background(Color(0xFF34C759).copy(alpha = 0.15f))
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color(0xFF34C759),
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
                     } else {
-                        Text(stringResource(MR.strings.onboarding_permission_action_grant))
+                        LiquidButton(
+                            onClick = onButtonClick,
+                            tint = Color(0xFF007AFF),
+                            shape = Capsule(),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                text = stringResource(MR.strings.onboarding_permission_action_grant),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = Color.White,
+                            )
+                        }
+                    }
+                } else {
+                    OutlinedButton(
+                        enabled = !granted,
+                        onClick = onButtonClick,
+                    ) {
+                        if (granted) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        } else {
+                            Text(stringResource(MR.strings.onboarding_permission_action_grant))
+                        }
                     }
                 }
             },

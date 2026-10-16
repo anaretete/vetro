@@ -20,7 +20,7 @@ import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.VerifiedUser
-import androidx.compose.material3.AlertDialog
+import tachiyomi.presentation.core.components.material.AlertDialog
 import tachiyomi.presentation.core.components.material.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -31,6 +31,11 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import tachiyomi.presentation.core.components.material.TextButton
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import com.kyant.backdrop.catalog.components.LiquidButton
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -182,30 +187,61 @@ private fun ExtensionContent(
             ) {
                 when (header) {
                     is ExtensionUiModel.Header.Resource -> {
+                        val isGlass = LocalLiquidGlassConfig.current.enabled
                         val action: @Composable RowScope.() -> Unit =
                             when (header.textRes) {
                                 MR.strings.ext_updates_pending -> {
                                     {
-                                        Button(onClick = { onClickUpdateAll() }) {
-                                            Text(
-                                                text = stringResource(MR.strings.ext_update_all),
-                                                style = LocalTextStyle.current.copy(
-                                                    color = MaterialTheme.colorScheme.onPrimary,
-                                                ),
-                                            )
+                                        if (isGlass) {
+                                            LiquidButton(
+                                                onClick = { onClickUpdateAll() },
+                                                tint = Color(0xFF007AFF),
+                                                shape = Capsule(),
+                                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                                            ) {
+                                                Text(
+                                                    text = stringResource(MR.strings.ext_update_all),
+                                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                    color = Color.White,
+                                                )
+                                            }
+                                        } else {
+                                            Button(onClick = { onClickUpdateAll() }) {
+                                                Text(
+                                                    text = stringResource(MR.strings.ext_update_all),
+                                                    style = LocalTextStyle.current.copy(
+                                                        color = MaterialTheme.colorScheme.onPrimary,
+                                                    ),
+                                                )
+                                            }
                                         }
                                     }
                                 }
                                 // KMK -->
                                 KMR.strings.extensions_page_more -> {
                                     {
-                                        Button(onClick = { navigator?.push(ExtensionStoresScreen()) }) {
-                                            Text(
-                                                text = stringResource(MR.strings.action_addExtensionStore),
-                                                style = LocalTextStyle.current.copy(
-                                                    color = MaterialTheme.colorScheme.onPrimary,
-                                                ),
-                                            )
+                                        if (isGlass) {
+                                            LiquidButton(
+                                                onClick = { navigator?.push(ExtensionStoresScreen()) },
+                                                tint = Color(0xFF007AFF),
+                                                shape = Capsule(),
+                                                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                                            ) {
+                                                Text(
+                                                    text = stringResource(MR.strings.action_addExtensionStore),
+                                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                    color = Color.White,
+                                                )
+                                            }
+                                        } else {
+                                            Button(onClick = { navigator?.push(ExtensionStoresScreen()) }) {
+                                                Text(
+                                                    text = stringResource(MR.strings.action_addExtensionStore),
+                                                    style = LocalTextStyle.current.copy(
+                                                        color = MaterialTheme.colorScheme.onPrimary,
+                                                    ),
+                                                )
+                                            }
                                         }
                                     }
                                 }

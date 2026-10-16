@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +55,8 @@ internal class StorageStep : OnboardingStep {
         }
         // KMK <--
 
+        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
@@ -66,17 +69,38 @@ internal class StorageStep : OnboardingStep {
                 ),
             )
 
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    try {
-                        pickStorageLocation.launch(null)
-                    } catch (e: ActivityNotFoundException) {
-                        context.toast(MR.strings.file_picker_error)
-                    }
-                },
-            ) {
-                Text(stringResource(MR.strings.onboarding_storage_action_select))
+            if (isGlass) {
+                com.kyant.backdrop.catalog.components.LiquidButton(
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    onClick = {
+                        try {
+                            pickStorageLocation.launch(null)
+                        } catch (e: ActivityNotFoundException) {
+                            context.toast(MR.strings.file_picker_error)
+                        }
+                    },
+                    tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
+                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                ) {
+                    Text(
+                        text = stringResource(MR.strings.onboarding_storage_action_select),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                        color = androidx.compose.ui.graphics.Color.White,
+                    )
+                }
+            } else {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        try {
+                            pickStorageLocation.launch(null)
+                        } catch (e: ActivityNotFoundException) {
+                            context.toast(MR.strings.file_picker_error)
+                        }
+                    },
+                ) {
+                    Text(stringResource(MR.strings.onboarding_storage_action_select))
+                }
             }
 
             HorizontalDivider(
@@ -85,11 +109,27 @@ internal class StorageStep : OnboardingStep {
             )
 
             Text(stringResource(MR.strings.onboarding_storage_help_info, stringResource(MR.strings.app_name)))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { handler.openUri(SettingsDataScreen.HELP_URL) },
-            ) {
-                Text(stringResource(MR.strings.onboarding_storage_help_action))
+
+            if (isGlass) {
+                com.kyant.backdrop.catalog.components.LiquidButton(
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    onClick = { handler.openUri(SettingsDataScreen.HELP_URL) },
+                    tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
+                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                ) {
+                    Text(
+                        text = stringResource(MR.strings.onboarding_storage_help_action),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                        color = androidx.compose.ui.graphics.Color.White,
+                    )
+                }
+            } else {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { handler.openUri(SettingsDataScreen.HELP_URL) },
+                ) {
+                    Text(stringResource(MR.strings.onboarding_storage_help_action))
+                }
             }
         }
 
