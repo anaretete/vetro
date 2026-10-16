@@ -1,4 +1,4 @@
-package tachiyomi.presentation.core.components.material
+package com.kyant.backdrop.catalog.utils
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class InteractiveHighlight(
     val animationScope: CoroutineScope,
-    val position: (size: Size, offset: Offset) -> Offset = { _, offset -> offset },
+    val position: (size: Size, offset: Offset) -> Offset = { _, offset -> offset }
 ) {
 
     private val pressProgressAnimationSpec =
@@ -51,8 +51,7 @@ half4 main(float2 coord) {
     float dist = distance(coord, position);
     float intensity = smoothstep(radius, radius * 0.5, dist);
     return color * intensity;
-}
-                """.trimIndent(),
+}"""
             )
         } else {
             null
@@ -65,27 +64,27 @@ half4 main(float2 coord) {
                 if (shader != null) {
                     drawRect(
                         Color.White.copy(0.08f * progress),
-                        blendMode = BlendMode.Plus,
+                        blendMode = BlendMode.Plus
                     )
                     shader.apply {
-                        val pos = position(size, positionAnimation.value)
+                        val position = position(size, positionAnimation.value)
                         setFloatUniform("size", size.width, size.height)
                         setColorUniform("color", Color.White.copy(0.15f * progress))
                         setFloatUniform("radius", size.minDimension * 1.5f)
                         setFloatUniform(
                             "position",
-                            pos.x.fastCoerceIn(0f, size.width),
-                            pos.y.fastCoerceIn(0f, size.height),
+                            position.x.fastCoerceIn(0f, size.width),
+                            position.y.fastCoerceIn(0f, size.height)
                         )
                     }
                     drawRect(
                         ShaderBrush(shader.asComposeShader()),
-                        blendMode = BlendMode.Plus,
+                        blendMode = BlendMode.Plus
                     )
                 } else {
                     drawRect(
                         Color.White.copy(0.25f * progress),
-                        blendMode = BlendMode.Plus,
+                        blendMode = BlendMode.Plus
                     )
                 }
             }
@@ -114,7 +113,7 @@ half4 main(float2 coord) {
                         launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
                         launch { positionAnimation.animateTo(startPosition, positionAnimationSpec) }
                     }
-                },
+                }
             ) { change, _ ->
                 animationScope.launch { positionAnimation.snapTo(change.position) }
             }

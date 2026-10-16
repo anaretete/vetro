@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
@@ -174,21 +175,7 @@ fun AppBar(
         )
     }
     val appModifier = if (isGlass) {
-        if (!isAdaptiveTransparent) {
-            modifier
-                .fillMaxWidth()
-                .liquidGlassSurface(
-                    shape = RoundedCornerShape(0.dp),
-                    blurRadius = 24.dp,
-                    refractionHeight = 18.dp,
-                    refractionAmount = 26.dp,
-                    tintColor = MaterialTheme.colorScheme.surface.copy(
-                        alpha = if (isDark) 0.65f else 0.75f,
-                    ),
-                )
-        } else {
-            modifier.fillMaxWidth()
-        }
+        modifier.fillMaxWidth()
     } else {
         modifier
     }
@@ -197,114 +184,115 @@ fun AppBar(
         LocalInGlassBar provides isGlass,
         LocalContentColor provides MaterialTheme.colorScheme.onSurface,
     ) {
-        Column(
-            modifier = appModifier,
-        ) {
-            TopAppBar(
-                navigationIcon = {
-                    if (isActionMode) {
-                        IconButton(onClick = onCancelActionMode) {
-                            Icon(
-                                imageVector = Icons.Outlined.Close,
-                                contentDescription = stringResource(MR.strings.action_cancel),
-                            )
-                        }
-                    } else {
-                        // KMK -->
-                        Row {
-                            // KMK <--
-                            navigateUp?.let {
-                                if (isGlass) {
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(start = 8.dp, end = 4.dp)
-                                            .size(38.dp)
-                                            .then(
-                                                if (isAdaptiveTransparent) {
-                                                    Modifier.liquidGlassSurface(
-                                                        shape = CircleShape,
-                                                        blurRadius = 14.dp,
-                                                        refractionHeight = 16.dp,
-                                                        refractionAmount = 24.dp,
-                                                        tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.50f),
-                                                    )
-                                                } else {
-                                                    Modifier
-                                                },
-                                            )
-                                            .clickable(onClick = it),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        UpIcon(
-                                            navigationIcon = navigationIcon,
-                                            modifier = Modifier.size(20.dp),
+        TopAppBar(
+            navigationIcon = {
+                if (isActionMode) {
+                    IconButton(onClick = onCancelActionMode) {
+                        Icon(
+                            imageVector = Icons.Outlined.Close,
+                            contentDescription = stringResource(MR.strings.action_cancel),
+                        )
+                    }
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        navigateUp?.let {
+                            if (isGlass) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 12.dp, end = 4.dp)
+                                        .size(40.dp)
+                                        .liquidGlassSurface(
+                                            shape = CircleShape,
+                                            blurRadius = 16.dp,
+                                            refractionHeight = 18.dp,
+                                            refractionAmount = 26.dp,
+                                            tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
                                         )
-                                    }
-                                } else {
-                                    IconButton(onClick = it) {
-                                        UpIcon(navigationIcon = navigationIcon)
-                                    }
+                                        .clickable(onClick = it),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    UpIcon(
+                                        navigationIcon = navigationIcon ?: Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                                        modifier = Modifier.size(24.dp),
+                                    )
+                                }
+                            } else {
+                                IconButton(onClick = it) {
+                                    UpIcon(navigationIcon = navigationIcon)
                                 }
                             }
-                            // KMK -->
-                            goHome?.let {
+                        }
+                        goHome?.let {
+                            if (isGlass) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = 4.dp, end = 4.dp)
+                                        .size(40.dp)
+                                        .liquidGlassSurface(
+                                            shape = CircleShape,
+                                            blurRadius = 16.dp,
+                                            refractionHeight = 18.dp,
+                                            refractionAmount = 26.dp,
+                                            tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
+                                        )
+                                        .clickable(onClick = { it.invoke() }),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    UpIcon(
+                                        navigationIcon = Icons.Filled.Home,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                            } else {
                                 IconButton(onClick = { it.invoke() }) {
                                     UpIcon(navigationIcon = Icons.Filled.Home)
                                 }
                             }
-                            // KMK <--
                         }
                     }
-                },
-                title = {
-                    if (isGlass && navigateUp != null) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            titleContent()
-                        }
-                    } else {
+                }
+            },
+            title = {
+                if (isGlass) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         titleContent()
                     }
-                },
-                actions = {
-                    if (isAdaptiveTransparent) {
-                        Row(
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .height(38.dp)
-                                .liquidGlassSurface(
-                                    shape = Capsule(),
-                                    blurRadius = 14.dp,
-                                    refractionHeight = 16.dp,
-                                    refractionAmount = 24.dp,
-                                    tintColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.50f),
-                                )
-                                .padding(horizontal = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            actions()
-                        }
-                    } else {
+                } else {
+                    titleContent()
+                }
+            },
+            actions = {
+                if (isGlass) {
+                    Row(
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .height(40.dp)
+                            .liquidGlassSurface(
+                                shape = Capsule(),
+                                blurRadius = 16.dp,
+                                refractionHeight = 18.dp,
+                                refractionAmount = 26.dp,
+                                tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
+                            )
+                            .padding(horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         actions()
                     }
-                },
-                colors = topAppBarColors,
-                scrollBehavior = scrollBehavior,
-                windowInsets = TopAppBarDefaults.windowInsets,
-            )
-            if (isGlass && !isAdaptiveTransparent) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(0.5.dp)
-                        .background(
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = if (isDark) 0.15f else 0.12f)
-                        ),
-                )
-            }
-        }
+                } else {
+                    actions()
+                }
+            },
+            colors = topAppBarColors,
+            scrollBehavior = scrollBehavior,
+            windowInsets = TopAppBarDefaults.windowInsets,
+            modifier = appModifier,
+        )
     }
 }
 
@@ -609,8 +597,13 @@ fun UpIcon(
     modifier: Modifier = Modifier,
     navigationIcon: ImageVector? = null,
 ) {
-    val icon = navigationIcon
-        ?: Icons.AutoMirrored.Outlined.ArrowBack
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val defaultIcon = if (isGlass) {
+        Icons.AutoMirrored.Outlined.KeyboardArrowLeft
+    } else {
+        Icons.AutoMirrored.Outlined.ArrowBack
+    }
+    val icon = navigationIcon ?: defaultIcon
     Icon(
         imageVector = icon,
         contentDescription = stringResource(MR.strings.action_bar_up_description),

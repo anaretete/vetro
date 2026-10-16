@@ -1,8 +1,7 @@
-package tachiyomi.presentation.core.components.material
+package com.kyant.backdrop.catalog.components
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -15,21 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceAtMost
 import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
-import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.catalog.utils.InteractiveHighlight
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
-import com.kyant.backdrop.highlight.Highlight
-import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -40,49 +35,35 @@ import kotlin.math.tanh
 @Composable
 fun LiquidButton(
     onClick: () -> Unit,
+    backdrop: Backdrop,
     modifier: Modifier = Modifier,
-    backdrop: Backdrop? = null,
     isInteractive: Boolean = true,
     tint: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
-    height: Dp = 48.dp,
-    shape: Shape = Capsule(),
-    content: @Composable RowScope.() -> Unit,
+    content: @Composable RowScope.() -> Unit
 ) {
-    val activeBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
-        drawRect(Color.White.copy(alpha = 0.05f))
-    }
-    val config = LocalLiquidGlassConfig.current
-    val isDark = isSystemInDarkTheme()
     val animationScope = rememberCoroutineScope()
 
     val interactiveHighlight = remember(animationScope) {
         InteractiveHighlight(
-            animationScope = animationScope,
+            animationScope = animationScope
         )
     }
 
     Row(
         modifier
             .drawBackdrop(
-                backdrop = activeBackdrop,
-                shape = { shape },
+                backdrop = backdrop,
+                shape = { Capsule() },
                 effects = {
                     vibrancy()
                     blur(2f.dp.toPx())
-                    lens(
-                        refractionHeight = 12f.dp.toPx() * config.refractionMultiplier,
-                        refractionAmount = 24f.dp.toPx() * config.refractionMultiplier,
-                        depthEffect = true,
-                        chromaticAberration = config.chromaticAberration,
-                    )
+                    lens(12f.dp.toPx(), 24f.dp.toPx())
                 },
-                highlight = { Highlight.Default },
-                shadow = { Shadow.Default },
                 layerBlock = if (isInteractive) {
                     {
                         val width = size.width
-                        val h = size.height
+                        val height = size.height
 
                         val progress = interactiveHighlight.pressProgress
                         val scale = lerp(1f, 1f + 4f.dp.toPx() / size.height, progress)
@@ -97,12 +78,12 @@ fun LiquidButton(
                         val offsetAngle = atan2(offset.y, offset.x)
                         scaleX =
                             scale +
-                            maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension) *
-                            (width / h).fastCoerceAtMost(1f)
+                                    maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension) *
+                                    (width / height).fastCoerceAtMost(1f)
                         scaleY =
                             scale +
-                            maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension) *
-                            (h / width).fastCoerceAtMost(1f)
+                                    maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension) *
+                                    (height / width).fastCoerceAtMost(1f)
                     }
                 } else {
                     null
@@ -114,16 +95,14 @@ fun LiquidButton(
                     }
                     if (surfaceColor.isSpecified) {
                         drawRect(surfaceColor)
-                    } else {
-                        drawRect(if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.35f))
                     }
-                },
+                }
             )
             .clickable(
                 interactionSource = null,
                 indication = if (isInteractive) null else LocalIndication.current,
                 role = Role.Button,
-                onClick = onClick,
+                onClick = onClick
             )
             .then(
                 if (isInteractive) {
@@ -132,12 +111,12 @@ fun LiquidButton(
                         .then(interactiveHighlight.gestureModifier)
                 } else {
                     Modifier
-                },
+                }
             )
-            .height(height)
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            .height(48f.dp)
+            .padding(horizontal = 16f.dp),
+        horizontalArrangement = Arrangement.spacedBy(8f.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
-        content = content,
+        content = content
     )
 }

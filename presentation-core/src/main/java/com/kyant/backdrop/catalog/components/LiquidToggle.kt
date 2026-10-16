@@ -1,4 +1,4 @@
-package tachiyomi.presentation.core.components.material
+package com.kyant.backdrop.catalog.components
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -32,9 +32,9 @@ import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
-import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.catalog.utils.DampedDragAnimation
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -48,12 +48,9 @@ import kotlinx.coroutines.flow.collectLatest
 fun LiquidToggle(
     selected: () -> Boolean,
     onSelect: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    backdrop: Backdrop? = null,
+    backdrop: Backdrop,
+    modifier: Modifier = Modifier
 ) {
-    val activeBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
-        drawRect(Color.White.copy(alpha = 0.05f))
-    }
     val isLightTheme = !isSystemInDarkTheme()
     val accentColor =
         if (isLightTheme) Color(0xFF34C759)
@@ -95,13 +92,13 @@ fun LiquidToggle(
                 fraction =
                     if (isLtr) (fraction + delta).fastCoerceIn(0f, 1f)
                     else (fraction - delta).fastCoerceIn(0f, 1f)
-            },
+            }
         )
     }
     LaunchedEffect(dampedDragAnimation) {
         snapshotFlow { fraction }
-            .collectLatest { f ->
-                dampedDragAnimation.updateValue(f)
+            .collectLatest { fraction ->
+                dampedDragAnimation.updateValue(fraction)
             }
     }
     LaunchedEffect(selected) {
@@ -119,27 +116,27 @@ fun LiquidToggle(
 
     Box(
         modifier,
-        contentAlignment = Alignment.CenterStart,
+        contentAlignment = Alignment.CenterStart
     ) {
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
                 .clip(Capsule())
                 .drawBehind {
-                    val frac = dampedDragAnimation.value
-                    drawRect(lerp(trackColor, accentColor, frac))
+                    val fraction = dampedDragAnimation.value
+                    drawRect(lerp(trackColor, accentColor, fraction))
                 }
-                .size(64f.dp, 28f.dp),
+                .size(64f.dp, 28f.dp)
         )
 
         Box(
             Modifier
                 .graphicsLayer {
-                    val frac = dampedDragAnimation.value
+                    val fraction = dampedDragAnimation.value
                     val padding = 2f.dp.toPx()
                     translationX =
-                        if (isLtr) lerp(padding, padding + dragWidth, frac)
-                        else lerp(-padding, -(padding + dragWidth), frac)
+                        if (isLtr) lerp(padding, padding + dragWidth, fraction)
+                        else lerp(-padding, -(padding + dragWidth), fraction)
                 }
                 .semantics {
                     role = Role.Switch
@@ -147,7 +144,7 @@ fun LiquidToggle(
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
-                        activeBackdrop,
+                        backdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
                             val scaleX = lerp(2f / 3f, 0.75f, progress)
@@ -155,7 +152,7 @@ fun LiquidToggle(
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
                             }
-                        },
+                        }
                     ),
                     shape = { Capsule() },
                     effects = {
@@ -164,7 +161,7 @@ fun LiquidToggle(
                         lens(
                             5f.dp.toPx() * progress,
                             10f.dp.toPx() * progress,
-                            chromaticAberration = true,
+                            chromaticAberration = true
                         )
                     },
                     highlight = {
@@ -172,20 +169,20 @@ fun LiquidToggle(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress,
+                            alpha = progress
                         )
                     },
                     shadow = {
                         Shadow(
                             radius = 4f.dp,
-                            color = Color.Black.copy(alpha = 0.05f),
+                            color = Color.Black.copy(alpha = 0.05f)
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
                             radius = 4f.dp * progress,
-                            alpha = progress,
+                            alpha = progress
                         )
                     },
                     layerBlock = {
@@ -198,9 +195,9 @@ fun LiquidToggle(
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
                         drawRect(Color.White.copy(alpha = 1f - progress))
-                    },
+                    }
                 )
-                .size(40f.dp, 24f.dp),
+                .size(40f.dp, 24f.dp)
         )
     }
 }

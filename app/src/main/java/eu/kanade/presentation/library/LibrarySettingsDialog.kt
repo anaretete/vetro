@@ -14,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Checkbox
+import tachiyomi.presentation.core.components.material.CupertinoCheckmark
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,8 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import dev.icerock.moko.resources.StringResource
 import eu.kanade.presentation.category.visualName
@@ -496,25 +500,33 @@ private fun CategoriesFilter(
         )
     }
 
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Row(
         modifier = Modifier
             .clickable(onClick = { libraryPreferences.filterCategories().toggle() })
             .fillMaxWidth()
-            .padding(horizontal = SettingsItemsPaddings.Horizontal),
+            .padding(horizontal = SettingsItemsPaddings.Horizontal, vertical = SettingsItemsPaddings.Vertical),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        Checkbox(
-            checked = filterCategories,
-            onCheckedChange = null,
-        )
         Text(
             text = stringResource(MR.strings.categories),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.weight(1f))
         TextButton(onClick = { showCategoriesDialog = true }) {
-            Text(stringResource(MR.strings.action_edit))
+            Text(stringResource(MR.strings.action_edit), color = Color(0xFF0A84FF))
+        }
+        if (isGlass) {
+            CupertinoCheckmark(
+                checked = filterCategories,
+                tint = Color(0xFF0A84FF),
+            )
+        } else {
+            Checkbox(
+                checked = filterCategories,
+                onCheckedChange = null,
+            )
         }
     }
 }

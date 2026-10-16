@@ -1,4 +1,4 @@
-package tachiyomi.presentation.core.components.material
+package com.kyant.backdrop.catalog.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +23,7 @@ internal val LocalLiquidBottomTabScale =
 fun RowScope.LiquidBottomTab(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     val scale = LocalLiquidBottomTabScale.current
     Column(
@@ -33,17 +33,17 @@ fun RowScope.LiquidBottomTab(
                 interactionSource = null,
                 indication = null,
                 role = Role.Tab,
-                onClick = onClick,
+                onClick = onClick
             )
             .fillMaxHeight()
             .weight(1f)
             .graphicsLayer {
-                val s = scale()
-                scaleX = s
-                scaleY = s
+                val scale = scale()
+                scaleX = scale
+                scaleY = scale
             },
-        verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(2f.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
-        content = content,
+        content = content
     )
 }

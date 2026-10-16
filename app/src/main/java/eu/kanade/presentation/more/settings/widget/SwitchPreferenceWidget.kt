@@ -33,7 +33,7 @@ fun SwitchPreferenceWidget(
         widget = {
             Switch(
                 checked = checked,
-                onCheckedChange = null,
+                onCheckedChange = onCheckedChanged,
                 modifier = Modifier.padding(start = TrailingWidgetBuffer),
             )
         },

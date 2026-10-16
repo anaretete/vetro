@@ -69,7 +69,7 @@ fun AdaptiveSheet(
     val scope = rememberCoroutineScope()
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val sheetBg = if (isDark) Color(0xFF202024).copy(alpha = 0.75f) else Color(0xFFFBFBFB).copy(alpha = 0.85f)
+    val sheetBg = if (isDark) Color(0xFF161618).copy(alpha = 0.85f) else Color(0xFFF2F2F7).copy(alpha = 0.90f)
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -158,7 +158,11 @@ fun AdaptiveSheet(
                 scope.launch { anchoredDraggableState.animateTo(1) }
             }
         }
-        val bottomSheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        val bottomSheetShape = if (isGlass) {
+            com.kyant.shapes.UnevenRoundedRectangle(32.dp, 32.dp, 0.dp, 0.dp, com.kyant.shapes.RoundedCornerStyle.Continuous)
+        } else {
+            RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        }
 
         Box(
             modifier = Modifier

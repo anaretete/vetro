@@ -258,48 +258,25 @@ object SettingsDataScreen : SearchableSettings {
             title = stringResource(MR.strings.label_backup),
             preferenceItems = persistentListOf(
                 // Manual actions
-                Preference.PreferenceItem.CustomPreference(
-                    title = stringResource(restorePreferenceKeyString),
-                ) {
-                    BasePreferenceWidget(
-                        subcomponent = {
-                            MultiChoiceSegmentedButtonRow(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(intrinsicSize = IntrinsicSize.Min)
-                                    .padding(horizontal = PrefsHorizontalPadding),
-                            ) {
-                                SegmentedButton(
-                                    modifier = Modifier.fillMaxHeight(),
-                                    checked = false,
-                                    onCheckedChange = { navigator.push(CreateBackupScreen()) },
-                                    shape = SegmentedButtonDefaults.itemShape(0, 2),
-                                ) {
-                                    Text(stringResource(MR.strings.pref_create_backup))
-                                }
-                                SegmentedButton(
-                                    modifier = Modifier.fillMaxHeight(),
-                                    checked = false,
-                                    onCheckedChange = {
-                                        if (!BackupRestoreJob.isRunning(context)) {
-                                            if (DeviceUtil.isMiui && DeviceUtil.isMiuiOptimizationDisabled()) {
-                                                context.toast(MR.strings.restore_miui_warning)
-                                            }
-
-                                            // no need to catch because it's wrapped with a chooser
-                                            chooseBackup.launch("*/*")
-                                        } else {
-                                            context.toast(MR.strings.restore_in_progress)
-                                        }
-                                    },
-                                    shape = SegmentedButtonDefaults.itemShape(1, 2),
-                                ) {
-                                    Text(stringResource(MR.strings.pref_restore_backup))
-                                }
+                Preference.PreferenceItem.TextPreference(
+                    title = stringResource(MR.strings.pref_create_backup),
+                    onClick = { navigator.push(CreateBackupScreen()) },
+                ),
+                Preference.PreferenceItem.TextPreference(
+                    title = stringResource(MR.strings.pref_restore_backup),
+                    onClick = {
+                        if (!BackupRestoreJob.isRunning(context)) {
+                            if (DeviceUtil.isMiui && DeviceUtil.isMiuiOptimizationDisabled()) {
+                                context.toast(MR.strings.restore_miui_warning)
                             }
-                        },
-                    )
-                },
+
+                            // no need to catch because it's wrapped with a chooser
+                            chooseBackup.launch("*/*")
+                        } else {
+                            context.toast(MR.strings.restore_in_progress)
+                        }
+                    },
+                ),
 
                 // Automatic backups
                 Preference.PreferenceItem.ListPreference(

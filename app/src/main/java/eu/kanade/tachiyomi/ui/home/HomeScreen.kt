@@ -50,6 +50,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.ui.graphics.Color
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.catalog.components.LiquidBottomTabs
+import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -317,109 +320,47 @@ object HomeScreen : Screen() {
         modifier: Modifier = Modifier,
         alwaysShowLabel: Boolean = true,
     ) {
-        val navBarExportedBackdrop = com.kyant.backdrop.backdrops.rememberLayerBackdrop()
+        val backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop()
         val selectedIndex = remember(currentTab, tabs) {
             tabs.indexOfFirst { it.key == currentTab.key }.coerceAtLeast(0)
         }
 
-        BoxWithConstraints(
+        Box(
             modifier = modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(NavigationBarDefaults.windowInsets)
-                .padding(horizontal = 20.dp, vertical = 12.dp)
-                .height(64.dp)
-                .liquidGlassSurface(
-                    shape = CircleShape,
-                    blurRadius = 22.dp,
-                    refractionHeight = 26.dp,
-                    refractionAmount = 38.dp,
-                    exportedBackdrop = navBarExportedBackdrop,
-                )
-                .padding(4.dp),
-            contentAlignment = Alignment.CenterStart,
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            val tabWidth = maxWidth / tabs.size.coerceAtLeast(1)
-            val indicatorOffset by animateDpAsState(
-                targetValue = tabWidth * selectedIndex,
-                animationSpec = spring(
-                    dampingRatio = 0.76f,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-                label = "iOSNavBarPillOffset",
-            )
-
-            CompositionLocalProvider(LocalLayerBackdrop provides navBarExportedBackdrop) {
-                // 1. Sliding Refractive iOS Glass Pill Indicator (Always tracks selectedIndex reactively!)
-                Box(
-                    modifier = Modifier
-                        .offset(x = indicatorOffset)
-                        .width(tabWidth)
-                        .fillMaxHeight()
-                        .liquidGlassSurface(
-                            shape = CircleShape,
-                            blurRadius = 8.dp,
-                            refractionHeight = 16.dp,
-                            refractionAmount = 28.dp,
-                            tintColor = Color(0xFF0A84FF).copy(alpha = 0.30f),
-                        ),
-                )
-
-                // 2. Interactive Tab Items Foreground
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    tabs.forEach { tab ->
-                        val isSelected = currentTab.key == tab.key
-                        val tabOptions = tab.options
-                        val tintColor by animateColorAsState(
-                            targetValue = if (isSelected) Color(0xFF0A84FF) else MaterialTheme.colorScheme.onSurfaceVariant,
-                            animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                            label = "TabTintColor",
-                        )
-                        val iconScale by animateFloatAsState(
-                            targetValue = if (isSelected) 1.10f else 1.0f,
-                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                            label = "TabIconScale",
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = { onTabSelected(tab) },
+            LiquidBottomTabs(
+                selectedTabIndex = { selectedIndex },
+                onTabSelected = { index ->
+                    if (index in tabs.indices) {
+                        onTabSelected(tabs[index])
+                    }
+                },
+                backdrop = backdrop,
+                tabsCount = tabs.size,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    LiquidBottomTab(
+                        onClick = {
+                            onTabSelected(tab)
+                        },
+                    ) {
+                        NavigationIconItem(tab)
+                        if (alwaysShowLabel) {
+                            Text(
+                                text = tab.options.title,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                    fontWeight = if (selectedIndex == index) FontWeight.SemiBold else FontWeight.Medium,
+                                    letterSpacing = (-0.2).sp,
                                 ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.graphicsLayer {
-                                    scaleX = iconScale
-                                    scaleY = iconScale
-                                },
-                            ) {
-                                CompositionLocalProvider(LocalContentColor provides tintColor) {
-                                    NavigationIconItem(tab)
-                                }
-                                if (alwaysShowLabel) {
-                                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = tabOptions.title,
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontSize = 10.sp,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            letterSpacing = (-0.2).sp,
-                                        ),
-                                        color = tintColor,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-                            }
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
                     }
                 }

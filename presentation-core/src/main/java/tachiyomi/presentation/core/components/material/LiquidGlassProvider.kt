@@ -36,6 +36,7 @@ import com.kyant.shapes.Capsule
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.kyant.shapes.RoundedRectangularShape
+import com.kyant.backdrop.catalog.utils.InteractiveHighlight
 
 @Immutable
 data class LiquidGlassConfig(
@@ -77,7 +78,7 @@ fun Modifier.liquidGlassSurface(
     if (!config.enabled) return@composed this
 
     val isDark = isSystemInDarkTheme()
-    val isPressed by interactionSource?.collectIsPressedAsState() ?: remember { mutableStateOf(false) }
+    val isPressed by (interactionSource?.collectIsPressedAsState() ?: remember { mutableStateOf<Boolean>(false) })
     val animationScope = rememberCoroutineScope()
 
     val interactiveHighlight = remember(animationScope) {

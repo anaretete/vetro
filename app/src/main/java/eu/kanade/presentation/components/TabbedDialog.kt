@@ -28,6 +28,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.Capsule
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
@@ -96,9 +97,9 @@ fun TabbedDialog(
                         modifier = Modifier
                             .weight(1f)
                             .height(36.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .clip(Capsule())
                             .background(
-                                if (isSystemInDarkTheme()) Color(0xFF202734).copy(alpha = 0.85f) else Color(0xFFE5E5EA),
+                                if (isSystemInDarkTheme()) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
                             )
                             .padding(2.dp),
                         contentAlignment = Alignment.CenterStart,
@@ -120,11 +121,11 @@ fun TabbedDialog(
                                 .width(segmentWidth)
                                 .fillMaxHeight()
                                 .liquidGlassSurface(
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = Capsule(),
                                     blurRadius = 8.dp,
                                     refractionHeight = 12.dp,
                                     refractionAmount = 20.dp,
-                                    tintColor = if (isSystemInDarkTheme()) Color(0xFF2E384D).copy(alpha = 0.90f) else Color.White.copy(alpha = 0.95f),
+                                    tintColor = if (isSystemInDarkTheme()) Color(0xFF636366).copy(alpha = 0.90f) else Color.White.copy(alpha = 0.95f),
                                 ),
                         )
 
@@ -136,6 +137,7 @@ fun TabbedDialog(
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
+                                        .clip(Capsule())
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null,
@@ -150,9 +152,9 @@ fun TabbedDialog(
                                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                         ),
                                         color = if (isSelected) {
-                                            if (isSystemInDarkTheme()) Color.White else Color.Black
+                                            Color.White
                                         } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                            Color(0xFF8E8E93)
                                         },
                                         maxLines = 1,
                                     )
@@ -167,14 +169,14 @@ fun TabbedDialog(
                         modifier = Modifier
                             .size(30.dp)
                             .clip(CircleShape)
-                            .background(if (isSystemInDarkTheme()) Color(0xFF262E3D) else Color(0xFFE5E5EA))
+                            .background(if (isSystemInDarkTheme()) Color(0xFF2C2C2E) else Color(0xFFE5E5EA))
                             .clickable(onClick = onDismissRequest),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(MR.strings.action_close),
-                            tint = if (isSystemInDarkTheme()) Color(0xFF8E95A5) else Color(0xFF636366),
+                            tint = if (isSystemInDarkTheme()) Color(0xFF8E8E93) else Color(0xFF636366),
                             modifier = Modifier.size(16.dp),
                         )
                     }

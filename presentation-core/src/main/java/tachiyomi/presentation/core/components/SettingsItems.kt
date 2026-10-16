@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.StringResource
 import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.TriState
@@ -385,8 +386,14 @@ fun TriStateItem(
         val stateAlpha = if (enabled && onClick != null) 1f else DISABLED_ALPHA
 
         if (isGlass) {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                modifier = Modifier.weight(1f),
+            )
             when (state) {
-                TriState.ENABLED_IS -> CupertinoCheckmark(checked = true)
+                TriState.ENABLED_IS -> CupertinoCheckmark(checked = true, tint = Color(0xFF0A84FF))
                 TriState.DISABLED -> CupertinoCheckmark(checked = false)
                 TriState.ENABLED_NOT -> {
                     Box(
@@ -396,7 +403,7 @@ fun TriStateItem(
                                 shape = androidx.compose.foundation.shape.CircleShape,
                                 blurRadius = 6.dp,
                                 refractionHeight = 8.dp,
-                                tintColor = Color(0xFFFF3B30).copy(alpha = 0.85f),
+                                tintColor = Color(0xFFFF453A).copy(alpha = 0.90f),
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -426,12 +433,12 @@ fun TriStateItem(
                     }
                 },
             )
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
-            style = MaterialTheme.typography.bodyMedium,
-        )
     }
 }
 
@@ -515,6 +522,7 @@ private fun BaseSettingsItem(
     widget: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Row(
         modifier = Modifier
             .clickable(onClick = onClick)
@@ -524,12 +532,22 @@ private fun BaseSettingsItem(
                 vertical = SettingsItemsPaddings.Vertical,
             ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
+        horizontalArrangement = if (isGlass) Arrangement.SpaceBetween else Arrangement.spacedBy(24.dp),
     ) {
-        widget(this)
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        if (isGlass) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+            widget(this)
+        } else {
+            widget(this)
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
