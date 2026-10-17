@@ -67,6 +67,7 @@ import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.updates.model.UpdatesWithRelations
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.selectedBackground
@@ -250,24 +251,27 @@ private fun UpdatesUiItem(
     val textAlpha = if (update.read) DISABLED_ALPHA else 1f
 
     // KMK -->
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val swipeBackground = MaterialTheme.colorScheme.primaryContainer
-    val swipeStart = remember(updateSwipeStartAction, update.read, update.bookmark, downloadStateProvider()) {
+    val swipeStart = remember(updateSwipeStartAction, update.read, update.bookmark, downloadStateProvider(), isGlass) {
         getSwipeAction(
             action = updateSwipeStartAction,
             read = update.read,
             bookmark = update.bookmark,
             downloadState = downloadStateProvider(),
             background = swipeBackground,
+            isGlass = isGlass,
             onSwipe = { onUpdateSwipe(updateSwipeStartAction) },
         )
     }
-    val swipeEnd = remember(updateSwipeEndAction, update.read, update.bookmark, downloadStateProvider()) {
+    val swipeEnd = remember(updateSwipeEndAction, update.read, update.bookmark, downloadStateProvider(), isGlass) {
         getSwipeAction(
             action = updateSwipeEndAction,
             read = update.read,
             bookmark = update.bookmark,
             downloadState = downloadStateProvider(),
             background = swipeBackground,
+            isGlass = isGlass,
             onSwipe = { onUpdateSwipe(updateSwipeEndAction) },
         )
     }
@@ -277,7 +281,7 @@ private fun UpdatesUiItem(
         startActions = listOfNotNull(swipeStart),
         endActions = listOfNotNull(swipeEnd),
         swipeThreshold = swipeActionThreshold,
-        backgroundUntilSwipeThreshold = MaterialTheme.colorScheme.surfaceContainerLowest,
+        backgroundUntilSwipeThreshold = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
         // KMK <--
         Row(

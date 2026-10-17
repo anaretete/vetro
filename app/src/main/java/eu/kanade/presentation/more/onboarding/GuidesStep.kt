@@ -42,7 +42,7 @@ internal class GuidesStep(
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     onClick = { handler.openUri(GETTING_STARTED_URL) },
                     tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
-                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                    shape = com.kyant.shapes.Capsule(),
                 ) {
                     Text(
                         text = stringResource(MR.strings.getting_started_guide),
@@ -71,7 +71,7 @@ internal class GuidesStep(
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     onClick = onRestoreBackup,
                     tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
-                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                    shape = com.kyant.shapes.Capsule(),
                 ) {
                     Text(
                         text = stringResource(MR.strings.pref_restore_backup),

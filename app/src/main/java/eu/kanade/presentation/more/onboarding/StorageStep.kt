@@ -80,7 +80,7 @@ internal class StorageStep : OnboardingStep {
                         }
                     },
                     tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
-                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                    shape = com.kyant.shapes.Capsule(),
                 ) {
                     Text(
                         text = stringResource(MR.strings.onboarding_storage_action_select),
@@ -115,7 +115,7 @@ internal class StorageStep : OnboardingStep {
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     onClick = { handler.openUri(SettingsDataScreen.HELP_URL) },
                     tint = androidx.compose.ui.graphics.Color(0xFF007AFF),
-                    shape = com.kyant.shapes.RoundedRectangle(12.dp, com.kyant.shapes.RoundedCornerStyle.Continuous),
+                    shape = com.kyant.shapes.Capsule(),
                 ) {
                     Text(
                         text = stringResource(MR.strings.onboarding_storage_help_action),

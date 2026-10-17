@@ -69,6 +69,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.kyant.backdrop.catalog.components.LiquidButton
+import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedCornerStyle
 import com.kyant.shapes.RoundedRectangle
 import tachiyomi.presentation.core.components.material.CupertinoIconBadge
@@ -573,7 +574,7 @@ fun Sponsor() {
             LiquidButton(
                 onClick = { context.openInBrowser(Constants.SPONSOR) },
                 tint = Color(0xFFFF2D55),
-                shape = RoundedCornerShape(20.dp),
+                shape = Capsule(),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
             ) {
                 Row(

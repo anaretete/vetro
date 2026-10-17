@@ -74,8 +74,9 @@ fun MangaChapterListItem(
     modifier: Modifier = Modifier,
 ) {
     // KMK -->
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val swipeBackground = MaterialTheme.colorScheme.primaryContainer
-    val swipeStart = remember(chapterSwipeStartAction, read, bookmark, downloadStateProvider()) {
+    val swipeStart = remember(chapterSwipeStartAction, read, bookmark, downloadStateProvider(), isGlass) {
         // KMK <--
         getSwipeAction(
             action = chapterSwipeStartAction,
@@ -83,11 +84,12 @@ fun MangaChapterListItem(
             bookmark = bookmark,
             downloadState = downloadStateProvider(),
             background = swipeBackground,
+            isGlass = isGlass,
             onSwipe = { onChapterSwipe(chapterSwipeStartAction) },
         )
     }
     // KMK -->
-    val swipeEnd = remember(chapterSwipeEndAction, read, bookmark, downloadStateProvider()) {
+    val swipeEnd = remember(chapterSwipeEndAction, read, bookmark, downloadStateProvider(), isGlass) {
         // KMK <--
         getSwipeAction(
             action = chapterSwipeEndAction,
@@ -95,6 +97,7 @@ fun MangaChapterListItem(
             bookmark = bookmark,
             downloadState = downloadStateProvider(),
             background = swipeBackground,
+            isGlass = isGlass,
             onSwipe = { onChapterSwipe(chapterSwipeEndAction) },
         )
     }
@@ -104,9 +107,8 @@ fun MangaChapterListItem(
         startActions = listOfNotNull(swipeStart),
         endActions = listOfNotNull(swipeEnd),
         swipeThreshold = swipeActionThreshold,
-        backgroundUntilSwipeThreshold = MaterialTheme.colorScheme.surfaceContainerLowest,
+        backgroundUntilSwipeThreshold = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLowest,
     ) {
-        val isGlass = LocalLiquidGlassConfig.current.enabled
         val itemShape = RoundedCornerShape(14.dp)
         Row(
             modifier = Modifier
@@ -224,30 +226,45 @@ internal fun getSwipeAction(
     bookmark: Boolean,
     downloadState: Download.State,
     background: Color,
+    isGlass: Boolean = false,
     onSwipe: () -> Unit,
 ): me.saket.swipe.SwipeAction? {
     return when (action) {
         LibraryPreferences.ChapterSwipeAction.ToggleRead -> swipeAction(
             icon = if (!read) Icons.Outlined.Done else Icons.Outlined.RemoveDone,
-            background = background,
+            background = if (isGlass) Color(0xFF007AFF) else background,
+            iconTint = if (isGlass) Color.White else null,
             isUndo = read,
             onSwipe = onSwipe,
         )
         LibraryPreferences.ChapterSwipeAction.ToggleBookmark -> swipeAction(
-            icon = if (!bookmark) Icons.Outlined.BookmarkAdd else Icons.Outlined.BookmarkRemove,
-            background = background,
+            icon = if (!bookmark) Icons.Filled.Bookmark else Icons.Outlined.BookmarkRemove,
+            background = if (isGlass) Color(0xFFFF9500) else background,
+            iconTint = if (isGlass) Color.White else null,
             isUndo = bookmark,
             onSwipe = onSwipe,
         )
-        LibraryPreferences.ChapterSwipeAction.Download -> swipeAction(
-            icon = when (downloadState) {
-                Download.State.NOT_DOWNLOADED, Download.State.ERROR -> Icons.Outlined.Download
-                Download.State.QUEUE, Download.State.DOWNLOADING -> Icons.Outlined.FileDownloadOff
-                Download.State.DOWNLOADED -> Icons.Outlined.Delete
-            },
-            background = background,
-            onSwipe = onSwipe,
-        )
+        LibraryPreferences.ChapterSwipeAction.Download -> {
+            val bg = if (isGlass) {
+                when (downloadState) {
+                    Download.State.DOWNLOADED -> Color(0xFFFF3B30)
+                    Download.State.QUEUE, Download.State.DOWNLOADING -> Color(0xFFFF9500)
+                    Download.State.NOT_DOWNLOADED, Download.State.ERROR -> Color(0xFF34C759)
+                }
+            } else {
+                background
+            }
+            swipeAction(
+                icon = when (downloadState) {
+                    Download.State.NOT_DOWNLOADED, Download.State.ERROR -> Icons.Outlined.Download
+                    Download.State.QUEUE, Download.State.DOWNLOADING -> Icons.Outlined.FileDownloadOff
+                    Download.State.DOWNLOADED -> Icons.Outlined.Delete
+                },
+                background = bg,
+                iconTint = if (isGlass) Color.White else null,
+                onSwipe = onSwipe,
+            )
+        }
         LibraryPreferences.ChapterSwipeAction.Disabled -> null
     }
 }
@@ -256,6 +273,7 @@ internal fun swipeAction(
     onSwipe: () -> Unit,
     icon: ImageVector,
     background: Color,
+    iconTint: Color? = null,
     isUndo: Boolean = false,
 ): me.saket.swipe.SwipeAction {
     return me.saket.swipe.SwipeAction(
@@ -265,7 +283,7 @@ internal fun swipeAction(
                     .padding(horizontal = 16.dp)
                     .size(IndicatorSize),
                 imageVector = icon,
-                tint = contentColorFor(background),
+                tint = iconTint ?: contentColorFor(background),
                 contentDescription = null,
             )
         },

@@ -357,17 +357,18 @@ fun FloatingActionButton(
     content: @Composable () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == FloatingActionButtonDefaults.shape) CircleShape else shape
     M3FloatingActionButton(
         onClick = onClick,
         modifier = modifier.liquidGlassSurface(
-            shape = shape,
+            shape = effectiveShape,
             interactionSource = interactionSource,
             blurRadius = 16.dp,
             refractionHeight = 20.dp,
             refractionAmount = 32.dp,
             tintColor = containerColor,
         ),
-        shape = shape,
+        shape = effectiveShape,
         containerColor = if (isGlass) Color.Transparent else containerColor,
         contentColor = contentColor,
         elevation = if (isGlass) FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp) else elevation,
@@ -388,17 +389,18 @@ fun SmallFloatingActionButton(
     content: @Composable () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == FloatingActionButtonDefaults.smallShape) CircleShape else shape
     M3SmallFloatingActionButton(
         onClick = onClick,
         modifier = modifier.liquidGlassSurface(
-            shape = shape,
+            shape = effectiveShape,
             interactionSource = interactionSource,
             blurRadius = 14.dp,
             refractionHeight = 16.dp,
             refractionAmount = 26.dp,
             tintColor = containerColor,
         ),
-        shape = shape,
+        shape = effectiveShape,
         containerColor = if (isGlass) Color.Transparent else containerColor,
         contentColor = contentColor,
         elevation = if (isGlass) FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp) else elevation,
@@ -419,17 +421,18 @@ fun LargeFloatingActionButton(
     content: @Composable () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == FloatingActionButtonDefaults.largeShape) CircleShape else shape
     M3LargeFloatingActionButton(
         onClick = onClick,
         modifier = modifier.liquidGlassSurface(
-            shape = shape,
+            shape = effectiveShape,
             interactionSource = interactionSource,
             blurRadius = 18.dp,
             refractionHeight = 24.dp,
             refractionAmount = 38.dp,
             tintColor = containerColor,
         ),
-        shape = shape,
+        shape = effectiveShape,
         containerColor = if (isGlass) Color.Transparent else containerColor,
         contentColor = contentColor,
         elevation = if (isGlass) FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp) else elevation,
@@ -445,19 +448,20 @@ fun ExtendedFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     expanded: Boolean = true,
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = CircleShape,
     containerColor: Color = FloatingActionButtonDefaults.containerColor,
     contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass) CircleShape else shape
     M3ExtendedFloatingActionButton(
         text = text,
         icon = icon,
         onClick = onClick,
         modifier = modifier.liquidGlassSurface(
-            shape = shape,
+            shape = effectiveShape,
             interactionSource = interactionSource,
             blurRadius = 16.dp,
             refractionHeight = 22.dp,
@@ -465,7 +469,7 @@ fun ExtendedFloatingActionButton(
             tintColor = containerColor,
         ),
         expanded = expanded,
-        shape = shape,
+        shape = effectiveShape,
         containerColor = if (isGlass) Color.Transparent else containerColor,
         contentColor = contentColor,
         elevation = if (isGlass) FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp) else elevation,

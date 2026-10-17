@@ -60,6 +60,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.Capsule
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -296,7 +297,7 @@ fun MangaActionRow(
         modifier
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .liquidGlassSurface(
-                shape = RoundedCornerShape(18.dp),
+                shape = Capsule(),
                 blurRadius = 18.dp,
                 refractionHeight = 20.dp,
                 refractionAmount = 30.dp,
@@ -1088,7 +1089,7 @@ private fun RowScope.MangaActionButton(
     TextButton(
         onClick = onClick,
         modifier = Modifier.weight(1f),
-        shape = if (isGlass) RoundedCornerShape(12.dp) else RoundedCornerShape(16.dp),
+        shape = if (isGlass) Capsule() else RoundedCornerShape(16.dp),
         contentPadding = PaddingValues(vertical = if (isGlass) 6.dp else 8.dp),
         onLongClick = onLongClick,
     ) {

@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.kyant.backdrop.catalog.components.LiquidButton
+import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedCornerStyle
 import com.kyant.shapes.RoundedRectangle
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
@@ -94,7 +95,7 @@ fun InfoScreen(
                         enabled = canAccept,
                         onClick = onAcceptClick,
                         tint = Color(0xFF007AFF),
-                        shape = RoundedRectangle(14.dp, RoundedCornerStyle.Continuous),
+                        shape = Capsule(),
                     ) {
                         Text(
                             text = acceptText,
@@ -108,7 +109,7 @@ fun InfoScreen(
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             onClick = onRejectClick,
                             tint = Color(0xFF8E8E93),
-                            shape = RoundedRectangle(14.dp, RoundedCornerStyle.Continuous),
+                            shape = Capsule(),
                         ) {
                             Text(
                                 text = rejectText,
