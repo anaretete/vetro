@@ -61,11 +61,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.kyant.shapes.Capsule
+import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.RoundedRectangle
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
@@ -145,13 +149,13 @@ fun MangaInfoBox(
     onSourceClick: () -> Unit,
     onCoverLoaded: (DomainMangaCover) -> Unit,
     coverRatio: MutableFloatState,
+    coverBackdrop: LayerBackdrop = rememberLayerBackdrop(),
     // KMK <--
 ) {
     // KMK -->
     val usePanoramaCover by Injekt.get<UiPreferences>().usePanoramaCoverMangaInfo().collectAsState()
     val topAlignCover by Injekt.get<UiPreferences>().topAlignCover().collectAsState()
     // KMK <--
-    val coverBackdrop = rememberLayerBackdrop()
     Box(modifier = modifier) {
         // Backdrop
         val backdropGradientColors = listOf(
@@ -293,17 +297,15 @@ fun MangaActionRow(
 
     val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
+    val cardBg = if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
+    val cardDivider = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA)
+
     val actionRowModifier = if (isGlass) {
         modifier
             .padding(horizontal = 16.dp, vertical = 6.dp)
-            .liquidGlassSurface(
-                shape = Capsule(),
-                blurRadius = 18.dp,
-                refractionHeight = 20.dp,
-                refractionAmount = 30.dp,
-                tintColor = if (isDark) Color(0xFF202024).copy(alpha = 0.55f) else Color(0xFFF2F2F7).copy(alpha = 0.70f),
-            )
-            .padding(horizontal = 2.dp, vertical = 4.dp)
+            .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
+            .background(cardBg)
+            .padding(horizontal = 4.dp, vertical = 4.dp)
     } else {
         modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)
     }
@@ -319,7 +321,7 @@ fun MangaActionRow(
                 stringResource(MR.strings.add_to_library)
             },
             icon = if (favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-            color = if (favorite) (if (isGlass) Color(0xFFFF2D55) else MaterialTheme.colorScheme.primary) else defaultActionButtonColor,
+            color = if (favorite) (if (isGlass) Color(0xFFFF375F) else MaterialTheme.colorScheme.primary) else (if (isGlass) Color(0xFF8E8E93) else defaultActionButtonColor),
             onClick = onAddToLibraryClicked,
             onLongClick = onEditCategory,
         )
@@ -328,7 +330,7 @@ fun MangaActionRow(
                 modifier = Modifier
                     .width(0.5.dp)
                     .height(26.dp)
-                    .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+                    .background(cardDivider),
             )
         }
         MangaActionButton(
@@ -354,9 +356,9 @@ fun MangaActionRow(
                 nextUpdateDays?.let { it <= 1 } == true
                 // KMK <--
             ) {
-                MaterialTheme.colorScheme.primary
+                if (isGlass) Color(0xFFFF9F0A) else MaterialTheme.colorScheme.primary
             } else {
-                defaultActionButtonColor
+                if (isGlass) Color(0xFF8E8E93) else defaultActionButtonColor
             },
             onClick = { onEditIntervalClicked?.invoke() },
         )
@@ -365,7 +367,7 @@ fun MangaActionRow(
                 modifier = Modifier
                     .width(0.5.dp)
                     .height(26.dp)
-                    .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+                    .background(cardDivider),
             )
         }
         MangaActionButton(
@@ -375,7 +377,7 @@ fun MangaActionRow(
                 pluralStringResource(MR.plurals.num_trackers, count = trackingCount, trackingCount)
             },
             icon = if (trackingCount == 0) Icons.Outlined.Sync else Icons.Outlined.Done,
-            color = if (trackingCount == 0) defaultActionButtonColor else (if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary),
+            color = if (trackingCount == 0) (if (isGlass) Color(0xFF8E8E93) else defaultActionButtonColor) else (if (isGlass) Color(0xFF30D158) else MaterialTheme.colorScheme.primary),
             onClick = onTrackingClicked,
         )
         if (onWebViewClicked != null) {
@@ -384,13 +386,13 @@ fun MangaActionRow(
                     modifier = Modifier
                         .width(0.5.dp)
                         .height(26.dp)
-                        .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+                        .background(cardDivider),
                 )
             }
             MangaActionButton(
                 title = stringResource(MR.strings.action_web_view),
                 icon = Icons.Outlined.Public,
-                color = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
+                color = if (isGlass) Color(0xFF0A84FF) else MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
                 onClick = onWebViewClicked,
                 onLongClick = onWebViewLongClicked,
             )
@@ -402,13 +404,13 @@ fun MangaActionRow(
                     modifier = Modifier
                         .width(0.5.dp)
                         .height(26.dp)
-                        .background(if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)),
+                        .background(cardDivider),
                 )
             }
             MangaActionButton(
                 title = stringResource(SYMR.strings.merge),
                 icon = Icons.AutoMirrored.Outlined.CallMerge,
-                color = MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
+                color = if (isGlass) Color(0xFFBF5AF2) else MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
                 onClick = onMergeClicked,
             )
         }

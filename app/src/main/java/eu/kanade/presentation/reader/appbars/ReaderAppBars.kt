@@ -137,41 +137,20 @@ fun ReaderAppBars(
                 fadeOut(animationSpec = readerBarsFadeAnimationSpec),
             modifier = Modifier.align(Alignment.TopCenter),
         ) {
-            // SY -->
-            Column {
-                // SY <--
-                ReaderTopBar(
-                    modifier = topBarModifier,
-                    mangaTitle = mangaTitle,
-                    chapterTitle = chapterTitle,
-                    navigateUp = navigateUp,
-                    bookmarked = bookmarked,
-                    onToggleBookmarked = onToggleBookmarked,
-                    // SY -->
-                    onOpenInWebView = null, // onOpenInWebView,
-                    onOpenInBrowser = null, // onOpenInBrowser,
-                    onShare = null, // onShare,
-                    // SY <--
-                    onClickTopAppBar = onClickTopAppBar,
-                )
+            ReaderTopBar(
+                modifier = topBarModifier,
+                mangaTitle = mangaTitle,
+                chapterTitle = chapterTitle,
+                navigateUp = navigateUp,
+                bookmarked = bookmarked,
+                onToggleBookmarked = onToggleBookmarked,
                 // SY -->
-                ExhUtils(
-                    isVisible = isExhToolsVisible,
-                    onSetExhUtilsVisibility = onSetExhUtilsVisibility,
-                    backgroundColor = backgroundColor,
-                    isAutoScroll = isAutoScroll,
-                    isAutoScrollEnabled = isAutoScrollEnabled,
-                    onToggleAutoscroll = onToggleAutoscroll,
-                    autoScrollFrequency = autoScrollFrequency,
-                    onSetAutoScrollFrequency = onSetAutoScrollFrequency,
-                    onClickAutoScrollHelp = onClickAutoScrollHelp,
-                    onClickRetryAll = onClickRetryAll,
-                    onClickRetryAllHelp = onClickRetryAllHelp,
-                    onClickBoostPage = onClickBoostPage,
-                    onClickBoostPageHelp = onClickBoostPageHelp,
-                )
-            }
-            // SY <--
+                onOpenInWebView = null, // onOpenInWebView,
+                onOpenInBrowser = null, // onOpenInBrowser,
+                onShare = null, // onShare,
+                // SY <--
+                onClickTopAppBar = onClickTopAppBar,
+            )
         }
 
         // KMK -->

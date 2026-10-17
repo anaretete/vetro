@@ -47,6 +47,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
@@ -74,10 +75,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.ui.UiPreferences
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import eu.kanade.presentation.browse.RelatedMangaTitle
 import eu.kanade.presentation.components.relativeDateText
 import eu.kanade.presentation.manga.components.ChapterDownloadAction
@@ -465,6 +469,8 @@ private fun MangaScreenSmallImpl(
         onAllChapterSelected(false)
     }
 
+    val mangaCoverBackdrop = rememberLayerBackdrop()
+
     Scaffold(
         topBar = {
             val selectedChapterCount: Int = remember(chapters) {
@@ -538,16 +544,17 @@ private fun MangaScreenSmallImpl(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
-            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
-            val hasUnread = remember(chapters) {
-                chapters.fastAny { !it.chapter.read }
-            }
-            val isFABVisible = if (isGlass) {
-                hasUnread && !isAnySelected && chapterListState.firstVisibleItemIndex > 1
-            } else {
-                hasUnread && !isAnySelected
-            }
-            SmallExtendedFloatingActionButton(
+            CompositionLocalProvider(LocalLayerBackdrop provides mangaCoverBackdrop) {
+                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+                val hasUnread = remember(chapters) {
+                    chapters.fastAny { !it.chapter.read }
+                }
+                val isFABVisible = if (isGlass) {
+                    hasUnread && !isAnySelected && chapterListState.firstVisibleItemIndex > 1
+                } else {
+                    hasUnread && !isAnySelected
+                }
+                SmallExtendedFloatingActionButton(
                 text = {
                     val isReading = remember(state.chapters) {
                         state.chapters.fastAny { it.chapter.read }
@@ -603,6 +610,7 @@ private fun MangaScreenSmallImpl(
                 containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
                 // KMK <--
             )
+            }
         },
         // KMK -->
         floatingActionButtonPosition = if (fabPosition == FabPosition.End.toString()) {
@@ -631,38 +639,40 @@ private fun MangaScreenSmallImpl(
                 topContentPadding = topPadding,
                 endContentPadding = contentPadding.calculateEndPadding(layoutDirection),
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxHeight(),
-                    state = chapterListState,
-                    contentPadding = PaddingValues(
-                        start = contentPadding.calculateStartPadding(layoutDirection),
-                        end = contentPadding.calculateEndPadding(layoutDirection),
-                        bottom = contentPadding.calculateBottomPadding() + 80.dp,
-                    ),
-                ) {
-                    item(
-                        key = MangaScreenItem.INFO_BOX,
-                        contentType = MangaScreenItem.INFO_BOX,
+                CompositionLocalProvider(LocalLayerBackdrop provides mangaCoverBackdrop) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxHeight(),
+                        state = chapterListState,
+                        contentPadding = PaddingValues(
+                            start = contentPadding.calculateStartPadding(layoutDirection),
+                            end = contentPadding.calculateEndPadding(layoutDirection),
+                            bottom = contentPadding.calculateBottomPadding() + 80.dp,
+                        ),
                     ) {
-                        MangaInfoBox(
-                            isTabletUi = false,
-                            appBarPadding = topPadding,
-                            manga = state.manga,
-                            sourceName = remember { state.source.getNameForMangaInfo(state.mergedData?.sources) },
-                            isStubSource = remember { state.source is StubSource },
-                            // KMK -->
-                            isSourceIncognito = remember { state.source.isIncognitoModeEnabled() },
-                            // KMK <--
-                            onCoverClick = onCoverClicked,
-                            doSearch = onSearch,
-                            // KMK -->
-                            librarySearch = librarySearch,
-                            onSourceClick = onSourceClick,
-                            onCoverLoaded = onCoverLoaded,
-                            coverRatio = coverRatio,
-                            // KMK <--
-                        )
-                    }
+                        item(
+                            key = MangaScreenItem.INFO_BOX,
+                            contentType = MangaScreenItem.INFO_BOX,
+                        ) {
+                            MangaInfoBox(
+                                isTabletUi = false,
+                                appBarPadding = topPadding,
+                                manga = state.manga,
+                                sourceName = remember { state.source.getNameForMangaInfo(state.mergedData?.sources) },
+                                isStubSource = remember { state.source is StubSource },
+                                // KMK -->
+                                isSourceIncognito = remember { state.source.isIncognitoModeEnabled() },
+                                // KMK <--
+                                onCoverClick = onCoverClicked,
+                                doSearch = onSearch,
+                                // KMK -->
+                                librarySearch = librarySearch,
+                                onSourceClick = onSourceClick,
+                                onCoverLoaded = onCoverLoaded,
+                                coverRatio = coverRatio,
+                                coverBackdrop = mangaCoverBackdrop,
+                                // KMK <--
+                            )
+                        }
 
                     item(
                         key = MangaScreenItem.ACTION_ROW,
@@ -905,6 +915,7 @@ private fun MangaScreenSmallImpl(
                     )
                 }
             }
+            }
         }
     }
 }
@@ -1021,6 +1032,8 @@ private fun MangaScreenLargeImpl(
     BackHandler(enabled = isAnySelected) {
         onAllChapterSelected(false)
     }
+
+    val mangaCoverBackdrop = rememberLayerBackdrop()
 
     Scaffold(
         topBar = {
@@ -1179,29 +1192,31 @@ private fun MangaScreenLargeImpl(
                     end = contentPadding.calculateEndPadding(layoutDirection),
                 ),
                 startContent = {
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .padding(bottom = contentPadding.calculateBottomPadding()),
-                    ) {
-                        MangaInfoBox(
-                            isTabletUi = true,
-                            appBarPadding = contentPadding.calculateTopPadding(),
-                            manga = state.manga,
-                            sourceName = remember { state.source.getNameForMangaInfo(state.mergedData?.sources) },
-                            isStubSource = remember { state.source is StubSource },
-                            // KMK -->
-                            isSourceIncognito = remember { state.source.isIncognitoModeEnabled() },
-                            // KMK <--
-                            onCoverClick = onCoverClicked,
-                            doSearch = onSearch,
-                            // KMK -->
-                            librarySearch = librarySearch,
-                            onSourceClick = onSourceClick,
-                            onCoverLoaded = onCoverLoaded,
-                            coverRatio = coverRatio,
-                            // KMK <--
-                        )
+                    CompositionLocalProvider(LocalLayerBackdrop provides mangaCoverBackdrop) {
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(rememberScrollState())
+                                .padding(bottom = contentPadding.calculateBottomPadding()),
+                        ) {
+                            MangaInfoBox(
+                                isTabletUi = true,
+                                appBarPadding = contentPadding.calculateTopPadding(),
+                                manga = state.manga,
+                                sourceName = remember { state.source.getNameForMangaInfo(state.mergedData?.sources) },
+                                isStubSource = remember { state.source is StubSource },
+                                // KMK -->
+                                isSourceIncognito = remember { state.source.isIncognitoModeEnabled() },
+                                // KMK <--
+                                onCoverClick = onCoverClicked,
+                                doSearch = onSearch,
+                                // KMK -->
+                                librarySearch = librarySearch,
+                                onSourceClick = onSourceClick,
+                                onCoverLoaded = onCoverLoaded,
+                                coverRatio = coverRatio,
+                                coverBackdrop = mangaCoverBackdrop,
+                                // KMK <--
+                            )
                         MangaActionRow(
                             favorite = state.manga.favorite,
                             trackingCount = state.trackingCount,
@@ -1262,6 +1277,7 @@ private fun MangaScreenLargeImpl(
                             )
                         }
                         // SY <--
+                    }
                     }
                 },
                 endContent = {

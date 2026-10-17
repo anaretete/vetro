@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.material.icons.Icons
@@ -141,72 +143,77 @@ fun ChapterNavigator(
                 )
             }
 
-            if (totalPages > 1) {
-                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                    val sliderModifier = if (isGlass) {
-                        Modifier
-                            .weight(1f)
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 14.dp,
-                                refractionHeight = 16.dp,
-                                refractionAmount = 24.dp,
-                                surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
-                            )
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    } else {
-                        Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(backgroundColor)
-                            .padding(horizontal = 16.dp)
-                    }
-                    Row(
-                        modifier = sliderModifier,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(contentAlignment = Alignment.CenterEnd) {
-                            Text(
-                                // SY -->
-                                text = currentPageText,
-                                // SY <--
-                                // KMK -->
-                                color = textColor,
-                                // KMK <--
-                            )
-                            // Taking up full length so the slider doesn't shift when 'currentPage' length changes
-                            Text(text = totalPages.toString(), color = Color.Transparent)
-                        }
-
-                        val interactionSource = remember { MutableInteractionSource() }
-                        val sliderDragged by interactionSource.collectIsDraggedAsState()
-                        LaunchedEffect(currentPage) {
-                            if (sliderDragged) {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            }
-                        }
-                        Slider(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = 8.dp),
-                            value = currentPage,
-                            valueRange = 1..totalPages,
-                            onValueChange = f@{
-                                if (it == currentPage) return@f
-                                onPageIndexChange(it - 1)
-                            },
-                            interactionSource = interactionSource,
-                        )
-
+        val sliderPillBackdrop = rememberLayerBackdrop()
+        if (totalPages > 1) {
+            val sliderModifier = if (isGlass) {
+                Modifier
+                    .weight(1f)
+                    .liquidGlassSurface(
+                        shape = Capsule(),
+                        blurRadius = 14.dp,
+                        refractionHeight = 16.dp,
+                        refractionAmount = 24.dp,
+                        surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
+                        exportedBackdrop = sliderPillBackdrop,
+                    )
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+            } else {
+                Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(backgroundColor)
+                    .padding(horizontal = 16.dp)
+            }
+            CompositionLocalProvider(
+                LocalLayoutDirection provides layoutDirection,
+                LocalLayerBackdrop provides (if (isGlass) sliderPillBackdrop else LocalLayerBackdrop.current),
+            ) {
+                Row(
+                    modifier = sliderModifier,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(contentAlignment = Alignment.CenterEnd) {
                         Text(
-                            text = totalPages.toString(),
+                            // SY -->
+                            text = currentPageText,
+                            // SY <--
                             // KMK -->
                             color = textColor,
                             // KMK <--
                         )
+                        // Taking up full length so the slider doesn't shift when 'currentPage' length changes
+                        Text(text = totalPages.toString(), color = Color.Transparent)
                     }
+
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val sliderDragged by interactionSource.collectIsDraggedAsState()
+                    LaunchedEffect(currentPage) {
+                        if (sliderDragged) {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        }
+                    }
+                    Slider(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp),
+                        value = currentPage,
+                        valueRange = 1..totalPages,
+                        onValueChange = f@{
+                            if (it == currentPage) return@f
+                            onPageIndexChange(it - 1)
+                        },
+                        interactionSource = interactionSource,
+                    )
+
+                    Text(
+                        text = totalPages.toString(),
+                        // KMK -->
+                        color = textColor,
+                        // KMK <--
+                    )
                 }
-            } else {
+            }
+        } else {
                 Spacer(Modifier.weight(1f))
             }
 
@@ -269,9 +276,9 @@ fun ChapterNavigatorVert(
             .surfaceColorAtElevation(3.dp)
             .copy(alpha = if (isDark) 0.9f else 0.95f)
         val buttonColor = IconButtonDefaults.filledIconButtonColors(
-            containerColor = if (isGlass) (if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF)) else backgroundColor,
+            containerColor = if (isGlass) Color.Transparent else backgroundColor,
             contentColor = if (isDark) Color.White else Color(0xFF1C1C1E),
-            disabledContainerColor = if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF),
+            disabledContainerColor = if (isGlass) Color.Transparent else (if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF)),
             disabledContentColor = Color.Gray,
         )
         val textColor = MaterialTheme.colorScheme.onSurface
@@ -286,7 +293,6 @@ fun ChapterNavigatorVert(
                     blurRadius = 10.dp,
                     refractionHeight = 12.dp,
                     refractionAmount = 18.dp,
-                    surfaceColor = if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF),
                 )
             } else {
                 Modifier
@@ -299,6 +305,7 @@ fun ChapterNavigatorVert(
             )
         }
 
+        val sliderPillBackdrop = rememberLayerBackdrop()
         if (totalPages > 1) {
             val sliderModifier = if (isGlass) {
                 Modifier
@@ -309,6 +316,7 @@ fun ChapterNavigatorVert(
                         refractionHeight = 16.dp,
                         refractionAmount = 24.dp,
                         surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
+                        exportedBackdrop = sliderPillBackdrop,
                     )
                     .padding(vertical = 12.dp, horizontal = 4.dp)
             } else {
@@ -318,40 +326,42 @@ fun ChapterNavigatorVert(
                     .background(backgroundColor)
                     .padding(vertical = 12.dp)
             }
-            Column(
-                modifier = sliderModifier,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    // SY -->
-                    text = currentPageText,
-                    // SY <--
-                    // KMK -->
-                    color = textColor,
-                    // KMK <--
-                )
+            CompositionLocalProvider(LocalLayerBackdrop provides (if (isGlass) sliderPillBackdrop else LocalLayerBackdrop.current)) {
+                Column(
+                    modifier = sliderModifier,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        // SY -->
+                        text = currentPageText,
+                        // SY <--
+                        // KMK -->
+                        color = textColor,
+                        // KMK <--
+                    )
 
-                CupertinoVerticalSlider(
-                    value = currentPage.toFloat(),
-                    onValueChange = { nextVal ->
-                        val nextInt = nextVal.roundToInt()
-                        if (nextInt != currentPage) {
-                            onPageIndexChange(nextInt - 1)
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        }
-                    },
-                    valueRange = 1f..totalPages.toFloat(),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(vertical = 4.dp),
-                )
+                    CupertinoVerticalSlider(
+                        value = currentPage.toFloat(),
+                        onValueChange = { nextVal ->
+                            val nextInt = nextVal.roundToInt()
+                            if (nextInt != currentPage) {
+                                onPageIndexChange(nextInt - 1)
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
+                        },
+                        valueRange = 1f..totalPages.toFloat(),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(vertical = 4.dp),
+                    )
 
-                Text(
-                    text = totalPages.toString(),
-                    // KMK -->
-                    color = textColor,
-                    // KMK <--
-                )
+                    Text(
+                        text = totalPages.toString(),
+                        // KMK -->
+                        color = textColor,
+                        // KMK <--
+                    )
+                }
             }
         } else {
             Spacer(Modifier.weight(1f))
@@ -367,7 +377,6 @@ fun ChapterNavigatorVert(
                     blurRadius = 10.dp,
                     refractionHeight = 12.dp,
                     refractionAmount = 18.dp,
-                    surfaceColor = if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF),
                 )
             } else {
                 Modifier

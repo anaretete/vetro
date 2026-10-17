@@ -1,10 +1,13 @@
 package eu.kanade.presentation.reader.settings
 
 import tachiyomi.presentation.core.components.material.FilterChip
+import tachiyomi.presentation.core.components.material.CupertinoGroupedSelectionCard
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -52,6 +55,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
     )
     if (colorFilter) {
         val colorFilterValue by screenModel.preferences.colorFilterValue().collectAsState()
+        val isGlass = LocalLiquidGlassConfig.current.enabled
         SliderItem(
             value = colorFilterValue.red,
             valueRange = 0..255,
@@ -63,6 +67,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
                 }
             },
             pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            accentColor = if (isGlass) Color(0xFFFF453A) else null,
         )
         SliderItem(
             value = colorFilterValue.green,
@@ -75,6 +80,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
                 }
             },
             pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            accentColor = if (isGlass) Color(0xFF30D158) else null,
         )
         SliderItem(
             value = colorFilterValue.blue,
@@ -87,6 +93,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
                 }
             },
             pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            accentColor = if (isGlass) Color(0xFF0A84FF) else null,
         )
         SliderItem(
             value = colorFilterValue.alpha,
@@ -99,16 +106,27 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
                 }
             },
             pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            accentColor = if (isGlass) Color(0xFF8E8E93) else null,
         )
 
         val colorFilterMode by screenModel.preferences.colorFilterMode().collectAsState()
-        SettingsChipRow(MR.strings.pref_color_filter_mode) {
-            ColorFilterMode.mapIndexed { index, it ->
-                FilterChip(
-                    selected = colorFilterMode == index,
-                    onClick = { screenModel.preferences.colorFilterMode().set(index) },
-                    label = { Text(stringResource(it.first)) },
-                )
+        if (isGlass) {
+            CupertinoGroupedSelectionCard(
+                title = stringResource(MR.strings.pref_color_filter_mode),
+                options = ColorFilterMode.indices.toList(),
+                selected = colorFilterMode,
+                onSelect = { screenModel.preferences.colorFilterMode().set(it) },
+                labelProvider = { stringResource(ColorFilterMode[it].first) },
+            )
+        } else {
+            SettingsChipRow(MR.strings.pref_color_filter_mode) {
+                ColorFilterMode.mapIndexed { index, it ->
+                    FilterChip(
+                        selected = colorFilterMode == index,
+                        onClick = { screenModel.preferences.colorFilterMode().set(index) },
+                        label = { Text(stringResource(it.first)) },
+                    )
+                }
             }
         }
     }

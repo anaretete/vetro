@@ -217,6 +217,7 @@ fun SliderItem(
     labelStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     pillColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     enabled: Boolean = true,
+    accentColor: Color? = null,
 ) {
     BaseSliderItem(
         value = value,
@@ -228,6 +229,7 @@ fun SliderItem(
         titleStyle = labelStyle,
         pillColor = pillColor,
         enabled = enabled,
+        accentColor = accentColor,
         modifier = Modifier.padding(
             horizontal = SettingsItemsPaddings.Horizontal,
             vertical = SettingsItemsPaddings.Vertical,
@@ -249,6 +251,7 @@ fun BaseSliderItem(
     subtitleStyle: TextStyle = MaterialTheme.typography.bodySmall,
     pillColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     enabled: Boolean = true,
+    accentColor: Color? = null,
 ) {
     val haptic = LocalHapticFeedback.current
     var localPosition by remember(value) { mutableFloatStateOf(value.toFloat()) }
@@ -297,6 +300,7 @@ fun BaseSliderItem(
             valueRange = with(valueRange) { first.toFloat()..last.toFloat() },
             steps = steps,
             enabled = enabled,
+            accentColor = accentColor,
         )
     }
 }

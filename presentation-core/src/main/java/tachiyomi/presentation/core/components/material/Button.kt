@@ -1,7 +1,10 @@
 package tachiyomi.presentation.core.components.material
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,9 +16,12 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -90,14 +96,22 @@ fun Button(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
     val effectiveColors = if (isGlass) {
         M3ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            disabledContainerColor = Color.Transparent,
-            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+            containerColor = Color(0xFF0A84FF),
+            contentColor = Color.White,
+            disabledContainerColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+            disabledContentColor = Color.White.copy(alpha = 0.38f),
         )
     } else colors
+
+    val pressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed) 0.96f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "buttonPressScale",
+    )
 
     val baseModifier = if (onLongClick != null) {
         modifier.combinedClickable(
@@ -111,15 +125,20 @@ fun Button(
         modifier
     }
 
+    val finalModifier = if (isGlass) {
+        baseModifier.graphicsLayer {
+            scaleX = pressScale
+            scaleY = pressScale
+        }
+    } else {
+        baseModifier
+    }
+
     M3Button(
         onClick = onClick,
-        modifier = baseModifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-            tintColor = MaterialTheme.colorScheme.primary,
-        ),
+        modifier = finalModifier,
         enabled = enabled,
-        shape = shape,
+        shape = effectiveShape,
         colors = effectiveColors,
         elevation = if (isGlass) null else elevation,
         border = if (isGlass) null else border,
@@ -143,16 +162,21 @@ fun ElevatedButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
+    val isDark = isSystemInDarkTheme()
+    val effectiveColors = if (isGlass) {
+        M3ButtonDefaults.elevatedButtonColors(
+            containerColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
+            contentColor = if (isDark) Color.White else Color(0xFF1C1C1E),
+        )
+    } else colors
+
     M3ElevatedButton(
         onClick = onClick,
-        modifier = modifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-            tintColor = MaterialTheme.colorScheme.surfaceTint,
-        ),
+        modifier = modifier,
         enabled = enabled,
-        shape = shape,
-        colors = if (isGlass) M3ButtonDefaults.elevatedButtonColors(containerColor = Color.Transparent) else colors,
+        shape = effectiveShape,
+        colors = effectiveColors,
         elevation = if (isGlass) null else elevation,
         border = if (isGlass) null else border,
         contentPadding = contentPadding,
@@ -175,16 +199,29 @@ fun FilledTonalButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
+    val effectiveColors = if (isGlass) {
+        M3ButtonDefaults.filledTonalButtonColors(
+            containerColor = Color(0xFF0A84FF).copy(alpha = 0.16f),
+            contentColor = Color(0xFF0A84FF),
+            disabledContainerColor = Color(0xFF0A84FF).copy(alpha = 0.08f),
+            disabledContentColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+        )
+    } else colors
+
+    val pressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (pressed) 0.96f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "tonalButtonPressScale",
+    )
+
     M3FilledTonalButton(
         onClick = onClick,
-        modifier = modifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-            tintColor = MaterialTheme.colorScheme.secondaryContainer,
-        ),
+        modifier = if (isGlass) modifier.graphicsLayer { scaleX = pressScale; scaleY = pressScale } else modifier,
         enabled = enabled,
-        shape = shape,
-        colors = if (isGlass) M3ButtonDefaults.filledTonalButtonColors(containerColor = Color.Transparent) else colors,
+        shape = effectiveShape,
+        colors = effectiveColors,
         elevation = if (isGlass) null else elevation,
         border = if (isGlass) null else border,
         contentPadding = contentPadding,
@@ -207,17 +244,26 @@ fun OutlinedButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
+    val effectiveColors = if (isGlass) {
+        M3ButtonDefaults.outlinedButtonColors(
+            containerColor = Color.Transparent,
+            contentColor = Color(0xFF0A84FF),
+            disabledContentColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+        )
+    } else colors
+    val effectiveBorder = if (isGlass) {
+        BorderStroke(1.dp, Color(0xFF0A84FF).copy(alpha = 0.40f))
+    } else border
+
     M3OutlinedButton(
         onClick = onClick,
-        modifier = modifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-        ),
+        modifier = modifier,
         enabled = enabled,
-        shape = shape,
-        colors = if (isGlass) M3ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent) else colors,
+        shape = effectiveShape,
+        colors = effectiveColors,
         elevation = if (isGlass) null else elevation,
-        border = if (isGlass) null else border,
+        border = effectiveBorder,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         content = content,
@@ -238,6 +284,14 @@ fun TextButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveColors = if (isGlass) {
+        M3ButtonDefaults.textButtonColors(
+            contentColor = Color(0xFF0A84FF),
+            disabledContentColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+        )
+    } else colors
+
     val baseModifier = if (onLongClick != null) {
         modifier.combinedClickable(
             interactionSource = interactionSource,
@@ -255,7 +309,7 @@ fun TextButton(
         modifier = baseModifier,
         enabled = enabled,
         shape = shape,
-        colors = colors,
+        colors = effectiveColors,
         elevation = elevation,
         border = border,
         contentPadding = contentPadding,
@@ -511,31 +565,14 @@ fun FilterChip(
     if (isGlass) {
         val pillShape = Capsule()
         val isDark = isSystemInDarkTheme()
-        val selectedBg = Color(0xFF1B4D7E)
-        val unselectedBg = if (isDark) Color(0xFF2C2C2E).copy(alpha = 0.70f) else Color(0xFFE5E5EA).copy(alpha = 0.85f)
-        val selectedBorder = Color(0xFF3A88D8).copy(alpha = 0.60f)
-        val unselectedBorder = if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.50f) else Color(0xFFC7C7CC).copy(alpha = 0.70f)
-        val contentColor = if (selected) Color.White else if (isDark) Color(0xFFE5E5EA) else Color(0xFF1C1C1E)
+        val unselectedBg = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
+        val selectedBg = Color(0xFF0A84FF)
+        val contentColor = if (selected) Color.White else (if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E))
 
         Box(
             modifier = modifier
                 .clip(pillShape)
                 .background(if (selected) selectedBg else unselectedBg)
-                .border(
-                    BorderStroke(
-                        width = 0.75.dp,
-                        color = if (selected) selectedBorder else unselectedBorder,
-                    ),
-                    shape = pillShape,
-                )
-                .liquidGlassSurface(
-                    shape = pillShape,
-                    interactionSource = interactionSource,
-                    blurRadius = 8.dp,
-                    refractionHeight = 10.dp,
-                    refractionAmount = 14.dp,
-                    tintColor = if (selected) selectedBg else Color.Transparent,
-                )
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
@@ -596,23 +633,24 @@ fun AssistChip(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
+    val isDark = isSystemInDarkTheme()
+    val effectiveColors = if (isGlass) {
+        AssistChipDefaults.assistChipColors(
+            containerColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
+            labelColor = if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E),
+        )
+    } else colors
+
     M3AssistChip(
         onClick = onClick,
         label = label,
-        modifier = modifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-            blurRadius = 10.dp,
-            refractionHeight = 12.dp,
-            refractionAmount = 18.dp,
-        ),
+        modifier = modifier,
         enabled = enabled,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
-        shape = shape,
-        colors = if (isGlass) {
-            AssistChipDefaults.assistChipColors(containerColor = Color.Transparent)
-        } else colors,
+        shape = effectiveShape,
+        colors = effectiveColors,
         elevation = if (isGlass) null else elevation,
         border = if (isGlass) null else border,
         interactionSource = interactionSource,
@@ -633,22 +671,23 @@ fun SuggestionChip(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
+    val isDark = isSystemInDarkTheme()
+    val effectiveColors = if (isGlass) {
+        SuggestionChipDefaults.suggestionChipColors(
+            containerColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
+            labelColor = if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E),
+        )
+    } else colors
+
     M3SuggestionChip(
         onClick = onClick,
         label = label,
-        modifier = modifier.liquidGlassSurface(
-            shape = shape,
-            interactionSource = interactionSource,
-            blurRadius = 10.dp,
-            refractionHeight = 12.dp,
-            refractionAmount = 18.dp,
-        ),
+        modifier = modifier,
         enabled = enabled,
         icon = icon,
-        shape = shape,
-        colors = if (isGlass) {
-            SuggestionChipDefaults.suggestionChipColors(containerColor = Color.Transparent)
-        } else colors,
+        shape = effectiveShape,
+        colors = effectiveColors,
         elevation = if (isGlass) null else elevation,
         border = if (isGlass) null else border,
         interactionSource = interactionSource,

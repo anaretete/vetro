@@ -133,15 +133,9 @@ fun Modifier.liquidGlassSurface(
         else Color.White.copy(alpha = (0.35f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
     }
 
-    val safeShape = when (shape) {
-        is CornerBasedShape -> shape
-        is RoundedRectangularShape -> shape
-        else -> RoundedCornerShape(0.dp)
-    }
-
     val backdropModifier = Modifier.drawBackdrop(
         backdrop = activeBackdrop,
-        shape = { safeShape },
+        shape = { shape },
         exportedBackdrop = exportedBackdrop,
         effects = {
             vibrancy()

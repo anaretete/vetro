@@ -153,7 +153,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.Outlined.CloudOff,
-                                        backgroundColor = Color(0xFFFF9500),
+                                        backgroundColor = Color(0xFFFF9F0A),
                                     )
                                 },
                                 checked = downloadedOnly,
@@ -173,7 +173,7 @@ fun MoreScreen(
                                             AnimatedImageVector.animatedVectorResource(R.drawable.anim_incognito),
                                             incognitoMode,
                                         ),
-                                        backgroundColor = Color(0xFF5856D6),
+                                        backgroundColor = Color(0xFF5E5CE6),
                                     )
                                 },
                                 checked = incognitoMode,
@@ -191,7 +191,7 @@ fun MoreScreen(
                                     iconContent = {
                                         CupertinoIconBadge(
                                             icon = Icons.Outlined.NewReleases,
-                                            backgroundColor = Color(0xFF007AFF),
+                                            backgroundColor = Color(0xFF0A84FF),
                                         )
                                     },
                                     onPreferenceClick = onClickUpdates,
@@ -208,7 +208,7 @@ fun MoreScreen(
                                     iconContent = {
                                         CupertinoIconBadge(
                                             icon = Icons.Outlined.History,
-                                            backgroundColor = Color(0xFFFF9500),
+                                            backgroundColor = Color(0xFFFF9F0A),
                                         )
                                     },
                                     onPreferenceClick = onClickHistory,
@@ -247,7 +247,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.Outlined.GetApp,
-                                        backgroundColor = Color(0xFF007AFF),
+                                        backgroundColor = Color(0xFF30D158),
                                     )
                                 },
                                 onPreferenceClick = onClickDownloadQueue,
@@ -273,7 +273,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.AutoMirrored.Outlined.Label,
-                                        backgroundColor = Color(0xFFFF9500),
+                                        backgroundColor = Color(0xFFBF5AF2),
                                     )
                                 },
                                 onPreferenceClick = onClickCategories,
@@ -288,7 +288,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.Outlined.QueryStats,
-                                        backgroundColor = Color(0xFF34C759),
+                                        backgroundColor = Color(0xFFFF375F),
                                     )
                                 },
                                 onPreferenceClick = onClickStats,
@@ -304,7 +304,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.Outlined.NewReleases,
-                                        backgroundColor = Color(0xFFFF3B30),
+                                        backgroundColor = Color(0xFFFF453A),
                                     )
                                 },
                                 onPreferenceClick = onClickLibraryUpdateErrors,
@@ -320,7 +320,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.Outlined.Storage,
-                                        backgroundColor = Color(0xFF5856D6),
+                                        backgroundColor = Color(0xFF64D2FF),
                                     )
                                 },
                                 onPreferenceClick = onClickDataAndStorage,
@@ -337,7 +337,7 @@ fun MoreScreen(
                                     iconContent = {
                                         CupertinoIconBadge(
                                             icon = Icons.AutoMirrored.Outlined.PlaylistAdd,
-                                            backgroundColor = Color(0xFFAF52DE),
+                                            backgroundColor = Color(0xFFBF5AF2),
                                         )
                                     },
                                     onPreferenceClick = onClickBatchAdd,
@@ -380,7 +380,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.Outlined.Info,
-                                        backgroundColor = Color(0xFF007AFF),
+                                        backgroundColor = Color(0xFF8E8E93),
                                     )
                                 },
                                 onPreferenceClick = onClickAbout,
@@ -395,7 +395,7 @@ fun MoreScreen(
                                 iconContent = {
                                     CupertinoIconBadge(
                                         icon = Icons.AutoMirrored.Outlined.HelpOutline,
-                                        backgroundColor = Color(0xFF32ADE6),
+                                        backgroundColor = Color(0xFF64D2FF),
                                     )
                                 },
                                 onPreferenceClick = { uriHandler.openUri(Constants.URL_HELP) },

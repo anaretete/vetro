@@ -467,3 +467,114 @@ fun CupertinoSegmentedControl(
         }
     }
 }
+
+/**
+ * Authentic Apple iOS 26 Inset Grouped Table Card for Options Selection
+ * Replaces walls of Material 3 chips with clean, elegant rows and CupertinoCheckmarks.
+ */
+@Composable
+fun <T> CupertinoGroupedSelectionCard(
+    title: String,
+    options: List<T>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    labelProvider: @Composable (T) -> String,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = isSystemInDarkTheme()
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val cardBg = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.85f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+            ),
+            modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .liquidGlassSurface(
+                    shape = RoundedCornerShape(16.dp),
+                    blurRadius = 14.dp,
+                    refractionHeight = 16.dp,
+                    refractionAmount = 20.dp,
+                    tintColor = cardBg,
+                ),
+        ) {
+            options.forEachIndexed { index, option ->
+                val isSelected = option == selected
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clickable { onSelect(option) }
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = labelProvider(option),
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 15.sp,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (isDark) Color.White else Color(0xFF1C1C1E),
+                        ),
+                        modifier = Modifier.weight(1f),
+                    )
+                    if (isSelected) {
+                        CupertinoCheckmark(checked = true, tint = Color(0xFF0A84FF))
+                    }
+                }
+                if (index < options.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 16.dp),
+                        thickness = 0.5.dp,
+                        color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.10f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Authentic Apple iOS 26 Segmented Control Setting Row
+ */
+@Composable
+fun CupertinoGroupedSegmentedControl(
+    title: String,
+    options: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = isSystemInDarkTheme()
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+            ),
+            modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
+        )
+        CupertinoSegmentedControl(
+            selectedTabIndex = selectedIndex.coerceIn(0, (options.size - 1).coerceAtLeast(0)),
+            onTabSelected = onSelect,
+            tabs = options.map { it to null },
+        )
+    }
+}

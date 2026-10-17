@@ -23,12 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
@@ -217,16 +219,21 @@ fun CupertinoVerticalSlider(
                     backdrop = rememberCombinedBackdrop(
                         backdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
-                            drawBackdrop()
+                            val progress = dampedDragAnimation.pressProgress
+                            val scaleX = lerp(0f, 1f, progress)
+                            val scaleY = lerp(2f / 3f, 1f, progress)
+                            scale(scaleX, scaleY) {
+                                drawBackdrop()
+                            }
                         },
                     ),
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(6f.dp.toPx() * (1f - progress))
+                        blur(8f.dp.toPx() * (1f - progress))
                         lens(
-                            6f.dp.toPx() * progress,
                             10f.dp.toPx() * progress,
+                            14f.dp.toPx() * progress,
                             chromaticAberration = true,
                         )
                     },
@@ -241,23 +248,24 @@ fun CupertinoVerticalSlider(
                     shadow = {
                         Shadow(
                             radius = 4.dp,
-                            color = Color.Black.copy(alpha = 0.28f),
+                            color = Color.Black.copy(alpha = 0.25f),
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
-                            radius = 3.dp * progress,
+                            radius = 4.dp * progress,
                             alpha = progress,
                         )
                     },
                     layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
+                        val velocity = (dampedDragAnimation.velocity / 10f).coerceIn(-0.25f, 0.25f)
+                        scaleY = dampedDragAnimation.scaleY / (1f - velocity * 0.75f)
+                        scaleX = dampedDragAnimation.scaleX * (1f - velocity * 0.25f)
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress * 0.15f))
+                        drawRect(Color.White.copy(alpha = 1f - progress))
                     },
                 )
                 .size(thumbSize),

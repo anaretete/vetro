@@ -2,6 +2,8 @@ package eu.kanade.presentation.reader.settings
 
 import androidx.activity.compose.LocalActivity
 import tachiyomi.presentation.core.components.material.FilterChip
+import tachiyomi.presentation.core.components.material.CupertinoGroupedSegmentedControl
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,13 +48,28 @@ internal fun GeneralPage(screenModel: ReaderSettingsScreenModel) {
     val flashColorPref = screenModel.preferences.flashColor()
     val flashColor by flashColorPref.collectAsState()
 
-    SettingsChipRow(MR.strings.pref_reader_theme) {
-        themes.map { (labelRes, value) ->
-            FilterChip(
-                selected = readerTheme == value,
-                onClick = { screenModel.preferences.readerTheme().set(value) },
-                label = { Text(stringResource(labelRes)) },
-            )
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+
+    if (isGlass) {
+        val themeTitles = themes.map { stringResource(it.first) }
+        val currentThemeIndex = themes.indexOfFirst { it.second == readerTheme }.coerceAtLeast(0)
+        CupertinoGroupedSegmentedControl(
+            title = stringResource(MR.strings.pref_reader_theme),
+            options = themeTitles,
+            selectedIndex = currentThemeIndex,
+            onSelect = { index ->
+                screenModel.preferences.readerTheme().set(themes[index].second)
+            },
+        )
+    } else {
+        SettingsChipRow(MR.strings.pref_reader_theme) {
+            themes.map { (labelRes, value) ->
+                FilterChip(
+                    selected = readerTheme == value,
+                    onClick = { screenModel.preferences.readerTheme().set(value) },
+                    label = { Text(stringResource(labelRes)) },
+                )
+            }
         }
     }
 
@@ -139,13 +156,26 @@ internal fun GeneralPage(screenModel: ReaderSettingsScreenModel) {
             },
             pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         )
-        SettingsChipRow(MR.strings.pref_flash_with) {
-            flashColors.map { (labelRes, value) ->
-                FilterChip(
-                    selected = flashColor == value,
-                    onClick = { flashColorPref.set(value) },
-                    label = { Text(stringResource(labelRes)) },
-                )
+        if (isGlass) {
+            val flashColorTitles = flashColors.map { stringResource(it.first) }
+            val currentFlashIndex = flashColors.indexOfFirst { it.second == flashColor }.coerceAtLeast(0)
+            CupertinoGroupedSegmentedControl(
+                title = stringResource(MR.strings.pref_flash_with),
+                options = flashColorTitles,
+                selectedIndex = currentFlashIndex,
+                onSelect = { index ->
+                    flashColorPref.set(flashColors[index].second)
+                },
+            )
+        } else {
+            SettingsChipRow(MR.strings.pref_flash_with) {
+                flashColors.map { (labelRes, value) ->
+                    FilterChip(
+                        selected = flashColor == value,
+                        onClick = { flashColorPref.set(value) },
+                        label = { Text(stringResource(labelRes)) },
+                    )
+                }
             }
         }
     }

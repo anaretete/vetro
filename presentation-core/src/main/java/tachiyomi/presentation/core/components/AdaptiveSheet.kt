@@ -48,7 +48,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import tachiyomi.presentation.core.components.material.CupertinoGrabber
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import kotlinx.coroutines.flow.collectLatest
@@ -69,7 +72,7 @@ fun AdaptiveSheet(
     val scope = rememberCoroutineScope()
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val sheetBg = if (isDark) Color(0xFF161618).copy(alpha = 0.85f) else Color(0xFFF2F2F7).copy(alpha = 0.90f)
+    val sheetBg = if (isDark) Color(0xFF0D0D0F).copy(alpha = 0.88f) else Color(0xFFF2F2F7).copy(alpha = 0.90f)
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -84,6 +87,7 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
+        val tabletExportedBackdrop = rememberLayerBackdrop()
         val tabletShape = RoundedCornerShape(24.dp)
         val tabletModifier: Modifier = if (isGlass) {
             Modifier
@@ -97,10 +101,11 @@ fun AdaptiveSheet(
                 .padding(vertical = 16.dp)
                 .liquidGlassSurface(
                     shape = tabletShape,
-                    blurRadius = 22.dp,
+                    blurRadius = 30.dp,
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
+                    exportedBackdrop = tabletExportedBackdrop,
                 )
                 .then(modifier)
         } else {
@@ -136,7 +141,9 @@ fun AdaptiveSheet(
                         enabled = remember { derivedStateOf { alpha > 0f } }.value,
                         onBack = internalOnDismissRequest,
                     )
-                    content()
+                    CompositionLocalProvider(LocalLayerBackdrop provides tabletExportedBackdrop) {
+                        content()
+                    }
                 },
             )
 
@@ -220,13 +227,15 @@ fun AdaptiveSheet(
                 .navigationBarsPadding()
                 .statusBarsPadding()
 
+            val sheetExportedBackdrop = rememberLayerBackdrop()
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier.liquidGlassSurface(
                     shape = bottomSheetShape,
-                    blurRadius = 22.dp,
+                    blurRadius = 30.dp,
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
+                    exportedBackdrop = sheetExportedBackdrop,
                 )
             } else {
                 phoneBaseModifier
@@ -241,16 +250,18 @@ fun AdaptiveSheet(
                         enabled = anchoredDraggableState.targetValue == 0,
                         onBack = internalOnDismissRequest,
                     )
-                    if (isGlass) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            CupertinoGrabber()
+                    CompositionLocalProvider(LocalLayerBackdrop provides sheetExportedBackdrop) {
+                        if (isGlass) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                CupertinoGrabber()
+                                content()
+                            }
+                        } else {
                             content()
                         }
-                    } else {
-                        content()
                     }
                 },
             )

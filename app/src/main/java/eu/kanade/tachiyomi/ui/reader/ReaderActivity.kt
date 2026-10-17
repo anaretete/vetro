@@ -20,7 +20,9 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.LAYER_TYPE_HARDWARE
+import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.compose.ui.viewinterop.AndroidView
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
@@ -346,6 +348,13 @@ class ReaderActivity : BaseActivity() {
                     .fillMaxSize()
                     .layerBackdrop(readerPageBackdrop),
             ) {
+                AndroidView(
+                    factory = {
+                        (binding.viewerContainer.parent as? ViewGroup)?.removeView(binding.viewerContainer)
+                        binding.viewerContainer
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                )
                 ContentOverlay(state = state)
             }
 

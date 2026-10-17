@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import com.kyant.shapes.Capsule
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Bookmark
@@ -66,16 +67,16 @@ fun ReaderTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Detached Circular Frosted Glass Back Button
+            // Detached Circular Frosted Glass Back Button (42dp)
             IconButton(
                 onClick = navigateUp,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(42.dp)
                     .liquidGlassSurface(
                         shape = CircleShape,
-                        blurRadius = 12.dp,
-                        refractionHeight = 14.dp,
-                        refractionAmount = 20.dp,
+                        blurRadius = 16.dp,
+                        refractionHeight = 18.dp,
+                        refractionAmount = 24.dp,
                         surfaceColor = glassSurfaceColor,
                     ),
             ) {
@@ -86,40 +87,53 @@ fun ReaderTopBar(
                 )
             }
 
-            // Clean Title Header (clickable to open manga details)
-            Column(
+            // Compact Centered Glass Pill for Title/Chapter (floating glass capsule)
+            Box(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 12.dp)
-                    .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                if (!mangaTitle.isNullOrEmpty()) {
-                    Text(
-                        text = mangaTitle,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 15.sp,
-                            color = if (isDark) Color.White else Color.Black,
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (!chapterTitle.isNullOrEmpty()) {
-                    Text(
-                        text = chapterTitle,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 12.sp,
-                            color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.7f),
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                Column(
+                    modifier = Modifier
+                        .liquidGlassSurface(
+                            shape = Capsule(),
+                            blurRadius = 16.dp,
+                            refractionHeight = 18.dp,
+                            refractionAmount = 24.dp,
+                            surfaceColor = glassSurfaceColor,
+                        )
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                        .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    if (!mangaTitle.isNullOrEmpty()) {
+                        Text(
+                            text = mangaTitle,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 14.sp,
+                                color = if (isDark) Color.White else Color.Black,
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (!chapterTitle.isNullOrEmpty()) {
+                        Text(
+                            text = chapterTitle,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 11.sp,
+                                color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.7f),
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
 
-            // Right Actions: Detached Circular Frosted Glass Bookmark & Overflow
+            // Right Actions: Detached Circular Frosted Glass Bookmark & Overflow (42dp)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -127,12 +141,12 @@ fun ReaderTopBar(
                 IconButton(
                     onClick = onToggleBookmarked,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(42.dp)
                         .liquidGlassSurface(
                             shape = CircleShape,
-                            blurRadius = 12.dp,
-                            refractionHeight = 14.dp,
-                            refractionAmount = 20.dp,
+                            blurRadius = 16.dp,
+                            refractionHeight = 18.dp,
+                            refractionAmount = 24.dp,
                             surfaceColor = glassSurfaceColor,
                         ),
                 ) {
@@ -141,7 +155,7 @@ fun ReaderTopBar(
                         contentDescription = stringResource(
                             if (bookmarked) MR.strings.action_remove_bookmark else MR.strings.action_bookmark,
                         ),
-                        tint = if (bookmarked) Color(0xFF0A84FF) else (if (isDark) Color.White else Color.Black),
+                        tint = if (bookmarked) Color(0xFFFF9F0A) else (if (isDark) Color.White else Color.Black),
                     )
                 }
 
@@ -150,12 +164,12 @@ fun ReaderTopBar(
                         IconButton(
                             onClick = { showOverflow = true },
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(42.dp)
                                 .liquidGlassSurface(
                                     shape = CircleShape,
-                                    blurRadius = 12.dp,
-                                    refractionHeight = 14.dp,
-                                    refractionAmount = 20.dp,
+                                    blurRadius = 16.dp,
+                                    refractionHeight = 18.dp,
+                                    refractionAmount = 24.dp,
                                     surfaceColor = glassSurfaceColor,
                                 ),
                         ) {

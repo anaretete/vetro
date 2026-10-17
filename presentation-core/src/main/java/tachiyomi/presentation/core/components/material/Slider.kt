@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidSlider
@@ -30,6 +31,7 @@ fun CupertinoSlider(
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    accentColor: Color? = null,
 ) {
     val currentValue by rememberUpdatedState(value)
     val currentOnValueChange by rememberUpdatedState(onValueChange)
@@ -37,27 +39,52 @@ fun CupertinoSlider(
     val rangeSpan = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
     val threshold = if (steps > 0) rangeSpan / (steps + 1) else 0.001f
 
-    LiquidSlider(
-        value = { currentValue },
-        onValueChange = { newValue ->
-            if (enabled) {
-                val clamped = if (steps > 0) {
-                    val stepCount = steps + 1
-                    val fraction = ((newValue - valueRange.start) / rangeSpan).coerceIn(0f, 1f)
-                    val step = (fraction * stepCount).roundToInt()
-                    valueRange.start + (step.toFloat() / stepCount) * rangeSpan
-                } else {
-                    newValue
+    if (accentColor != null) {
+        LiquidSlider(
+            value = { currentValue },
+            onValueChange = { newValue ->
+                if (enabled) {
+                    val clamped = if (steps > 0) {
+                        val stepCount = steps + 1
+                        val fraction = ((newValue - valueRange.start) / rangeSpan).coerceIn(0f, 1f)
+                        val step = (fraction * stepCount).roundToInt()
+                        valueRange.start + (step.toFloat() / stepCount) * rangeSpan
+                    } else {
+                        newValue
+                    }
+                    currentOnValueChange(clamped)
+                    currentOnValueChangeFinished?.invoke()
                 }
-                currentOnValueChange(clamped)
-                currentOnValueChangeFinished?.invoke()
-            }
-        },
-        valueRange = valueRange,
-        visibilityThreshold = threshold,
-        backdrop = backdrop,
-        modifier = modifier.alpha(if (enabled) 1f else 0.5f),
-    )
+            },
+            valueRange = valueRange,
+            visibilityThreshold = threshold,
+            backdrop = backdrop,
+            modifier = modifier.alpha(if (enabled) 1f else 0.5f),
+            accentColor = accentColor,
+        )
+    } else {
+        LiquidSlider(
+            value = { currentValue },
+            onValueChange = { newValue ->
+                if (enabled) {
+                    val clamped = if (steps > 0) {
+                        val stepCount = steps + 1
+                        val fraction = ((newValue - valueRange.start) / rangeSpan).coerceIn(0f, 1f)
+                        val step = (fraction * stepCount).roundToInt()
+                        valueRange.start + (step.toFloat() / stepCount) * rangeSpan
+                    } else {
+                        newValue
+                    }
+                    currentOnValueChange(clamped)
+                    currentOnValueChangeFinished?.invoke()
+                }
+            },
+            valueRange = valueRange,
+            visibilityThreshold = threshold,
+            backdrop = backdrop,
+            modifier = modifier.alpha(if (enabled) 1f else 0.5f),
+        )
+    }
 }
 
 /**
@@ -75,6 +102,7 @@ fun Slider(
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    accentColor: Color? = null,
     thumb: @Composable (SliderState) -> Unit = {
         SliderDefaults.Thumb(
             interactionSource = interactionSource,
@@ -97,6 +125,7 @@ fun Slider(
             steps = steps,
             onValueChangeFinished = onValueChangeFinished,
             backdrop = backdrop,
+            accentColor = accentColor,
         )
     } else {
         androidx.compose.material3.Slider(

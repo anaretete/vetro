@@ -129,7 +129,8 @@ fun Scaffold(
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val scaffoldBackdrop = rememberLayerBackdrop()
+    val contentBackdrop = rememberLayerBackdrop()
+    val backgroundCanvasBackdrop = rememberLayerBackdrop()
     val remainingWindowInsets = remember { MutableWindowInsets() }
     androidx.compose.material3.Surface(
         modifier = Modifier
@@ -146,54 +147,60 @@ fun Scaffold(
         ScaffoldLayout(
             fabPosition = floatingActionButtonPosition,
             topBar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides scaffoldBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
                     topBar(topBarScrollBehavior)
                 }
             },
             startBar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides scaffoldBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
                     startBar()
                 }
             },
             bottomBar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides scaffoldBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
                     bottomBar()
                 }
             },
             content = { innerPadding ->
                 val isDark = containerColor.luminance() < 0.5f
-                val ambientBackdrop = rememberCanvasBackdrop {
-                    drawRect(containerColor)
-                    drawRect(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                if (isDark) Color(0x33FFFFFF) else Color(0x22000000),
-                                Color.Transparent,
-                            ),
-                            center = Offset(size.width * 0.5f, size.height * 0.3f),
-                            radius = size.maxDimension * 0.85f,
-                        ),
-                    )
-                }
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(containerColor)
-                        .layerBackdrop(scaffoldBackdrop),
+                        .layerBackdrop(contentBackdrop),
                 ) {
-                    CompositionLocalProvider(LocalLayerBackdrop provides ambientBackdrop) {
+                    // Sibling 1: Ambient iOS Backdrop Canvas recorded into backgroundCanvasBackdrop
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(containerColor)
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        if (isDark) Color(0x22FFFFFF) else Color(0x18000000),
+                                        Color.Transparent,
+                                    ),
+                                    center = Offset(Float.POSITIVE_INFINITY, 0f),
+                                    radius = 1200f,
+                                ),
+                            )
+                            .layerBackdrop(backgroundCanvasBackdrop),
+                    )
+
+                    // Sibling 2: Foreground Content! Every button/slider/toggle inside content() now has a REAL
+                    // non-null LayerBackdrop
+                    CompositionLocalProvider(LocalLayerBackdrop provides backgroundCanvasBackdrop) {
                         content(innerPadding)
                     }
                 }
             },
             snackbar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides scaffoldBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
                     snackbarHost()
                 }
             },
             contentWindowInsets = remainingWindowInsets,
             fab = {
-                CompositionLocalProvider(LocalLayerBackdrop provides scaffoldBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
                     floatingActionButton()
                 }
             },

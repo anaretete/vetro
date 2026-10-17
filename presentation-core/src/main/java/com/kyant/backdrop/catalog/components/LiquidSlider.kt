@@ -54,11 +54,9 @@ fun LiquidSlider(
     visibilityThreshold: Float = 0.001f,
     backdrop: Backdrop,
     modifier: Modifier = Modifier,
+    accentColor: Color = if (!isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF0A84FF),
 ) {
     val isLightTheme = !isSystemInDarkTheme()
-    val accentColor =
-        if (isLightTheme) Color(0xFF007AFF)
-        else Color(0xFF0A84FF)
     val trackColor =
         if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f)
         else Color(0xFF787880).copy(alpha = 0.36f)
@@ -223,10 +221,10 @@ fun LiquidSlider(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(6f.dp.toPx() * (1f - progress))
+                        blur(8f.dp.toPx() * (1f - progress))
                         lens(
-                            6f.dp.toPx() * progress,
                             10f.dp.toPx() * progress,
+                            14f.dp.toPx() * progress,
                             chromaticAberration = true,
                         )
                     },
@@ -241,23 +239,24 @@ fun LiquidSlider(
                     shadow = {
                         Shadow(
                             radius = 4.dp,
-                            color = Color.Black.copy(alpha = 0.28f),
+                            color = Color.Black.copy(alpha = 0.25f),
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
-                            radius = 3.dp * progress,
+                            radius = 4.dp * progress,
                             alpha = progress,
                         )
                     },
                     layerBlock = {
-                        scaleX = dampedDragAnimation.scaleX
-                        scaleY = dampedDragAnimation.scaleY
+                        val velocity = (dampedDragAnimation.velocity / 10f).coerceIn(-0.25f, 0.25f)
+                        scaleX = dampedDragAnimation.scaleX / (1f - velocity * 0.75f)
+                        scaleY = dampedDragAnimation.scaleY * (1f - velocity * 0.25f)
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress * 0.15f))
+                        drawRect(Color.White.copy(alpha = 1f - progress))
                     },
                 )
                 .size(thumbSize),
