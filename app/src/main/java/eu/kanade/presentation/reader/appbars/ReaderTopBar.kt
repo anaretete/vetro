@@ -11,10 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import com.kyant.shapes.Capsule
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.MoreVert
+import tachiyomi.presentation.core.components.material.MoreHoriz
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -81,7 +81,7 @@ fun ReaderTopBar(
                     ),
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
                     contentDescription = stringResource(MR.strings.action_bar_up_description),
                     tint = if (isDark) Color.White else Color.Black,
                 )
@@ -174,7 +174,7 @@ fun ReaderTopBar(
                                 ),
                         ) {
                             Icon(
-                                imageVector = Icons.Outlined.MoreVert,
+                                imageVector = Icons.Outlined.MoreHoriz,
                                 contentDescription = stringResource(MR.strings.label_more),
                                 tint = if (isDark) Color.White else Color.Black,
                             )

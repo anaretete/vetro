@@ -65,6 +65,14 @@ val LocalLayerBackdrop = staticCompositionLocalOf<Backdrop?> { null }
  */
 val LocalInGlassBar = staticCompositionLocalOf { false }
 
+fun sanitizeLensShape(shape: Shape): Shape {
+    return if (shape is CornerBasedShape || shape is RoundedRectangularShape) {
+        shape
+    } else {
+        Capsule()
+    }
+}
+
 /**
  * Universal Modifier that transforms ANY Composable (Button, IconButton, FAB, Chip, NavBar, AppBar)
  * into a refractive, spring-animated Kyant Liquid Glass lens with AGSL shaders.
@@ -109,19 +117,11 @@ fun Modifier.liquidGlassSurface(
         label = "LiquidGlassRefraction",
     )
 
+    val safeShape = remember(shape) { sanitizeLensShape(shape) }
+
     val activeBackdrop = LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
         val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
-        drawRect(
-            Brush.radialGradient(
-                colors = listOf(
-                    if (isDark) Color(0xFF2C2C35) else Color(0xFFFFFFFF),
-                    Color.Transparent,
-                ),
-                center = Offset(size.width * 0.35f, size.height * 0.25f),
-                radius = size.maxDimension * 0.85f,
-            ),
-        )
     }
 
     val defaultAlpha = if (isDark) 0.22f else 0.28f
@@ -135,7 +135,7 @@ fun Modifier.liquidGlassSurface(
 
     val backdropModifier = Modifier.drawBackdrop(
         backdrop = activeBackdrop,
-        shape = { shape },
+        shape = { safeShape },
         exportedBackdrop = exportedBackdrop,
         effects = {
             vibrancy()
@@ -164,17 +164,6 @@ fun Modifier.liquidGlassSurface(
             } else {
                 drawRect(baseTint)
             }
-            // Apple Cupertino visionOS specular luster highlight
-            drawRect(
-                Brush.linearGradient(
-                    colors = listOf(
-                        if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.25f),
-                        Color.Transparent,
-                    ),
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width * 0.6f, size.height),
-                ),
-            )
         },
     )
 

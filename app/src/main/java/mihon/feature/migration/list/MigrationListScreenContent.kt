@@ -24,7 +24,7 @@ import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.DoneAll
-import androidx.compose.material.icons.outlined.MoreVert
+import tachiyomi.presentation.core.components.material.MoreHoriz
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -347,7 +347,7 @@ private fun MigrationListItemAction(
             MigratingManga.SearchResult.NotFound, is MigratingManga.SearchResult.Success -> {
                 IconButton(onClick = { menuExpanded = true }) {
                     Icon(
-                        imageVector = Icons.Outlined.MoreVert,
+                        imageVector = Icons.Outlined.MoreHoriz,
                         contentDescription = null,
                     )
                 }

@@ -46,8 +46,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -228,12 +230,8 @@ fun CupertinoCheckmark(
         Box(
             modifier = modifier
                 .size(22.dp)
-                .liquidGlassSurface(
-                    shape = CircleShape,
-                    blurRadius = 6.dp,
-                    refractionHeight = 8.dp,
-                    tintColor = tint.copy(alpha = 0.90f),
-                ),
+                .clip(CircleShape)
+                .background(tint),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -482,8 +480,7 @@ fun <T> CupertinoGroupedSelectionCard(
     modifier: Modifier = Modifier,
 ) {
     val isDark = isSystemInDarkTheme()
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    val cardBg = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.85f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
+    val cardBg = if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
 
     Column(
         modifier = modifier
@@ -502,13 +499,8 @@ fun <T> CupertinoGroupedSelectionCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .liquidGlassSurface(
-                    shape = RoundedCornerShape(16.dp),
-                    blurRadius = 14.dp,
-                    refractionHeight = 16.dp,
-                    refractionAmount = 20.dp,
-                    tintColor = cardBg,
-                ),
+                .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
+                .background(cardBg),
         ) {
             options.forEachIndexed { index, option ->
                 val isSelected = option == selected
@@ -578,3 +570,51 @@ fun CupertinoGroupedSegmentedControl(
         )
     }
 }
+
+/**
+ * iOS Horizontal 3-Dot Overflow Icon (•••)
+ */
+val Icons.Filled.MoreHoriz: ImageVector
+    get() {
+        if (_moreHoriz != null) {
+            return _moreHoriz!!
+        }
+        _moreHoriz = ImageVector.Builder(
+            name = "Filled.MoreHoriz",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+        ).apply {
+            path(fill = SolidColor(Color.Black)) {
+                moveTo(6.0f, 10.0f)
+                curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+                reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
+                reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
+                reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
+                close()
+                moveTo(18.0f, 10.0f)
+                curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+                reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
+                reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
+                reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
+                close()
+                moveTo(12.0f, 10.0f)
+                curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+                reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
+                reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
+                reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
+                close()
+            }
+        }.build()
+        return _moreHoriz!!
+    }
+
+val Icons.Outlined.MoreHoriz: ImageVector
+    get() = Icons.Filled.MoreHoriz
+
+val CupertinoMoreHoriz: ImageVector
+    get() = Icons.Filled.MoreHoriz
+
+private var _moreHoriz: ImageVector? = null
+

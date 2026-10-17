@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.LinearProgressIndicator
@@ -199,7 +199,7 @@ fun WebViewScreenContent(
                                 persistentListOf(
                                     AppBar.Action(
                                         title = stringResource(MR.strings.action_webview_back),
-                                        icon = Icons.AutoMirrored.Outlined.ArrowBack,
+                                        icon = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
                                         onClick = {
                                             if (navigator.canGoBack) {
                                                 navigator.navigateBack()

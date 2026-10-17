@@ -30,7 +30,7 @@ import androidx.compose.material.icons.outlined.BookmarkRemove
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.MoreVert
+import tachiyomi.presentation.core.components.material.MoreHoriz
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.RemoveDone
 import androidx.compose.material.icons.outlined.SwapCalls
@@ -394,7 +394,7 @@ fun LibraryBottomActionMenu(
                 var overflowMenuOpen by remember { mutableStateOf(false) }
                 Button(
                     title = stringResource(MR.strings.label_more),
-                    icon = Icons.Outlined.MoreVert,
+                    icon = Icons.Outlined.MoreHoriz,
                     toConfirm = confirm[6],
                     onLongClick = { onLongClickItem(6) },
                     onClick = { overflowMenuOpen = true },

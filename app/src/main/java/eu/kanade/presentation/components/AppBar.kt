@@ -16,11 +16,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.MoreVert
+import tachiyomi.presentation.core.components.material.MoreHoriz
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -458,7 +457,7 @@ fun AppBarActions(
                 modifier = if (isGlass) Modifier.size(40.dp) else Modifier,
             ) {
                 Icon(
-                    Icons.Outlined.MoreVert,
+                    Icons.Outlined.MoreHoriz,
                     contentDescription = stringResource(MR.strings.action_menu_overflow_description),
                 )
             }
@@ -645,12 +644,7 @@ fun UpIcon(
     modifier: Modifier = Modifier,
     navigationIcon: ImageVector? = null,
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    val defaultIcon = if (isGlass) {
-        Icons.AutoMirrored.Outlined.KeyboardArrowLeft
-    } else {
-        Icons.AutoMirrored.Outlined.ArrowBack
-    }
+    val defaultIcon = Icons.AutoMirrored.Outlined.KeyboardArrowLeft
     val icon = navigationIcon ?: defaultIcon
     Icon(
         imageVector = icon,

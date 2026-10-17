@@ -16,6 +16,7 @@ import com.materialkolor.DynamicMaterialExpressiveTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import eu.kanade.domain.ui.UiPreferences
 import tachiyomi.presentation.core.components.material.LiquidGlassConfig
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
@@ -150,6 +151,24 @@ val CupertinoShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp),
 )
 
+val CupertinoTypography = Typography(
+    displayLarge = Typography().displayLarge.copy(letterSpacing = (-0.8).sp),
+    displayMedium = Typography().displayMedium.copy(letterSpacing = (-0.6).sp),
+    displaySmall = Typography().displaySmall.copy(letterSpacing = (-0.4).sp),
+    headlineLarge = Typography().headlineLarge.copy(letterSpacing = (-0.6).sp),
+    headlineMedium = Typography().headlineMedium.copy(letterSpacing = (-0.5).sp),
+    headlineSmall = Typography().headlineSmall.copy(letterSpacing = (-0.4).sp),
+    titleLarge = Typography().titleLarge.copy(letterSpacing = (-0.3).sp),
+    titleMedium = Typography().titleMedium.copy(letterSpacing = (-0.2).sp),
+    titleSmall = Typography().titleSmall.copy(letterSpacing = (-0.2).sp),
+    bodyLarge = Typography().bodyLarge.copy(letterSpacing = (-0.2).sp),
+    bodyMedium = Typography().bodyMedium.copy(letterSpacing = (-0.15).sp),
+    bodySmall = Typography().bodySmall.copy(letterSpacing = (-0.1).sp),
+    labelLarge = Typography().labelLarge.copy(letterSpacing = (-0.2).sp),
+    labelMedium = Typography().labelMedium.copy(letterSpacing = (-0.1).sp),
+    labelSmall = Typography().labelSmall.copy(letterSpacing = (-0.05).sp),
+)
+
 @Composable
 private fun BaseTachiyomiTheme(
     appTheme: AppTheme,
@@ -176,6 +195,7 @@ private fun BaseTachiyomiTheme(
                 )
             },
             shapes = if (isCupertino) CupertinoShapes else MaterialTheme.shapes,
+            typography = if (isCupertino) CupertinoTypography else MaterialTheme.typography,
             content = content,
         )
     }
