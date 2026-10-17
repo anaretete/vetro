@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,13 +33,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidButton
-import com.kyant.backdrop.catalog.components.LiquidSlider
-import com.kyant.backdrop.catalog.components.LiquidToggle
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedCornerStyle
 import com.kyant.shapes.RoundedRectangle
+import tachiyomi.presentation.core.components.material.Button
+import tachiyomi.presentation.core.components.material.FilledTonalButton
+import tachiyomi.presentation.core.components.material.Slider
+import tachiyomi.presentation.core.components.material.Switch
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.PreferenceScaffold
@@ -201,12 +205,13 @@ object SettingsLiquidGlassScreen : SearchableSettings {
     @Composable
     private fun LiveGlassPreviewCard() {
         val isDark = isSystemInDarkTheme()
+        val isGlass = LocalLiquidGlassConfig.current.enabled
         var previewToggle by remember { mutableStateOf(true) }
         var previewSliderValue by remember { mutableFloatStateOf(0.65f) }
-        val backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop()
+        var buttonTaps by remember { mutableIntStateOf(0) }
 
-        Box(
-            modifier = Modifier
+        val cardModifier = if (isGlass) {
+            Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .clip(RoundedRectangle(22.dp, RoundedCornerStyle.Continuous))
@@ -225,8 +230,17 @@ object SettingsLiquidGlassScreen : SearchableSettings {
                     color = Color.White.copy(alpha = 0.15f),
                     shape = RoundedRectangle(22.dp, RoundedCornerStyle.Continuous),
                 )
-                .padding(16.dp),
-        ) {
+                .padding(16.dp)
+        } else {
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .padding(16.dp)
+        }
+
+        Box(modifier = cardModifier) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -238,21 +252,20 @@ object SettingsLiquidGlassScreen : SearchableSettings {
                 ) {
                     Column {
                         Text(
-                            text = "Interactive Optics",
-                            color = Color.White,
+                            text = if (isGlass) "Interactive Optics" else "Material Controls",
+                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
                         Text(
-                            text = "Live refraction & spring preview",
-                            color = Color.White.copy(alpha = 0.7f),
+                            text = if (isGlass) "Live refraction & spring preview" else "Standard Android M3 controls",
+                            color = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp,
                         )
                     }
-                    LiquidToggle(
-                        selected = { previewToggle },
-                        onSelect = { previewToggle = it },
-                        backdrop = backdrop,
+                    Switch(
+                        checked = previewToggle,
+                        onCheckedChange = { previewToggle = it },
                     )
                 }
 
@@ -260,16 +273,15 @@ object SettingsLiquidGlassScreen : SearchableSettings {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    LiquidSlider(
-                        value = { previewSliderValue },
+                    Slider(
+                        value = previewSliderValue,
                         onValueChange = { previewSliderValue = it },
-                        backdrop = backdrop,
                         modifier = Modifier.weight(1f),
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "${(previewSliderValue * 100).roundToInt()}%",
-                        color = Color.White,
+                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -280,38 +292,64 @@ object SettingsLiquidGlassScreen : SearchableSettings {
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    LiquidButton(
-                        onClick = {},
-                        backdrop = backdrop,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(
-                            text = "Liquid Button",
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .height(36.dp)
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 14.dp,
-                                refractionHeight = 16.dp,
-                                refractionAmount = 22.dp,
-                                tintColor = Color(0xFF1B4D7E).copy(alpha = 0.85f),
+                    if (isGlass) {
+                        LiquidButton(
+                            onClick = { buttonTaps++ },
+                            shape = Capsule(),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            tint = Color(0xFF007AFF),
+                        ) {
+                            Text(
+                                text = if (buttonTaps == 0) "Liquid Button" else "Tapped ($buttonTaps)",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
                             )
-                            .padding(horizontal = 14.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "Glass Capsule",
-                            color = Color.White,
-                            fontSize = 12.5.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                        }
+
+                        LiquidButton(
+                            onClick = { buttonTaps = 0 },
+                            shape = Capsule(),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            tint = Color(0xFF5856D6),
+                        ) {
+                            Text(
+                                text = "Reset",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    } else {
+                        Button(
+                            onClick = { buttonTaps++ },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                        ) {
+                            Text(
+                                text = if (buttonTaps == 0) "Primary Action" else "Tapped ($buttonTaps)",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+
+                        FilledTonalButton(
+                            onClick = { buttonTaps = 0 },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                        ) {
+                            Text(
+                                text = "Reset",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                     }
                 }
             }

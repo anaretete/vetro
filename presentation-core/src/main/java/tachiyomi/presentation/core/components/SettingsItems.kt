@@ -38,12 +38,14 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -54,6 +56,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.icerock.moko.resources.StringResource
+import kotlin.math.roundToInt
 import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.preference.toggle
@@ -213,6 +216,7 @@ fun SliderItem(
     valueString: String = value.toString(),
     labelStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     pillColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    enabled: Boolean = true,
 ) {
     BaseSliderItem(
         value = value,
@@ -223,6 +227,7 @@ fun SliderItem(
         onChange = onChange,
         titleStyle = labelStyle,
         pillColor = pillColor,
+        enabled = enabled,
         modifier = Modifier.padding(
             horizontal = SettingsItemsPaddings.Horizontal,
             vertical = SettingsItemsPaddings.Vertical,
@@ -243,11 +248,15 @@ fun BaseSliderItem(
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     subtitleStyle: TextStyle = MaterialTheme.typography.bodySmall,
     pillColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    enabled: Boolean = true,
 ) {
     val haptic = LocalHapticFeedback.current
+    var localPosition by remember(value) { mutableFloatStateOf(value.toFloat()) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .then(if (enabled) Modifier else Modifier.alpha(0.38f))
             .then(modifier),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -269,20 +278,25 @@ fun BaseSliderItem(
                 }
             }
             Pill(
-                text = valueString,
+                text = if (localPosition.roundToInt() == value) valueString else "${localPosition.roundToInt()}%",
                 style = MaterialTheme.typography.bodyMedium,
                 color = pillColor,
             )
         }
         Slider(
-            value = value,
-            onValueChange = f@{
-                if (it == value) return@f
-                onChange(it)
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            value = localPosition,
+            onValueChange = f@{ nextFloat ->
+                if (!enabled) return@f
+                localPosition = nextFloat
+                val nextInt = nextFloat.roundToInt()
+                if (nextInt != value) {
+                    onChange(nextInt)
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
             },
-            valueRange = valueRange,
+            valueRange = with(valueRange) { first.toFloat()..last.toFloat() },
             steps = steps,
+            enabled = enabled,
         )
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -54,8 +55,8 @@ fun LiquidButton(
     tint: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
     contentColor: Color = Color.Unspecified,
-    shape: Shape = CircleShape,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    shape: Shape = Capsule(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
     content: @Composable RowScope.() -> Unit,
 ) {
     val animationScope = rememberCoroutineScope()
@@ -76,6 +77,7 @@ fun LiquidButton(
 
     Row(
         modifier
+            .defaultMinSize(minHeight = 44.dp)
             .alpha(if (enabled) 1f else 0.45f)
             .drawBackdrop(
                 backdrop = backdrop,

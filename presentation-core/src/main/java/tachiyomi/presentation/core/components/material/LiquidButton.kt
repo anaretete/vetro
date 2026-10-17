@@ -12,6 +12,8 @@ import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidButton as KyantLiquidButton
 
+import com.kyant.shapes.Capsule
+
 @Composable
 fun LiquidButton(
     onClick: () -> Unit,
@@ -22,8 +24,8 @@ fun LiquidButton(
     tint: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
     contentColor: Color = Color.Unspecified,
-    shape: Shape = CircleShape,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    shape: Shape = Capsule(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
     content: @Composable RowScope.() -> Unit,
 ) {
     KyantLiquidButton(

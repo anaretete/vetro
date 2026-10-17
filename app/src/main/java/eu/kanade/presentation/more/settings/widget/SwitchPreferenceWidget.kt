@@ -8,6 +8,7 @@ import androidx.compose.material3.Surface
 import tachiyomi.presentation.core.components.material.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -24,10 +25,11 @@ fun SwitchPreferenceWidget(
     iconContent: @Composable (() -> Unit)? = null,
     // KMK <--
     checked: Boolean = false,
+    enabled: Boolean = true,
     onCheckedChanged: (Boolean) -> Unit,
 ) {
     TextPreferenceWidget(
-        modifier = modifier,
+        modifier = modifier.alpha(if (enabled) 1f else 0.38f),
         title = title,
         subtitle = subtitle,
         icon = icon,
@@ -35,11 +37,12 @@ fun SwitchPreferenceWidget(
         widget = {
             Switch(
                 checked = checked,
-                onCheckedChange = onCheckedChanged,
+                onCheckedChange = if (enabled) onCheckedChanged else null,
+                enabled = enabled,
                 modifier = Modifier.padding(start = TrailingWidgetBuffer),
             )
         },
-        onPreferenceClick = { onCheckedChanged(!checked) },
+        onPreferenceClick = if (enabled) { { onCheckedChanged(!checked) } } else null,
     )
 }
 

@@ -38,6 +38,7 @@ import androidx.compose.material3.LocalContentColor
 import tachiyomi.presentation.core.components.material.LocalInGlassBar
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
@@ -268,36 +269,75 @@ fun AppBar(
                 }
             },
             actions = {
-                if (isGlass) {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .height(40.dp)
-                            .defaultMinSize(minWidth = 40.dp)
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 16.dp,
-                                refractionHeight = 18.dp,
-                                refractionAmount = 26.dp,
-                                tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            actions()
-                        }
-                    }
-                } else {
-                    actions()
-                }
+                AppBarActionsWrapper(
+                    isGlass = isGlass,
+                    isDark = isDark,
+                    actions = actions,
+                )
             },
             colors = topAppBarColors,
             scrollBehavior = scrollBehavior,
             windowInsets = TopAppBarDefaults.windowInsets,
             modifier = appModifier,
         )
+    }
+}
+
+@Composable
+private fun AppBarActionsWrapper(
+    isGlass: Boolean,
+    isDark: Boolean,
+    actions: @Composable RowScope.() -> Unit,
+) {
+    if (!isGlass) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            actions()
+        }
+        return
+    }
+
+    SubcomposeLayout { constraints ->
+        val placeables = subcompose("content") {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                actions()
+            }
+        }.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+
+        val contentWidth = placeables.maxOfOrNull { it.width } ?: 0
+        val contentHeight = placeables.maxOfOrNull { it.height } ?: 0
+
+        // If no action items were actually emitted, render nothing (0 width, 0 height)
+        if (contentWidth <= 0 || contentHeight <= 0) {
+            layout(0, 0) {}
+        } else {
+            val bgWidth = (contentWidth.toDp() + 8.dp).coerceAtLeast(40.dp)
+            val bgHeight = 40.dp
+            val backgroundMeasurables = subcompose("background") {
+                Box(
+                    modifier = Modifier
+                        .size(width = bgWidth, height = bgHeight)
+                        .liquidGlassSurface(
+                            shape = Capsule(),
+                            blurRadius = 16.dp,
+                            refractionHeight = 18.dp,
+                            refractionAmount = 26.dp,
+                            tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
+                        ),
+                )
+            }
+            val bgPlaceables = backgroundMeasurables.map { it.measure(constraints) }
+            val totalContentWidth = maxOf(contentWidth, bgPlaceables.maxOfOrNull { it.width } ?: 0)
+            val totalHeight = maxOf(contentHeight, bgPlaceables.maxOfOrNull { it.height } ?: 0)
+            val endPaddingPx = 12.dp.roundToPx()
+            val totalWidth = totalContentWidth + endPaddingPx
+
+            layout(totalWidth, totalHeight) {
+                bgPlaceables.forEach { it.place(0, (totalHeight - it.height) / 2) }
+                placeables.forEach { it.place((totalContentWidth - it.width) / 2, (totalHeight - it.height) / 2) }
+            }
+        }
     }
 }
 
