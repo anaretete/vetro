@@ -3,6 +3,9 @@ package tachiyomi.presentation.core.components.material
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -10,10 +13,21 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import com.kyant.shapes.Capsule
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ButtonColors as M3ButtonColors
 import androidx.compose.material3.ButtonDefaults as M3ButtonDefaults
@@ -30,6 +44,7 @@ import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.SelectableChipElevation
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -493,32 +508,77 @@ fun FilterChip(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    M3FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = label,
-        modifier = modifier.liquidGlassSurface(
+    if (isGlass) {
+        val pillShape = Capsule()
+        val isDark = isSystemInDarkTheme()
+        val selectedBg = Color(0xFF1B4D7E)
+        val unselectedBg = if (isDark) Color(0xFF2C2C2E).copy(alpha = 0.70f) else Color(0xFFE5E5EA).copy(alpha = 0.85f)
+        val selectedBorder = Color(0xFF3A88D8).copy(alpha = 0.60f)
+        val unselectedBorder = if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.50f) else Color(0xFFC7C7CC).copy(alpha = 0.70f)
+        val contentColor = if (selected) Color.White else if (isDark) Color(0xFFE5E5EA) else Color(0xFF1C1C1E)
+
+        Box(
+            modifier = modifier
+                .clip(pillShape)
+                .background(if (selected) selectedBg else unselectedBg)
+                .border(
+                    BorderStroke(
+                        width = 0.75.dp,
+                        color = if (selected) selectedBorder else unselectedBorder,
+                    ),
+                    shape = pillShape,
+                )
+                .liquidGlassSurface(
+                    shape = pillShape,
+                    interactionSource = interactionSource,
+                    blurRadius = 8.dp,
+                    refractionHeight = 10.dp,
+                    refractionAmount = 14.dp,
+                    tintColor = if (selected) selectedBg else Color.Transparent,
+                )
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    enabled = enabled,
+                    onClick = onClick,
+                )
+                .padding(horizontal = 14.dp, vertical = 7.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides contentColor,
+                LocalTextStyle provides MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 13.5.sp,
+                    fontWeight = if (selected) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal,
+                    color = contentColor,
+                ),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    leadingIcon?.invoke()
+                    label()
+                    trailingIcon?.invoke()
+                }
+            }
+        }
+    } else {
+        M3FilterChip(
+            selected = selected,
+            onClick = onClick,
+            label = label,
+            modifier = modifier,
+            enabled = enabled,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
             shape = shape,
+            colors = colors,
+            elevation = elevation,
+            border = border,
             interactionSource = interactionSource,
-            blurRadius = 10.dp,
-            refractionHeight = 12.dp,
-            refractionAmount = 18.dp,
-            tintColor = if (selected) MaterialTheme.colorScheme.primary else Color.Unspecified,
-        ),
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = if (isGlass) {
-            FilterChipDefaults.filterChipColors(
-                containerColor = Color.Transparent,
-                selectedContainerColor = Color.Transparent,
-            )
-        } else colors,
-        elevation = if (isGlass) null else elevation,
-        border = if (isGlass) null else border,
-        interactionSource = interactionSource,
-    )
+        )
+    }
 }
 
 @Composable

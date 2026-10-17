@@ -43,6 +43,11 @@ data class LiquidGlassConfig(
     val enabled: Boolean = true,
     val chromaticAberration: Boolean = true,
     val refractionMultiplier: Float = 1.0f,
+    val blurMultiplier: Float = 1.0f,
+    val lensHeightMultiplier: Float = 1.0f,
+    val tintAlphaMultiplier: Float = 1.0f,
+    val springPhysicsEnabled: Boolean = true,
+    val depthEffect: Boolean = true,
 )
 
 val LocalLiquidGlassConfig = staticCompositionLocalOf { LiquidGlassConfig() }
@@ -89,7 +94,7 @@ fun Modifier.liquidGlassSurface(
 
     // Liquid Glass spring physics on press
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.94f else 1f,
+        targetValue = if (isPressed && config.springPhysicsEnabled) 0.94f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow,
@@ -118,10 +123,13 @@ fun Modifier.liquidGlassSurface(
         )
     }
 
+    val defaultAlpha = if (isDark) 0.22f else 0.28f
+    val effectiveTintAlpha = (defaultAlpha * config.tintAlphaMultiplier).coerceIn(0f, 1f)
     val baseTint = if (tintColor.isSpecified && tintColor != Color.Transparent) {
-        tintColor.copy(alpha = if (isDark) 0.22f else 0.28f)
+        tintColor.copy(alpha = effectiveTintAlpha)
     } else {
-        if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.35f)
+        if (isDark) Color.White.copy(alpha = (0.12f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+        else Color.White.copy(alpha = (0.35f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
     }
 
     val safeShape = when (shape) {
@@ -136,15 +144,18 @@ fun Modifier.liquidGlassSurface(
         exportedBackdrop = exportedBackdrop,
         effects = {
             vibrancy()
-            blur(blurRadius.toPx())
+            val effectiveBlur = (blurRadius.toPx() * config.blurMultiplier).coerceAtLeast(0f)
+            if (effectiveBlur > 0.5f) {
+                blur(effectiveBlur)
+            }
             try {
                 lens(
-                    refractionHeight = refractionHeight.toPx() * config.refractionMultiplier,
-                    refractionAmount = dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier,
-                    depthEffect = true,
+                    refractionHeight = (refractionHeight.toPx() * config.refractionMultiplier * config.lensHeightMultiplier).coerceAtLeast(0.1f),
+                    refractionAmount = (dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier).coerceAtLeast(0.1f),
+                    depthEffect = config.depthEffect,
                     chromaticAberration = config.chromaticAberration,
                 )
-            } catch (_: UnsupportedOperationException) {
+            } catch (_: Throwable) {
             }
         },
         highlight = { Highlight.Default },

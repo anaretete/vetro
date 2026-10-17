@@ -9,6 +9,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.RoundedCornerStyle
+import com.kyant.shapes.RoundedRectangle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
@@ -79,7 +81,7 @@ enum class MangaCover(val ratio: Float) {
         // KMK <--
 
         val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
-        val actualShape = if (isGlass) androidx.compose.foundation.shape.RoundedCornerShape(12.dp) else shape
+        val actualShape = if (isGlass) RoundedRectangle(14.dp, RoundedCornerStyle.Continuous) else shape
         val isDark = androidx.compose.foundation.isSystemInDarkTheme()
 
         val modifierColored = modifier

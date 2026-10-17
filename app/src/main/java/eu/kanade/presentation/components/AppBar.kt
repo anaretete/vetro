@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
@@ -268,21 +269,25 @@ fun AppBar(
             },
             actions = {
                 if (isGlass) {
-                    Row(
+                    Box(
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .height(40.dp)
+                            .defaultMinSize(minWidth = 40.dp)
                             .liquidGlassSurface(
                                 shape = Capsule(),
                                 blurRadius = 16.dp,
                                 refractionHeight = 18.dp,
                                 refractionAmount = 26.dp,
                                 tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
-                            )
-                            .padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                            ),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        actions()
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            actions()
+                        }
                     }
                 } else {
                     actions()
@@ -346,6 +351,7 @@ fun AppBarActions(
     actions: ImmutableList<AppBar.AppBarAction>,
 ) {
     var showMenu by remember { mutableStateOf(false) }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
 
     actions.filterIsInstance<AppBar.Action>().map {
         TooltipBox(
@@ -361,6 +367,7 @@ fun AppBarActions(
             IconButton(
                 onClick = it.onClick,
                 enabled = it.enabled,
+                modifier = if (isGlass) Modifier.size(40.dp) else Modifier,
             ) {
                 Icon(
                     imageVector = it.icon,
@@ -408,6 +415,7 @@ fun AppBarActions(
         ) {
             IconButton(
                 onClick = { showMenu = !showMenu },
+                modifier = if (isGlass) Modifier.size(40.dp) else Modifier,
             ) {
                 Icon(
                     Icons.Outlined.MoreVert,

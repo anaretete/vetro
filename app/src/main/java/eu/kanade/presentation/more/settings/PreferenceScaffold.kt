@@ -13,7 +13,8 @@ import tachiyomi.presentation.core.i18n.stringResource
 
 @Composable
 fun PreferenceScaffold(
-    titleRes: StringResource,
+    titleRes: StringResource? = null,
+    title: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
     onBackPressed: (() -> Unit)? = null,
     itemsProvider: @Composable () -> List<Preference>,
@@ -29,7 +30,7 @@ fun PreferenceScaffold(
     Scaffold(
         topBar = {
             AppBar(
-                title = stringResource(titleRes),
+                title = title ?: titleRes?.let { stringResource(it) } ?: "",
                 navigateUp = onBackPressed,
                 actions = actions,
                 scrollBehavior = it,

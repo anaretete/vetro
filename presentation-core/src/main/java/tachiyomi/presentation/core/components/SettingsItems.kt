@@ -80,14 +80,24 @@ fun HeadingItem(labelRes: StringResource) {
 
 @Composable
 fun HeadingItem(text: String) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Text(
         text = text,
-        style = MaterialTheme.typography.header,
+        style = if (isGlass) {
+            MaterialTheme.typography.titleMedium.copy(
+                fontSize = 15.sp,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                color = if (androidx.compose.foundation.isSystemInDarkTheme()) Color.White else Color(0xFF1C1C1E),
+                letterSpacing = (-0.2).sp,
+            )
+        } else {
+            MaterialTheme.typography.header
+        },
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = SettingsItemsPaddings.Horizontal,
-                vertical = SettingsItemsPaddings.Vertical,
+                horizontal = if (isGlass) 20.dp else SettingsItemsPaddings.Horizontal,
+                vertical = if (isGlass) 8.dp else SettingsItemsPaddings.Vertical,
             ),
     )
 }
@@ -483,16 +493,18 @@ fun IconItem(
 
 @Composable
 fun SettingsChipRow(labelRes: StringResource, content: @Composable FlowRowScope.() -> Unit) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     Column {
         HeadingItem(labelRes)
         FlowRow(
             modifier = Modifier.padding(
-                start = SettingsItemsPaddings.Horizontal,
+                start = if (isGlass) 20.dp else SettingsItemsPaddings.Horizontal,
                 top = 0.dp,
-                end = SettingsItemsPaddings.Horizontal,
-                bottom = SettingsItemsPaddings.Vertical,
+                end = if (isGlass) 20.dp else SettingsItemsPaddings.Horizontal,
+                bottom = if (isGlass) 12.dp else SettingsItemsPaddings.Vertical,
             ),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             content = content,
         )
     }

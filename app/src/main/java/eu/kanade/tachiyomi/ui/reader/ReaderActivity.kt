@@ -383,7 +383,8 @@ class ReaderActivity : BaseActivity() {
             // KMK <--
 
             val onDismissRequest = viewModel::closeDialog
-            when (state.dialog) {
+            CompositionLocalProvider(LocalLayerBackdrop provides readerPageBackdrop) {
+                when (state.dialog) {
                 is ReaderViewModel.Dialog.Loading -> {
                     AlertDialog(
                         onDismissRequest = {},
@@ -533,6 +534,7 @@ class ReaderActivity : BaseActivity() {
                 null -> {}
             }
         }
+    }
     }
 
     /**

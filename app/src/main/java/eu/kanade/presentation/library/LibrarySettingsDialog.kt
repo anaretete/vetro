@@ -362,6 +362,14 @@ private fun ColumnScope.DisplayPage(
 
     HeadingItem(MR.strings.overlay_header)
     CheckboxItem(
+        label = "Continuous Squircle Covers",
+        pref = screenModel.libraryPreferences.squircleCovers(),
+    )
+    CheckboxItem(
+        label = "Frosted Glass Badges",
+        pref = screenModel.libraryPreferences.glassBadges(),
+    )
+    CheckboxItem(
         label = stringResource(MR.strings.action_display_download_badge),
         pref = screenModel.libraryPreferences.downloadBadge(),
     )

@@ -79,8 +79,6 @@ object SettingsAppearanceScreen : SearchableSettings {
         val amoledPref = uiPreferences.themeDarkAmoled()
         val amoled by amoledPref.collectAsState()
 
-        val refractionStrength by uiPreferences.liquidGlassRefractionStrength().collectAsState()
-
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
             preferenceItems = persistentListOf(
@@ -159,21 +157,12 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Liquid Glass UI",
                     subtitle = "Refractive glass surfaces, chromatic aberration, and spring physics",
                 ),
-                Preference.PreferenceItem.SwitchPreference(
-                    preference = uiPreferences.liquidGlassChromaticAberration(),
-                    title = "Chromatic Aberration",
-                    subtitle = "Prismatic color dispersion along curved glass borders",
+                Preference.PreferenceItem.TextPreference(
+                    title = "Liquid Glass Settings",
+                    subtitle = "Configure live optics, refraction, blur, 3D lens dome, and physics",
                     enabled = uiPreferences.liquidGlassEnabled().get(),
-                ),
-                Preference.PreferenceItem.SliderPreference(
-                    value = (refractionStrength * 100).roundToInt(),
-                    valueRange = 25..200,
-                    title = "Refraction Strength",
-                    subtitle = "Adjust lens refraction depth and optical distortion",
-                    valueString = "${(refractionStrength * 100).roundToInt()}%",
-                    enabled = uiPreferences.liquidGlassEnabled().get(),
-                    onValueChanged = {
-                        uiPreferences.liquidGlassRefractionStrength().set(it / 100f)
+                    onClick = {
+                        navigator.push(SettingsLiquidGlassScreen)
                     },
                 ),
             ),

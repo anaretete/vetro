@@ -4,7 +4,9 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -120,12 +122,21 @@ fun TabbedDialog(
                                 .offset(x = indicatorOffset)
                                 .width(segmentWidth)
                                 .fillMaxHeight()
+                                .clip(Capsule())
+                                .background(if (isSystemInDarkTheme()) Color(0xFF3A3A3C) else Color.White)
+                                .border(
+                                    BorderStroke(
+                                        0.5.dp,
+                                        if (isSystemInDarkTheme()) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
+                                    ),
+                                    shape = Capsule(),
+                                )
                                 .liquidGlassSurface(
                                     shape = Capsule(),
                                     blurRadius = 8.dp,
-                                    refractionHeight = 12.dp,
-                                    refractionAmount = 20.dp,
-                                    tintColor = if (isSystemInDarkTheme()) Color(0xFF636366).copy(alpha = 0.90f) else Color.White.copy(alpha = 0.95f),
+                                    refractionHeight = 10.dp,
+                                    refractionAmount = 16.dp,
+                                    tintColor = if (isSystemInDarkTheme()) Color(0xFF3A3A3C).copy(alpha = 0.90f) else Color.White.copy(alpha = 0.95f),
                                 ),
                         )
 
@@ -167,9 +178,16 @@ fun TabbedDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
-                            .size(30.dp)
+                            .size(32.dp)
                             .clip(CircleShape)
                             .background(if (isSystemInDarkTheme()) Color(0xFF2C2C2E) else Color(0xFFE5E5EA))
+                            .border(
+                                BorderStroke(
+                                    0.5.dp,
+                                    if (isSystemInDarkTheme()) Color(0xFF5A5A5E).copy(alpha = 0.4f) else Color(0xFFD1D1D6),
+                                ),
+                                shape = CircleShape,
+                            )
                             .clickable(onClick = onDismissRequest),
                         contentAlignment = Alignment.Center,
                     ) {

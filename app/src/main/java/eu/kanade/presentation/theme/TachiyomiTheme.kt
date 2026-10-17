@@ -22,6 +22,10 @@ import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.util.collectAsState
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleAlpineColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleMidnightColorScheme
+import eu.kanade.presentation.theme.colorscheme.ApplePurpleColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleTitaniumColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
 import eu.kanade.presentation.theme.colorscheme.CupertinoColorScheme
 import eu.kanade.presentation.theme.colorscheme.CloudflareColorScheme
@@ -103,12 +107,31 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     val liquidGlassEnabled by uiPreferences.liquidGlassEnabled().collectAsState()
     val chromaticAberration by uiPreferences.liquidGlassChromaticAberration().collectAsState()
     val refractionStrength by uiPreferences.liquidGlassRefractionStrength().collectAsState()
+    val blurRadius by uiPreferences.liquidGlassBlurRadius().collectAsState()
+    val lensHeight by uiPreferences.liquidGlassLensHeight().collectAsState()
+    val tintAlpha by uiPreferences.liquidGlassTintAlpha().collectAsState()
+    val springPhysics by uiPreferences.liquidGlassSpringPhysics().collectAsState()
+    val depthEffect by uiPreferences.liquidGlassDepthEffect().collectAsState()
 
-    val glassConfig = remember(liquidGlassEnabled, chromaticAberration, refractionStrength) {
+    val glassConfig = remember(
+        liquidGlassEnabled,
+        chromaticAberration,
+        refractionStrength,
+        blurRadius,
+        lensHeight,
+        tintAlpha,
+        springPhysics,
+        depthEffect,
+    ) {
         LiquidGlassConfig(
             enabled = liquidGlassEnabled,
             chromaticAberration = chromaticAberration,
             refractionMultiplier = refractionStrength,
+            blurMultiplier = blurRadius,
+            lensHeightMultiplier = lensHeight,
+            tintAlphaMultiplier = tintAlpha,
+            springPhysicsEnabled = springPhysics,
+            depthEffect = depthEffect,
         )
     }
 
@@ -134,7 +157,13 @@ private fun BaseTachiyomiTheme(
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
     LiquidGlassThemeWrapper {
-        val isCupertino = appTheme == AppTheme.CUPERTINO || LocalLiquidGlassConfig.current.enabled
+        val isCupertino = appTheme in listOf(
+            AppTheme.CUPERTINO,
+            AppTheme.APPLE_MIDNIGHT,
+            AppTheme.APPLE_ALPINE,
+            AppTheme.APPLE_PURPLE,
+            AppTheme.APPLE_TITANIUM,
+        ) || LocalLiquidGlassConfig.current.enabled
         MaterialExpressiveTheme(
             colorScheme = remember(appTheme, isDark, isAmoled) {
                 getThemeColorScheme(
@@ -183,6 +212,10 @@ private fun getThemeColorScheme(
 private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
     AppTheme.DEFAULT to TachiyomiColorScheme,
     AppTheme.CUPERTINO to CupertinoColorScheme,
+    AppTheme.APPLE_MIDNIGHT to AppleMidnightColorScheme,
+    AppTheme.APPLE_ALPINE to AppleAlpineColorScheme,
+    AppTheme.APPLE_PURPLE to ApplePurpleColorScheme,
+    AppTheme.APPLE_TITANIUM to AppleTitaniumColorScheme,
     AppTheme.CATPPUCCIN to CatppuccinColorScheme,
     AppTheme.GREEN_APPLE to GreenAppleColorScheme,
     AppTheme.LAVENDER to LavenderColorScheme,

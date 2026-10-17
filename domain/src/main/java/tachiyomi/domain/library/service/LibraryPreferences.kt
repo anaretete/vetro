@@ -251,6 +251,10 @@ class LibraryPreferences(
 
     fun disallowNonAsciiFilenames() = preferenceStore.getBoolean("disallow_non_ascii_filenames", false)
 
+    fun squircleCovers() = preferenceStore.getBoolean("pref_library_squircle_covers", true)
+
+    fun glassBadges() = preferenceStore.getBoolean("pref_library_glass_badges", true)
+
     // endregion
 
     enum class ChapterSwipeAction {

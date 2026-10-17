@@ -49,8 +49,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun LiquidSlider(
     value: () -> Float,
     onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    visibilityThreshold: Float,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    visibilityThreshold: Float = 0.001f,
     backdrop: Backdrop,
     modifier: Modifier = Modifier
 ) {

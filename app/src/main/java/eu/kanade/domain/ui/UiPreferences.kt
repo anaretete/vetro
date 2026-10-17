@@ -27,6 +27,11 @@ class UiPreferences(
     fun liquidGlassEnabled() = preferenceStore.getBoolean("pref_liquid_glass_enabled", true)
     fun liquidGlassChromaticAberration() = preferenceStore.getBoolean("pref_liquid_glass_chromatic", true)
     fun liquidGlassRefractionStrength() = preferenceStore.getFloat("pref_liquid_glass_refraction", 1.0f)
+    fun liquidGlassBlurRadius() = preferenceStore.getFloat("pref_liquid_glass_blur", 1.0f)
+    fun liquidGlassLensHeight() = preferenceStore.getFloat("pref_liquid_glass_lens_height", 1.0f)
+    fun liquidGlassTintAlpha() = preferenceStore.getFloat("pref_liquid_glass_tint_alpha", 1.0f)
+    fun liquidGlassSpringPhysics() = preferenceStore.getBoolean("pref_liquid_glass_spring", true)
+    fun liquidGlassDepthEffect() = preferenceStore.getBoolean("pref_liquid_glass_depth", true)
 
     // KMK -->
     fun colorTheme() = preferenceStore.getInt("pref_color_theme", 0xFFDF0090.toInt())

@@ -19,6 +19,7 @@ import tachiyomi.presentation.core.components.material.CupertinoIconBadge
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ChromeReaderMode
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
@@ -176,7 +177,7 @@ object SettingsMainScreen : Screen() {
                                             }
                                             TextPreferenceWidget(
                                                 modifier = rowModifier,
-                                                title = stringResource(item.titleRes),
+                                                title = item.formatTitle(),
                                                 subtitle = item.formatSubtitle(),
                                                 iconContent = {
                                                     CupertinoIconBadge(
@@ -227,7 +228,7 @@ object SettingsMainScreen : Screen() {
                             CompositionLocalProvider(LocalContentColor provides contentColor) {
                                 TextPreferenceWidget(
                                     modifier = modifier,
-                                    title = stringResource(item.titleRes),
+                                    title = item.formatTitle(),
                                     subtitle = item.formatSubtitle(),
                                     icon = item.icon,
                                     onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
@@ -245,15 +246,25 @@ object SettingsMainScreen : Screen() {
     }
 
     private data class Item(
-        val titleRes: StringResource,
-        val subtitleRes: StringResource,
-        val formatSubtitle: @Composable () -> String = { stringResource(subtitleRes) },
+        val titleRes: StringResource? = null,
+        val subtitleRes: StringResource? = null,
+        val customTitle: String? = null,
+        val customSubtitle: String? = null,
+        val formatTitle: @Composable () -> String = { customTitle ?: titleRes?.let { stringResource(it) } ?: "" },
+        val formatSubtitle: @Composable () -> String = { customSubtitle ?: subtitleRes?.let { stringResource(it) } ?: "" },
         val icon: ImageVector,
         val badgeColor: Color,
         val screen: VoyagerScreen,
     )
 
     private val group1 = listOf(
+        Item(
+            customTitle = "Liquid Glass",
+            customSubtitle = "Refraction, blur, lenses, and physics",
+            icon = Icons.Outlined.AutoAwesome,
+            badgeColor = Color(0xFF30B0C7),
+            screen = SettingsLiquidGlassScreen,
+        ),
         Item(
             titleRes = MR.strings.pref_category_appearance,
             subtitleRes = MR.strings.pref_appearance_summary,
