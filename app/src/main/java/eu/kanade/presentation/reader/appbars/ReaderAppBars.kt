@@ -120,15 +120,10 @@ fun ReaderAppBars(
             .statusBarsPadding()
             .displayCutoutPadding()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .liquidGlassSurface(
-                shape = RoundedCornerShape(22.dp),
-                blurRadius = 18.dp,
-                refractionHeight = 22.dp,
-                refractionAmount = 30.dp,
-            )
-            .clickable(onClick = onClickTopAppBar)
+            .fillMaxWidth()
     } else {
         Modifier
+            .fillMaxWidth()
             .background(backgroundColor)
             .clickable(onClick = onClickTopAppBar)
     }
@@ -157,6 +152,7 @@ fun ReaderAppBars(
                     onOpenInBrowser = null, // onOpenInBrowser,
                     onShare = null, // onShare,
                     // SY <--
+                    onClickTopAppBar = onClickTopAppBar,
                 )
                 // SY -->
                 ExhUtils(

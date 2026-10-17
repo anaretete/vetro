@@ -58,9 +58,11 @@ fun TachiyomiTheme(
     content: @Composable () -> Unit,
 ) {
     val uiPreferences = Injekt.get<UiPreferences>()
+    val prefTheme by uiPreferences.appTheme().collectAsState()
+    val prefAmoled by uiPreferences.themeDarkAmoled().collectAsState()
     BaseTachiyomiTheme(
-        appTheme = appTheme ?: uiPreferences.appTheme().get(),
-        isAmoled = amoled ?: uiPreferences.themeDarkAmoled().get(),
+        appTheme = appTheme ?: prefTheme,
+        isAmoled = amoled ?: prefAmoled,
         content = content,
     )
 }

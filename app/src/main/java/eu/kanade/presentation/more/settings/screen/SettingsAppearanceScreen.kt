@@ -79,6 +79,8 @@ object SettingsAppearanceScreen : SearchableSettings {
         val amoledPref = uiPreferences.themeDarkAmoled()
         val amoled by amoledPref.collectAsState()
 
+        val isLiquidGlassEnabled by uiPreferences.liquidGlassEnabled().collectAsState()
+
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
             preferenceItems = persistentListOf(
@@ -158,9 +160,9 @@ object SettingsAppearanceScreen : SearchableSettings {
                     subtitle = "Refractive glass surfaces, chromatic aberration, and spring physics",
                 ),
                 Preference.PreferenceItem.TextPreference(
-                    title = "Liquid Glass Settings",
+                    title = "Liquid Glass Studio",
                     subtitle = "Configure live optics, refraction, blur, 3D lens dome, and physics",
-                    enabled = uiPreferences.liquidGlassEnabled().get(),
+                    enabled = isLiquidGlassEnabled,
                     onClick = {
                         navigator.push(SettingsLiquidGlassScreen)
                     },

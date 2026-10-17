@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -50,7 +51,7 @@ data class LiquidGlassConfig(
     val depthEffect: Boolean = true,
 )
 
-val LocalLiquidGlassConfig = staticCompositionLocalOf { LiquidGlassConfig() }
+val LocalLiquidGlassConfig = compositionLocalOf { LiquidGlassConfig() }
 
 /**
  * Holds the active Backdrop instance. If null, components sample an ambient canvas backdrop

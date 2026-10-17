@@ -51,8 +51,10 @@ import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import eu.kanade.presentation.util.isTabletUi
 import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.components.material.CupertinoVerticalSlider
 import tachiyomi.presentation.core.components.material.Slider
 import tachiyomi.presentation.core.i18n.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun ChapterNavigator(
@@ -266,18 +268,12 @@ fun ChapterNavigatorVert(
         val backgroundColor = MaterialTheme.colorScheme
             .surfaceColorAtElevation(3.dp)
             .copy(alpha = if (isDark) 0.9f else 0.95f)
-        val buttonColor = if (isGlass) {
-            IconButtonDefaults.filledIconButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
-            )
-        } else {
-            IconButtonDefaults.filledIconButtonColors(
-                containerColor = backgroundColor,
-                disabledContainerColor = backgroundColor,
-                contentColor = MaterialTheme.colorScheme.primary,
-            )
-        }
+        val buttonColor = IconButtonDefaults.filledIconButtonColors(
+            containerColor = if (isGlass) (if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF)) else backgroundColor,
+            contentColor = if (isDark) Color.White else Color(0xFF1C1C1E),
+            disabledContainerColor = if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF),
+            disabledContentColor = Color.Gray,
+        )
         val textColor = MaterialTheme.colorScheme.onSurface
 
         FilledIconButton(
@@ -290,6 +286,7 @@ fun ChapterNavigatorVert(
                     blurRadius = 10.dp,
                     refractionHeight = 12.dp,
                     refractionAmount = 18.dp,
+                    surfaceColor = if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF),
                 )
             } else {
                 Modifier
@@ -313,13 +310,13 @@ fun ChapterNavigatorVert(
                         refractionAmount = 24.dp,
                         surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
                     )
-                    .padding(vertical = 16.dp, horizontal = 4.dp)
+                    .padding(vertical = 12.dp, horizontal = 4.dp)
             } else {
                 Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(24.dp))
                     .background(backgroundColor)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 12.dp)
             }
             Column(
                 modifier = sliderModifier,
@@ -334,41 +331,19 @@ fun ChapterNavigatorVert(
                     // KMK <--
                 )
 
-                val interactionSource = remember { MutableInteractionSource() }
-                val sliderDragged by interactionSource.collectIsDraggedAsState()
-                LaunchedEffect(currentPage) {
-                    if (sliderDragged) {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    }
-                }
-                Slider(
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .graphicsLayer {
-                            rotationZ = 90f
-                            transformOrigin = TransformOrigin(0f, 0f)
+                CupertinoVerticalSlider(
+                    value = currentPage.toFloat(),
+                    onValueChange = { nextVal ->
+                        val nextInt = nextVal.roundToInt()
+                        if (nextInt != currentPage) {
+                            onPageIndexChange(nextInt - 1)
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
-                        .layout { measurable, constraints ->
-                            val placeable = measurable.measure(
-                                Constraints(
-                                    minWidth = constraints.minHeight,
-                                    maxWidth = constraints.maxHeight,
-                                    minHeight = constraints.minWidth,
-                                    maxHeight = constraints.maxWidth,
-                                ),
-                            )
-                            layout(placeable.height, placeable.width) {
-                                placeable.place(0, -placeable.height)
-                            }
-                        }
-                        .weight(1f),
-                    value = currentPage,
-                    valueRange = 1..totalPages,
-                    onValueChange = f@{
-                        if (it == currentPage) return@f
-                        onPageIndexChange(it - 1)
                     },
-                    interactionSource = interactionSource,
+                    valueRange = 1f..totalPages.toFloat(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = 4.dp),
                 )
 
                 Text(
@@ -392,6 +367,7 @@ fun ChapterNavigatorVert(
                     blurRadius = 10.dp,
                     refractionHeight = 12.dp,
                     refractionAmount = 18.dp,
+                    surfaceColor = if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF),
                 )
             } else {
                 Modifier

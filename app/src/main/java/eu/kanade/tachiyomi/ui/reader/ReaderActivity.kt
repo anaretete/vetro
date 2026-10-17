@@ -695,7 +695,7 @@ class ReaderActivity : BaseActivity() {
         val verticalSeekbarHorizontal = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
         val viewerIsVertical = (state.viewer is WebtoonViewer || state.viewer is VerticalPagerViewer)
         val showVerticalSeekbar =
-            !forceHorizontalSeekbar && (verticalSeekbarLandscape || verticalSeekbarHorizontal) && viewerIsVertical
+            !forceHorizontalSeekbar && (verticalSeekbarLandscape || verticalSeekbarHorizontal) && viewerIsVertical && state.dialog == null
         val navBarType = when {
             !showVerticalSeekbar -> NavBarType.Bottom
             leftHandedVerticalSeekbar -> NavBarType.VerticalLeft

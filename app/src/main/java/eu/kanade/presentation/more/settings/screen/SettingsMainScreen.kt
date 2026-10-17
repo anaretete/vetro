@@ -259,13 +259,6 @@ object SettingsMainScreen : Screen() {
 
     private val group1 = listOf(
         Item(
-            customTitle = "Liquid Glass",
-            customSubtitle = "Refraction, blur, lenses, and physics",
-            icon = Icons.Outlined.AutoAwesome,
-            badgeColor = Color(0xFF30B0C7),
-            screen = SettingsLiquidGlassScreen,
-        ),
-        Item(
             titleRes = MR.strings.pref_category_appearance,
             subtitleRes = MR.strings.pref_appearance_summary,
             icon = Icons.Outlined.Palette,
