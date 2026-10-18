@@ -84,7 +84,7 @@ fun TabbedDialog(
         val scope = rememberCoroutineScope()
         val isGlass = LocalLiquidGlassConfig.current.enabled
 
-        Column {
+        Column(modifier = Modifier.fillMaxWidth()) {
             if (isGlass) {
                 // iOS 26 Segmented Control Header with circular 'X' close button
                 Row(
@@ -217,7 +217,10 @@ fun TabbedDialog(
             }
 
             HorizontalPager(
-                modifier = Modifier.animateContentSize(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .animateContentSize(),
                 state = pagerState,
                 verticalAlignment = Alignment.Top,
                 pageContent = { page -> content(page) },

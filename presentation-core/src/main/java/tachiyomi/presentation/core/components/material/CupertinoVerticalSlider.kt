@@ -34,6 +34,7 @@ import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.utils.DampedDragAnimation
@@ -58,9 +59,14 @@ fun CupertinoVerticalSlider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     invertDirection: Boolean = false, // false = top (start) to bottom (end)
     onValueChangeFinished: (() -> Unit)? = null,
-    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    backdrop: Backdrop? = null,
 ) {
     val isLightTheme = !isSystemInDarkTheme()
+    val isDark = !isLightTheme
+    val activeBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
+        val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
+        drawRect(baseColor)
+    }
     val accentColor =
         if (isLightTheme) Color(0xFF007AFF)
         else Color(0xFF0A84FF)
@@ -80,7 +86,7 @@ fun CupertinoVerticalSlider(
             .fillMaxHeight(),
         contentAlignment = Alignment.TopCenter,
     ) {
-        val trackHeight = constraints.maxHeight.toFloat()
+        val trackHeight = if (constraints.hasBoundedHeight) constraints.maxHeight.toFloat() else with(density) { 300.dp.toPx() }
         val maxTravel = (trackHeight - thumbHeightPx).coerceAtLeast(0f)
 
         val animationScope = rememberCoroutineScope()
@@ -218,10 +224,10 @@ fun CupertinoVerticalSlider(
                 }
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
-                        backdrop,
+                        activeBackdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
-                            val scaleX = lerp(0f, 1f, progress)
+                            val scaleX = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
                             val scaleY = lerp(2f / 3f, 1f, progress)
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
@@ -231,12 +237,14 @@ fun CupertinoVerticalSlider(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
-                        lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
-                            chromaticAberration = true,
-                        )
+                        if (progress > 0.001f) {
+                            blur(8f.dp.toPx() * (1f - progress))
+                            lens(
+                                (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                chromaticAberration = true,
+                            )
+                        }
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress
@@ -261,12 +269,14 @@ fun CupertinoVerticalSlider(
                     },
                     layerBlock = {
                         val velocity = (dampedDragAnimation.velocity / 10f).coerceIn(-0.25f, 0.25f)
-                        scaleY = dampedDragAnimation.scaleY / (1f - velocity * 0.75f)
-                        scaleX = dampedDragAnimation.scaleX * (1f - velocity * 0.25f)
+                        val denomY = (1f - velocity * 0.75f).coerceAtLeast(0.01f)
+                        val factorX = (1f - velocity * 0.25f).coerceAtLeast(0.01f)
+                        scaleY = (dampedDragAnimation.scaleY / denomY).takeIf { it.isFinite() && it > 0.001f } ?: 1f
+                        scaleX = (dampedDragAnimation.scaleX * factorX).takeIf { it.isFinite() && it > 0.001f } ?: 1f
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress))
+                        drawRect(Color.White.copy(alpha = (1f - progress).coerceIn(0f, 1f)))
                     },
                 )
                 .size(thumbWidth, thumbHeight),

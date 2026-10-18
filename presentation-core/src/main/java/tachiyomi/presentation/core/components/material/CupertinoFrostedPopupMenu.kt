@@ -88,13 +88,12 @@ fun <T> CupertinoFrostedPopupMenu(
     offset: DpOffset = DpOffset(0.dp, 4.dp),
 ) {
     val isDark = isSystemInDarkTheme()
-    val scrollState = rememberScrollState()
 
     CupertinoFrostedPopup(
         expanded = expanded,
         onDismissRequest = onDismissRequest,
         offset = offset,
-        modifier = modifier.verticalScroll(scrollState),
+        modifier = modifier,
     ) {
         val entryList = remember(entries) { entries.toList() }
         entryList.forEachIndexed { index, (key, label) ->

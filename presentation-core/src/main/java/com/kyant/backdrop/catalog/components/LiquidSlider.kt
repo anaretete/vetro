@@ -66,7 +66,7 @@ fun LiquidSlider(
         modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterStart
     ) {
-        val trackWidth = constraints.maxWidth
+        val trackWidth = if (constraints.hasBoundedWidth) constraints.maxWidth else 1000
 
         val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
         val animationScope = rememberCoroutineScope()
@@ -89,7 +89,8 @@ fun LiquidSlider(
                     if (!didDrag) {
                         didDrag = dragAmount.x != 0f
                     }
-                    val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / trackWidth)
+                    val safeTrackWidth = trackWidth.coerceAtLeast(1)
+                    val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / safeTrackWidth)
                     onValueChange(
                         if (isLtr) (targetValue + delta).coerceIn(valueRange)
                         else (targetValue - delta).coerceIn(valueRange)
@@ -113,7 +114,8 @@ fun LiquidSlider(
                     .background(trackColor)
                     .pointerInput(animationScope) {
                         detectTapGestures { position ->
-                            val delta = (valueRange.endInclusive - valueRange.start) * (position.x / trackWidth)
+                            val safeTrackWidth = trackWidth.coerceAtLeast(1)
+                            val delta = (valueRange.endInclusive - valueRange.start) * (position.x / safeTrackWidth)
                             val targetValue =
                                 (if (isLtr) valueRange.start + delta
                                 else valueRange.endInclusive - delta)
@@ -133,7 +135,9 @@ fun LiquidSlider(
                     .height(6f.dp)
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
-                        val width = (constraints.maxWidth * dampedDragAnimation.progress).fastRoundToInt()
+                        val safeMaxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth else placeable.width
+                        val progress = dampedDragAnimation.progress.takeIf { it.isFinite() }?.coerceIn(0f, 1f) ?: 0f
+                        val width = (safeMaxWidth * progress).fastRoundToInt().coerceIn(0, safeMaxWidth)
                         layout(width, placeable.height) {
                             placeable.place(0, 0)
                         }
@@ -144,9 +148,10 @@ fun LiquidSlider(
         Box(
             Modifier
                 .graphicsLayer {
+                    val progress = dampedDragAnimation.progress.takeIf { it.isFinite() }?.coerceIn(0f, 1f) ?: 0f
                     translationX =
-                        (-size.width / 2f + trackWidth * dampedDragAnimation.progress)
-                            .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f) * if (isLtr) 1f else -1f
+                        (-size.width / 2f + trackWidth * progress)
+                            .fastCoerceIn(-size.width / 4f, (trackWidth - size.width * 3f / 4f).coerceAtLeast(0f)) * if (isLtr) 1f else -1f
                 }
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
@@ -155,7 +160,7 @@ fun LiquidSlider(
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
                             val scaleX = lerp(2f / 3f, 1f, progress)
-                            val scaleY = lerp(0f, 1f, progress)
+                            val scaleY = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
                             }
@@ -164,12 +169,14 @@ fun LiquidSlider(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
-                        lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
-                            chromaticAberration = true
-                        )
+                        if (progress > 0.001f) {
+                            blur(8f.dp.toPx() * (1f - progress))
+                            lens(
+                                (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                chromaticAberration = true
+                            )
+                        }
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress
@@ -196,12 +203,14 @@ fun LiquidSlider(
                         scaleX = dampedDragAnimation.scaleX
                         scaleY = dampedDragAnimation.scaleY
                         val velocity = dampedDragAnimation.velocity / 10f
-                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                        val denomX = (1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)).coerceAtLeast(0.01f)
+                        val denomY = (1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)).coerceAtLeast(0.01f)
+                        scaleX = (scaleX / denomX).takeIf { it.isFinite() && it > 0.001f } ?: 1f
+                        scaleY = (scaleY * denomY).takeIf { it.isFinite() && it > 0.001f } ?: 1f
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress))
+                        drawRect(Color.White.copy(alpha = (1f - progress).coerceIn(0f, 1f)))
                     }
                 )
                 .size(40f.dp, 24f.dp)

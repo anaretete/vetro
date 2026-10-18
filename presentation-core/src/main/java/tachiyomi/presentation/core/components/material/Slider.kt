@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidSlider
 import com.kyant.shapes.Capsule
@@ -55,9 +56,14 @@ fun CupertinoSlider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
-    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    backdrop: Backdrop? = null,
     accentColor: Color? = null,
 ) {
+    val isDark = isSystemInDarkTheme()
+    val activeBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
+        val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
+        drawRect(baseColor)
+    }
     val currentValue by rememberUpdatedState(value)
     val currentOnValueChange by rememberUpdatedState(onValueChange)
     val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
@@ -83,7 +89,7 @@ fun CupertinoSlider(
             },
             valueRange = valueRange,
             visibilityThreshold = threshold,
-            backdrop = backdrop,
+            backdrop = activeBackdrop,
             modifier = modifier.alpha(if (enabled) 1f else 0.5f),
             accentColor = accentColor,
         )
@@ -106,7 +112,7 @@ fun CupertinoSlider(
             },
             valueRange = valueRange,
             visibilityThreshold = threshold,
-            backdrop = backdrop,
+            backdrop = activeBackdrop,
             modifier = modifier.alpha(if (enabled) 1f else 0.5f),
         )
     }
@@ -239,7 +245,7 @@ fun Slider(
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    backdrop: Backdrop? = null,
     accentColor: Color? = null,
     thumb: @Composable (SliderState) -> Unit = {
         SliderDefaults.Thumb(
@@ -290,7 +296,7 @@ fun Slider(
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    backdrop: Backdrop? = null,
     thumb: @Composable (SliderState) -> Unit = {
         SliderDefaults.Thumb(
             interactionSource = interactionSource,
