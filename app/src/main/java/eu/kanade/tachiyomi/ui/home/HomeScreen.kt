@@ -54,8 +54,8 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidBottomTabs
 import com.kyant.backdrop.catalog.components.LiquidBottomTab
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -175,7 +175,7 @@ object HomeScreen : Screen() {
                                         tabs = enabledTabs,
                                         currentTab = currentTab,
                                         onTabSelected = { tab ->
-                                            if (currentTab.key != tab.key) {
+                                            if (currentTab::class != tab::class) {
                                                 tabNavigator.current = tab
                                             } else {
                                                 scope.launch { tab.onReselect(navigator) }
@@ -277,20 +277,8 @@ object HomeScreen : Screen() {
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val selected = tabNavigator.current::class == tab::class
-        val isGlass = LocalLiquidGlassConfig.current.enabled
-        val itemModifier = if (isGlass && selected) {
-            Modifier.liquidGlassSurface(
-                shape = CircleShape,
-                blurRadius = 10.dp,
-                refractionHeight = 12.dp,
-                refractionAmount = 18.dp,
-                tintColor = MaterialTheme.colorScheme.primary,
-            )
-        } else {
-            Modifier
-        }
         NavigationBarItem(
-            modifier = itemModifier,
+            modifier = Modifier,
             selected = selected,
             onClick = {
                 if (!selected) {
@@ -321,8 +309,10 @@ object HomeScreen : Screen() {
         alwaysShowLabel: Boolean = true,
     ) {
         val backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop()
-        val selectedIndex = remember(currentTab, tabs) {
-            tabs.indexOfFirst { it.key == currentTab.key }.coerceAtLeast(0)
+        val selectedIndex by remember(currentTab, tabs) {
+            derivedStateOf {
+                tabs.indexOfFirst { it::class == currentTab::class || it.key == currentTab.key }.coerceAtLeast(0)
+            }
         }
 
         Box(

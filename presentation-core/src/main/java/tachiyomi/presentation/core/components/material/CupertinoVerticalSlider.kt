@@ -70,8 +70,9 @@ fun CupertinoVerticalSlider(
 
     val trackBackdrop = rememberLayerBackdrop()
     val density = LocalDensity.current
-    val thumbSize = 28.dp
-    val thumbHeightPx = with(density) { thumbSize.toPx() }
+    val thumbWidth = 24.dp
+    val thumbHeight = 40.dp
+    val thumbHeightPx = with(density) { thumbHeight.toPx() }
 
     BoxWithConstraints(
         modifier = modifier
@@ -93,7 +94,7 @@ fun CupertinoVerticalSlider(
                 valueRange = valueRange,
                 visibilityThreshold = 0.001f,
                 initialScale = 1f,
-                pressedScale = 1.04f,
+                pressedScale = 1.5f,
                 onDragStarted = {
                     didDrag = false
                     currentDragValue = value
@@ -268,7 +269,7 @@ fun CupertinoVerticalSlider(
                         drawRect(Color.White.copy(alpha = 1f - progress))
                     },
                 )
-                .size(thumbSize),
+                .size(thumbWidth, thumbHeight),
         )
     }
 }

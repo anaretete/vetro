@@ -73,7 +73,6 @@ import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent

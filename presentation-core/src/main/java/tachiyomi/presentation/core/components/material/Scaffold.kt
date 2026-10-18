@@ -173,16 +173,6 @@ fun Scaffold(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(containerColor)
-                            .background(
-                                Brush.radialGradient(
-                                    colors = listOf(
-                                        if (isDark) Color(0x22FFFFFF) else Color(0x18000000),
-                                        Color.Transparent,
-                                    ),
-                                    center = Offset(Float.POSITIVE_INFINITY, 0f),
-                                    radius = 1200f,
-                                ),
-                            )
                             .layerBackdrop(backgroundCanvasBackdrop),
                     )
 

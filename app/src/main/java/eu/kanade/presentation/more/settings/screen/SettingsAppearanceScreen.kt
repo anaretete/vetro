@@ -159,13 +159,17 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Liquid Glass UI",
                     subtitle = "Refractive glass surfaces, chromatic aberration, and spring physics",
                 ),
-                Preference.PreferenceItem.TextPreference(
-                    title = "Liquid Glass Studio",
-                    subtitle = "Configure live optics, refraction, blur, 3D lens dome, and physics",
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.liquidGlassChromaticAberration(),
+                    title = "Chromatic Aberration",
+                    subtitle = "Simulate optical lens RGB dispersion on edges",
                     enabled = isLiquidGlassEnabled,
-                    onClick = {
-                        navigator.push(SettingsLiquidGlassScreen)
-                    },
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.liquidGlassSpringPhysics(),
+                    title = "Spring Physics Morphing",
+                    subtitle = "Viscoelastic squish and stretch velocity deformation",
+                    enabled = isLiquidGlassEnabled,
                 ),
             ),
         )

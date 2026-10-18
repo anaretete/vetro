@@ -12,7 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.UTurnRight
-import androidx.compose.material3.AlertDialog
+import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import tachiyomi.presentation.core.components.material.TextButton

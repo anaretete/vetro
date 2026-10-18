@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material3.AlertDialog
+import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import tachiyomi.presentation.core.components.material.IconButton

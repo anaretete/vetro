@@ -234,34 +234,15 @@ fun AlertDialog(
     tonalElevation: androidx.compose.ui.unit.Dp = androidx.compose.material3.AlertDialogDefaults.TonalElevation,
     properties: androidx.compose.ui.window.DialogProperties = androidx.compose.ui.window.DialogProperties(),
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    if (isGlass) {
-        CupertinoAlertDialog(
-            onDismissRequest = onDismissRequest,
-            confirmButton = confirmButton,
-            modifier = modifier,
-            dismissButton = dismissButton,
-            title = title,
-            text = text,
-            properties = properties,
-        )
-    } else {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = onDismissRequest,
-            confirmButton = confirmButton,
-            modifier = modifier,
-            dismissButton = dismissButton,
-            icon = icon,
-            title = title,
-            text = text,
-            shape = shape,
-            containerColor = containerColor,
-            iconContentColor = iconContentColor,
-            titleContentColor = titleContentColor,
-            textContentColor = textContentColor,
-            tonalElevation = tonalElevation,
-            properties = properties,
-        )
-    }
+    CupertinoAlertDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = confirmButton,
+        modifier = modifier,
+        dismissButton = dismissButton,
+        icon = icon,
+        title = title,
+        text = text,
+        properties = properties,
+    )
 }
 

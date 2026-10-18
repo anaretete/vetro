@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.AlertDialog
+import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import tachiyomi.presentation.core.components.material.OutlinedButton
 import androidx.compose.material3.Text

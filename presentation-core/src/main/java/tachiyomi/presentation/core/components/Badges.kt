@@ -31,31 +31,17 @@ import androidx.compose.ui.unit.dp
 import com.kyant.shapes.Capsule
 import kotlinx.collections.immutable.persistentMapOf
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 
 @Composable
 fun BadgeGroup(
     modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.extraSmall,
+    shape: Shape = Capsule(),
     content: @Composable RowScope.() -> Unit,
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    val groupModifier = if (isGlass) {
-        modifier
-            .liquidGlassSurface(
-                shape = Capsule(),
-                blurRadius = 6.dp,
-                refractionHeight = 6.dp,
-                refractionAmount = 10.dp,
-            )
-            .height(18.dp)
-    } else {
-        modifier
-            .clip(shape)
-            .height(18.dp)
-    }
     Row(
-        modifier = groupModifier,
+        modifier = modifier
+            .clip(shape)
+            .height(18.dp),
     ) {
         content()
     }

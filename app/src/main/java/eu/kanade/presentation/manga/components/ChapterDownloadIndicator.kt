@@ -36,8 +36,6 @@ import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.model.Download
 import tachiyomi.i18n.MR
 import androidx.compose.foundation.shape.CircleShape
-import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.IconButtonTokens
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.secondaryItemAlpha
@@ -57,17 +55,7 @@ fun ChapterDownloadIndicator(
     onClick: (ChapterDownloadAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    val indicatorModifier = if (isGlass) {
-        modifier.liquidGlassSurface(
-            shape = CircleShape,
-            blurRadius = 6.dp,
-            refractionHeight = 8.dp,
-            refractionAmount = 12.dp,
-        )
-    } else {
-        modifier
-    }
+    val indicatorModifier = modifier
     when (val downloadState = downloadStateProvider()) {
         Download.State.NOT_DOWNLOADED -> NotDownloadedIndicator(
             enabled = enabled,

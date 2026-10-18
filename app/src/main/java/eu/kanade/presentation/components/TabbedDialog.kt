@@ -61,7 +61,6 @@ import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.TabText
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 
 object TabbedDialogPaddings {
@@ -116,27 +115,20 @@ fun TabbedDialog(
                             label = "SegmentPillOffset",
                         )
 
-                        // Sliding Liquid Glass Pill Indicator
+                        // Sliding Apple Segmented Pill Indicator
                         Box(
                             modifier = Modifier
                                 .offset(x = indicatorOffset)
                                 .width(segmentWidth)
                                 .fillMaxHeight()
                                 .clip(Capsule())
-                                .background(if (isSystemInDarkTheme()) Color(0xFF3A3A3C) else Color.White)
+                                .background(if (isSystemInDarkTheme()) Color(0xFF636366) else Color.White)
                                 .border(
                                     BorderStroke(
                                         0.5.dp,
                                         if (isSystemInDarkTheme()) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
                                     ),
                                     shape = Capsule(),
-                                )
-                                .liquidGlassSurface(
-                                    shape = Capsule(),
-                                    blurRadius = 8.dp,
-                                    refractionHeight = 10.dp,
-                                    refractionAmount = 16.dp,
-                                    tintColor = if (isSystemInDarkTheme()) Color(0xFF3A3A3C).copy(alpha = 0.90f) else Color.White.copy(alpha = 0.95f),
                                 ),
                         )
 

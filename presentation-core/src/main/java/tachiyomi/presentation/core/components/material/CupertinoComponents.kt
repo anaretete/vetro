@@ -72,16 +72,21 @@ fun CupertinoAlertDialog(
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     dismissButton: (@Composable () -> Unit)? = null,
+    icon: (@Composable () -> Unit)? = null,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
     properties: DialogProperties = DialogProperties(),
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val dialogBg = if (isDark) Color(0xFF252528).copy(alpha = 0.70f) else Color(0xFFFFFFFF).copy(alpha = 0.85f)
+    val dialogBg = if (isGlass) {
+        if (isDark) Color(0xFF252528).copy(alpha = 0.70f) else Color(0xFFFFFFFF).copy(alpha = 0.85f)
+    } else {
+        if (isDark) Color(0xFF252528) else Color(0xFFFFFFFF)
+    }
 
-    BasicAlertDialog(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier
+    val dialogModifier = if (isGlass) {
+        modifier
             .widthIn(min = 270.dp, max = 320.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
@@ -89,7 +94,17 @@ fun CupertinoAlertDialog(
                 refractionHeight = 24.dp,
                 refractionAmount = 32.dp,
                 tintColor = dialogBg,
-            ),
+            )
+    } else {
+        modifier
+            .widthIn(min = 270.dp, max = 320.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(dialogBg)
+    }
+
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = dialogModifier,
         properties = properties,
     ) {
         Column(
@@ -103,6 +118,11 @@ fun CupertinoAlertDialog(
                     .padding(horizontal = 16.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
+                if (icon != null) {
+                    Box(modifier = Modifier.padding(bottom = 6.dp)) {
+                        icon()
+                    }
+                }
                 if (title != null) {
                     ProvideTextStyle(
                         value = MaterialTheme.typography.titleMedium.copy(
@@ -208,12 +228,7 @@ fun CupertinoGrabber(
             .padding(vertical = 8.dp)
             .size(width = 36.dp, height = 5.dp)
             .clip(Capsule())
-            .liquidGlassSurface(
-                shape = Capsule(),
-                blurRadius = 4.dp,
-                refractionHeight = 4.dp,
-                tintColor = color,
-            ),
+            .background(color),
     )
 }
 
@@ -263,11 +278,16 @@ fun CupertinoActionSheetCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val cardBg = if (isDark) Color(0xFF222226).copy(alpha = 0.75f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
+    val cardBg = if (isGlass) {
+        if (isDark) Color(0xFF222226).copy(alpha = 0.75f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
+    } else {
+        if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9)
+    }
 
-    Column(
-        modifier = modifier
+    val cardModifier = if (isGlass) {
+        modifier
             .fillMaxWidth()
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
@@ -275,7 +295,16 @@ fun CupertinoActionSheetCard(
                 refractionHeight = 22.dp,
                 refractionAmount = 30.dp,
                 tintColor = cardBg,
-            ),
+            )
+    } else {
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(cardBg)
+    }
+
+    Column(
+        modifier = cardModifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         content = content,
     )
@@ -290,11 +319,16 @@ fun CupertinoCancelPill(
     modifier: Modifier = Modifier,
     text: String = "Cancel",
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val pillBg = if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
+    val pillBg = if (isGlass) {
+        if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
+    } else {
+        if (isDark) Color(0xFF222226) else Color(0xFFFFFFFF)
+    }
 
-    Box(
-        modifier = modifier
+    val pillModifier = if (isGlass) {
+        modifier
             .fillMaxWidth()
             .height(54.dp)
             .liquidGlassSurface(
@@ -304,6 +338,16 @@ fun CupertinoCancelPill(
                 refractionAmount = 28.dp,
                 tintColor = pillBg,
             )
+    } else {
+        modifier
+            .fillMaxWidth()
+            .height(54.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(pillBg)
+    }
+
+    Box(
+        modifier = pillModifier
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

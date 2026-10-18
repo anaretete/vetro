@@ -12,7 +12,7 @@ import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.AlertDialog
+import tachiyomi.presentation.core.components.material.AlertDialog
 import tachiyomi.presentation.core.components.material.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon

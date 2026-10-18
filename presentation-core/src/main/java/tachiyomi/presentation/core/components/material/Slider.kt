@@ -1,20 +1,45 @@
 package tachiyomi.presentation.core.components.material
 
 import androidx.annotation.IntRange
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastRoundToInt
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidSlider
+import com.kyant.shapes.Capsule
 import kotlin.math.roundToInt
 
 /**
@@ -88,7 +113,120 @@ fun CupertinoSlider(
 }
 
 /**
- * Universal drop-in Slider replacement with automatic Cupertino Liquid Glass styling.
+ * Authentic Apple iOS Solid UISlider (used when Liquid Glass is disabled).
+ * Features standard 6dp track, 28dp solid white thumb with shadow, 1:1 touch tracking.
+ */
+@Composable
+fun SolidCupertinoSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+    onValueChangeFinished: (() -> Unit)? = null,
+    accentColor: Color = if (!isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF0A84FF),
+) {
+    val isLightTheme = !isSystemInDarkTheme()
+    val trackColor = if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f) else Color(0xFF787880).copy(alpha = 0.36f)
+    val density = LocalDensity.current
+    val thumbSize = 28.dp
+    val thumbWidthPx = with(density) { thumbSize.toPx() }
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val rangeSpan = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 44.dp)
+            .alpha(if (enabled) 1f else 0.5f),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        val trackWidth = constraints.maxWidth.toFloat()
+        val maxTravel = (trackWidth - thumbWidthPx).coerceAtLeast(0f)
+        val progress = ((value - valueRange.start) / rangeSpan).coerceIn(0f, 1f)
+
+        val updateFromPosition: (Float) -> Unit = { posX ->
+            val fraction = if (maxTravel > 0f) {
+                ((posX - thumbWidthPx / 2f) / maxTravel).coerceIn(0f, 1f)
+            } else 0f
+            val effectiveFraction = if (isLtr) fraction else 1f - fraction
+            val targetValue = if (steps > 0) {
+                val stepCount = steps + 1
+                val step = (effectiveFraction * stepCount).roundToInt()
+                valueRange.start + (step.toFloat() / stepCount) * rangeSpan
+            } else {
+                valueRange.start + effectiveFraction * rangeSpan
+            }.coerceIn(valueRange)
+            onValueChange(targetValue)
+        }
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .pointerInput(enabled, trackWidth, isLtr, valueRange) {
+                    if (!enabled) return@pointerInput
+                    detectTapGestures { position ->
+                        updateFromPosition(position.x)
+                        onValueChangeFinished?.invoke()
+                    }
+                }
+                .pointerInput(enabled, trackWidth, isLtr, valueRange) {
+                    if (!enabled) return@pointerInput
+                    detectDragGestures(
+                        onDrag = { change, _ ->
+                            change.consume()
+                            updateFromPosition(change.position.x)
+                        },
+                        onDragEnd = { onValueChangeFinished?.invoke() },
+                        onDragCancel = { onValueChangeFinished?.invoke() },
+                    )
+                },
+        )
+
+        // Track (unfilled and filled)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp),
+        ) {
+            Box(
+                Modifier
+                    .clip(Capsule())
+                    .background(trackColor)
+                    .height(6.dp)
+                    .fillMaxWidth(),
+            )
+
+            Box(
+                Modifier
+                    .clip(Capsule())
+                    .background(accentColor)
+                    .height(6.dp)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val width = (thumbWidthPx / 2f + maxTravel * progress).fastRoundToInt().coerceIn(0, constraints.maxWidth)
+                        layout(width, placeable.height) {
+                            placeable.place(0, 0)
+                        }
+                    },
+            )
+        }
+
+        // Circular Thumb (28dp)
+        Box(
+            Modifier
+                .offset(x = with(density) { (maxTravel * (if (isLtr) progress else 1f - progress)).toDp() })
+                .size(thumbSize)
+                .shadow(elevation = 3.dp, shape = CircleShape)
+                .clip(CircleShape)
+                .background(Color.White),
+        )
+    }
+}
+
+/**
+ * Universal drop-in Slider replacement with automatic Cupertino styling.
  */
 @Composable
 fun Slider(
@@ -128,7 +266,7 @@ fun Slider(
             accentColor = accentColor,
         )
     } else {
-        androidx.compose.material3.Slider(
+        SolidCupertinoSlider(
             value = value,
             onValueChange = onValueChange,
             modifier = modifier,
@@ -136,10 +274,7 @@ fun Slider(
             valueRange = valueRange,
             steps = steps,
             onValueChangeFinished = onValueChangeFinished,
-            colors = colors,
-            interactionSource = interactionSource,
-            thumb = thumb,
-            track = track,
+            accentColor = accentColor ?: if (!isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF0A84FF),
         )
     }
 }

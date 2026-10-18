@@ -1,5 +1,6 @@
 package tachiyomi.presentation.core.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -43,9 +44,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -64,7 +67,6 @@ import tachiyomi.presentation.core.components.material.CupertinoCheckmark
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.Slider
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.theme.header
@@ -427,12 +429,8 @@ fun TriStateItem(
                     Box(
                         modifier = Modifier
                             .size(22.dp)
-                            .liquidGlassSurface(
-                                shape = androidx.compose.foundation.shape.CircleShape,
-                                blurRadius = 6.dp,
-                                refractionHeight = 8.dp,
-                                tintColor = Color(0xFFFF453A).copy(alpha = 0.90f),
-                            ),
+                            .clip(CircleShape)
+                            .background(Color(0xFFFF453A)),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
