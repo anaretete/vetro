@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -26,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -92,6 +94,7 @@ fun AdaptiveSheet(
         val tabletModifier: Modifier = if (isGlass) {
             Modifier
                 .requiredWidthIn(max = 460.dp)
+                .heightIn(max = 560.dp)
                 .clickable(
                     interactionSource = null,
                     indication = null,
@@ -111,6 +114,7 @@ fun AdaptiveSheet(
         } else {
             Modifier
                 .requiredWidthIn(max = 460.dp)
+                .heightIn(max = 560.dp)
                 .clickable(
                     interactionSource = null,
                     indication = null,
@@ -160,9 +164,18 @@ fun AdaptiveSheet(
             positionalThreshold = { _: Float -> with(density) { 56.dp.toPx() } },
             animationSpec = sheetAnimationSpec,
         )
-        val internalOnDismissRequest = {
+        var isAnchored by remember { mutableStateOf(false) }
+        val internalOnDismissRequest: () -> Unit = {
             if (anchoredDraggableState.settledValue == 0) {
-                scope.launch { anchoredDraggableState.animateTo(1) }
+                scope.launch {
+                    try {
+                        anchoredDraggableState.animateTo(1)
+                    } catch (_: Throwable) {
+                        onDismissRequest()
+                    }
+                }
+            } else {
+                onDismissRequest()
             }
         }
         val bottomSheetShape = if (isGlass) {
@@ -180,16 +193,20 @@ fun AdaptiveSheet(
                 )
                 .fillMaxSize()
                 .onSizeChanged {
-                    val anchors = DraggableAnchors {
-                        0 at 0f
-                        1 at it.height.toFloat()
+                    if (it.height > 0) {
+                        val anchors = DraggableAnchors {
+                            0 at 0f
+                            1 at it.height.toFloat()
+                        }
+                        anchoredDraggableState.updateAnchors(anchors)
+                        isAnchored = true
                     }
-                    anchoredDraggableState.updateAnchors(anchors)
                 },
             contentAlignment = Alignment.BottomCenter,
         ) {
             val phoneBaseModifier = Modifier
                 .widthIn(max = 460.dp)
+                .heightIn(max = 560.dp)
                 .clickable(
                     interactionSource = null,
                     indication = null,
@@ -200,7 +217,12 @@ fun AdaptiveSheet(
                         Modifier.nestedScroll(
                             remember(anchoredDraggableState) {
                                 anchoredDraggableState.preUpPostDownNestedScrollConnection {
-                                    scope.launch { anchoredDraggableState.settle(sheetAnimationSpec) }
+                                    scope.launch {
+                                        try {
+                                            anchoredDraggableState.settle(sheetAnimationSpec)
+                                        } catch (_: Throwable) {
+                                        }
+                                    }
                                 }
                             },
                         )
@@ -210,9 +232,14 @@ fun AdaptiveSheet(
                 )
                 .then(modifier)
                 .offset {
+                    val rawOffset = try {
+                        anchoredDraggableState.offset
+                    } catch (_: Throwable) {
+                        0f
+                    }
                     IntOffset(
                         0,
-                        anchoredDraggableState.offset
+                        rawOffset
                             .takeIf { it.isFinite() }
                             ?.roundToInt()
                             ?: 0,
@@ -266,8 +293,16 @@ fun AdaptiveSheet(
                 },
             )
 
+            LaunchedEffect(isAnchored) {
+                if (isAnchored) {
+                    try {
+                        anchoredDraggableState.animateTo(0)
+                    } catch (_: Throwable) {
+                    }
+                }
+            }
+
             LaunchedEffect(anchoredDraggableState) {
-                scope.launch { anchoredDraggableState.animateTo(0) }
                 snapshotFlow { anchoredDraggableState.settledValue }
                     .drop(1)
                     .filter { it == 1 }
@@ -305,7 +340,9 @@ private fun <T> AnchoredDraggableState<T>.preUpPostDownNestedScrollConnection(
 
     override suspend fun onPreFling(available: Velocity): Velocity {
         val toFling = available.toFloat()
-        return if (toFling < 0 && offset > anchors.minPosition()) {
+        val currentOffset = try { offset } catch (_: Throwable) { 0f }
+        val minPos = try { anchors.minPosition() } catch (_: Throwable) { 0f }
+        return if (toFling < 0 && currentOffset > minPos) {
             onFling(toFling)
             // since we go to the anchor with tween settling, consume all for the best UX
             available

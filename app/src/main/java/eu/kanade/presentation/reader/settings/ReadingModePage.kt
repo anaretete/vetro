@@ -111,7 +111,7 @@ private fun PagerViewerSettings(screenModel: ReaderSettingsScreenModel) {
             options = ReaderPreferences.ImageScaleType.indices.map { it + 1 },
             selected = imageScaleType,
             onSelect = { screenModel.preferences.imageScaleType().set(it) },
-            labelProvider = { stringResource(ReaderPreferences.ImageScaleType[it - 1]) },
+            labelProvider = { stringResource(ReaderPreferences.ImageScaleType.getOrElse(it - 1) { MR.strings.scale_type_fit_screen }) },
         )
     } else {
         SettingsChipRow(MR.strings.pref_image_scale_type) {
@@ -418,7 +418,7 @@ private fun TapZonesItems(
             options = ReaderPreferences.TapZones.indices.toList(),
             selected = selected,
             onSelect = onSelect,
-            labelProvider = { stringResource(ReaderPreferences.TapZones[it]) },
+            labelProvider = { stringResource(ReaderPreferences.TapZones.getOrElse(it) { MR.strings.label_default }) },
         )
         if (selected != 5) {
             CupertinoGroupedSelectionCard(

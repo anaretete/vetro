@@ -116,7 +116,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
                 options = ColorFilterMode.indices.toList(),
                 selected = colorFilterMode,
                 onSelect = { screenModel.preferences.colorFilterMode().set(it) },
-                labelProvider = { stringResource(ColorFilterMode[it].first) },
+                labelProvider = { stringResource(ColorFilterMode.getOrNull(it)?.first ?: MR.strings.label_default) },
             )
         } else {
             SettingsChipRow(MR.strings.pref_color_filter_mode) {

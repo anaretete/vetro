@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -532,11 +533,13 @@ fun SettingsIconGrid(labelRes: StringResource, content: LazyGridScope.() -> Unit
         HeadingItem(labelRes)
         LazyVerticalGrid(
             columns = GridCells.Adaptive(128.dp),
-            modifier = Modifier.padding(
-                start = SettingsItemsPaddings.Horizontal,
-                end = SettingsItemsPaddings.Horizontal,
-                bottom = SettingsItemsPaddings.Vertical,
-            ),
+            modifier = Modifier
+                .heightIn(max = 360.dp)
+                .padding(
+                    start = SettingsItemsPaddings.Horizontal,
+                    end = SettingsItemsPaddings.Horizontal,
+                    bottom = SettingsItemsPaddings.Vertical,
+                ),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
             content = content,

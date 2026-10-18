@@ -23,7 +23,9 @@ import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsScreenModel
 import eu.kanade.tachiyomi.ui.reader.setting.ReadingMode
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.SettingsIconGrid
+import tachiyomi.presentation.core.components.material.CupertinoGroupedSelectionCard
 import tachiyomi.presentation.core.components.material.IconToggleButton
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.i18n.stringResource
 
 private val ReadingModesWithoutDefault = ReadingMode.entries - ReadingMode.DEFAULT
@@ -55,22 +57,33 @@ private fun DialogContent(
     onChangeReadingMode: (ReadingMode) -> Unit,
 ) {
     var selected by remember { mutableStateOf(readingMode) }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
 
     ModeSelectionDialog(
         onUseDefault = { onChangeReadingMode(ReadingMode.DEFAULT) }.takeIf { readingMode != ReadingMode.DEFAULT },
         onApply = { onChangeReadingMode(selected) },
     ) {
-        SettingsIconGrid(MR.strings.pref_category_reading_mode) {
-            items(ReadingModesWithoutDefault) { mode ->
-                IconToggleButton(
-                    checked = mode == selected,
-                    onCheckedChange = {
-                        selected = mode
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    imageVector = ImageVector.vectorResource(mode.iconRes),
-                    title = stringResource(mode.stringRes),
-                )
+        if (isGlass) {
+            CupertinoGroupedSelectionCard(
+                title = stringResource(MR.strings.pref_category_reading_mode),
+                options = ReadingModesWithoutDefault,
+                selected = selected,
+                onSelect = { selected = it },
+                labelProvider = { stringResource(it.stringRes) },
+            )
+        } else {
+            SettingsIconGrid(MR.strings.pref_category_reading_mode) {
+                items(ReadingModesWithoutDefault) { mode ->
+                    IconToggleButton(
+                        checked = mode == selected,
+                        onCheckedChange = {
+                            selected = mode
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        imageVector = ImageVector.vectorResource(mode.iconRes),
+                        title = stringResource(mode.stringRes),
+                    )
+                }
             }
         }
     }

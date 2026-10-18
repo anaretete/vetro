@@ -21,7 +21,9 @@ import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsScreenModel
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.SettingsIconGrid
+import tachiyomi.presentation.core.components.material.CupertinoGroupedSelectionCard
 import tachiyomi.presentation.core.components.material.IconToggleButton
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.i18n.stringResource
 
 private val ReaderOrientationsWithoutDefault = ReaderOrientation.entries - ReaderOrientation.DEFAULT
@@ -53,6 +55,7 @@ private fun DialogContent(
     onChangeOrientation: (ReaderOrientation) -> Unit,
 ) {
     var selected by remember { mutableStateOf(orientation) }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
 
     ModeSelectionDialog(
         onUseDefault = {
@@ -62,17 +65,27 @@ private fun DialogContent(
         }.takeIf { orientation != ReaderOrientation.DEFAULT },
         onApply = { onChangeOrientation(selected) },
     ) {
-        SettingsIconGrid(MR.strings.rotation_type) {
-            items(ReaderOrientationsWithoutDefault) { mode ->
-                IconToggleButton(
-                    checked = mode == selected,
-                    onCheckedChange = {
-                        selected = mode
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    imageVector = mode.icon,
-                    title = stringResource(mode.stringRes),
-                )
+        if (isGlass) {
+            CupertinoGroupedSelectionCard(
+                title = stringResource(MR.strings.rotation_type),
+                options = ReaderOrientationsWithoutDefault,
+                selected = selected,
+                onSelect = { selected = it },
+                labelProvider = { stringResource(it.stringRes) },
+            )
+        } else {
+            SettingsIconGrid(MR.strings.rotation_type) {
+                items(ReaderOrientationsWithoutDefault) { mode ->
+                    IconToggleButton(
+                        checked = mode == selected,
+                        onCheckedChange = {
+                            selected = mode
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        imageVector = mode.icon,
+                        title = stringResource(mode.stringRes),
+                    )
+                }
             }
         }
     }

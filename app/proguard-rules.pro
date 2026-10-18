@@ -314,3 +314,8 @@
 -dontwarn org.ietf.jgss.Oid
 -dontwarn com.google.re2j.Matcher
 -dontwarn com.google.re2j.Pattern
+
+# Kyant0 Backdrop & Shapes
+-keep class com.kyant.** { *; }
+-keep interface com.kyant.** { *; }
+-dontwarn com.kyant.**

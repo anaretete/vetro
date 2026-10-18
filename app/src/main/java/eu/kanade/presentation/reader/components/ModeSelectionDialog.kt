@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
@@ -36,9 +37,13 @@ fun ModeSelectionDialog(
             content()
 
             Row(
-                modifier = Modifier.padding(
-                    horizontal = SettingsItemsPaddings.Horizontal,
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SettingsItemsPaddings.Horizontal,
+                        vertical = 8.dp,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 onUseDefault?.let {
                     OutlinedButton(onClick = it) {
