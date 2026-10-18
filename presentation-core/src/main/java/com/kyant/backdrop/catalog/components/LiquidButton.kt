@@ -33,7 +33,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.tanh
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
@@ -42,8 +45,108 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.Dp
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+
+@Composable
+fun LiquidIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    enabled: Boolean = true,
+    isInteractive: Boolean = true,
+    tint: Color = Color.Unspecified,
+    surfaceColor: Color = Color.Unspecified,
+    contentColor: Color = Color.Unspecified,
+    shape: Shape = CircleShape,
+    size: Dp = 42.dp,
+    content: @Composable () -> Unit,
+) {
+    val animationScope = rememberCoroutineScope()
+    val isDark = isSystemInDarkTheme()
+
+    val interactiveHighlight = remember(animationScope) {
+        InteractiveHighlight(
+            animationScope = animationScope,
+        )
+    }
+
+    val defaultSurface = if (isDark) Color(0xFF2C2C2E).copy(alpha = 0.55f) else Color(0xFFE5E5EA).copy(alpha = 0.65f)
+    val effectiveSurfaceColor = if (surfaceColor.isSpecified) surfaceColor else defaultSurface
+
+    val effectiveContentColor = if (contentColor.isSpecified) {
+        contentColor
+    } else if (tint.isSpecified && tint != Color.Transparent) {
+        Color.White
+    } else {
+        if (isDark) Color.White else Color.Black
+    }
+
+    Box(
+        modifier = modifier
+            .size(size)
+            .alpha(if (enabled) 1f else 0.45f)
+            .drawBackdrop(
+                backdrop = backdrop,
+                shape = { shape },
+                effects = {
+                    vibrancy()
+                    blur(3f.dp.toPx())
+                    lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
+                },
+                layerBlock = if (isInteractive && enabled) {
+                    {
+                        val progress = interactiveHighlight.pressProgress
+                        val scale = lerp(1f, 1f + 4f.dp.toPx() / this.size.height, progress)
+
+                        val maxOffset = this.size.minDimension
+                        val initialDerivative = 0.05f
+                        val offset = interactiveHighlight.offset
+                        translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
+                        translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
+
+                        val maxDragScale = 4f.dp.toPx() / this.size.height
+                        val offsetAngle = atan2(offset.y, offset.x)
+                        scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension)
+                        scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension)
+                    }
+                } else {
+                    null
+                },
+                onDrawSurface = {
+                    if (tint.isSpecified) {
+                        drawRect(tint, blendMode = BlendMode.Hue)
+                        drawRect(tint.copy(alpha = 0.78f))
+                    }
+                    if (effectiveSurfaceColor.isSpecified) {
+                        drawRect(effectiveSurfaceColor)
+                    }
+                },
+            )
+            .clickable(
+                enabled = enabled,
+                interactionSource = null,
+                indication = if (isInteractive) null else LocalIndication.current,
+                role = Role.Button,
+                onClick = onClick,
+            )
+            .then(
+                if (isInteractive && enabled) {
+                    Modifier
+                        .then(interactiveHighlight.modifier)
+                        .then(interactiveHighlight.gestureModifier)
+                } else {
+                    Modifier
+                },
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        CompositionLocalProvider(LocalContentColor provides effectiveContentColor) {
+            content()
+        }
+    }
+}
 
 @Composable
 fun LiquidButton(

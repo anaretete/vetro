@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kyant.shapes.Capsule
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
@@ -256,7 +257,7 @@ fun ReaderAppBars(
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                         .height(56.dp)
                         .liquidGlassSurface(
-                            shape = CircleShape,
+                            shape = Capsule(),
                             blurRadius = 18.dp,
                             refractionHeight = 22.dp,
                             refractionAmount = 30.dp,

@@ -113,9 +113,17 @@ private fun AppThemesList(
                 Text(
                     text = when (appTheme) {
                         AppTheme.CUPERTINO -> "Cupertino (iOS 26)"
+                        AppTheme.APPLE_BLUE -> "Apple Blue"
+                        AppTheme.APPLE_GREEN -> "Apple Green"
+                        AppTheme.APPLE_ORANGE -> "Apple Orange"
+                        AppTheme.APPLE_RED -> "Apple Red"
+                        AppTheme.APPLE_PURPLE -> "Apple Purple"
+                        AppTheme.APPLE_PINK -> "Apple Pink"
+                        AppTheme.APPLE_INDIGO -> "Apple Indigo"
+                        AppTheme.APPLE_TEAL -> "Apple Teal"
+                        AppTheme.APPLE_YELLOW -> "Apple Yellow"
                         AppTheme.APPLE_MIDNIGHT -> "Apple Midnight"
                         AppTheme.APPLE_ALPINE -> "Apple Alpine"
-                        AppTheme.APPLE_PURPLE -> "Apple Purple"
                         AppTheme.APPLE_TITANIUM -> "Apple Titanium"
                         else -> stringResource(appTheme.titleRes!!)
                     },

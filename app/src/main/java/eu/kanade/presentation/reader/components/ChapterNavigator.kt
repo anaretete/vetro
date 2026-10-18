@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.SkipNext
 import androidx.compose.material.icons.outlined.SkipPrevious
 import tachiyomi.presentation.core.components.material.FilledIconButton
+import com.kyant.backdrop.catalog.components.LiquidIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -120,27 +121,32 @@ fun ChapterNavigator(
                 .padding(horizontal = horizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FilledIconButton(
-                enabled = if (isRtl) enabledNext else enabledPrevious,
-                onClick = if (isRtl) onNextChapter else onPreviousChapter,
-                colors = buttonColor,
-                modifier = if (isGlass) {
-                    Modifier.liquidGlassSurface(
-                        shape = CircleShape,
-                        blurRadius = 10.dp,
-                        refractionHeight = 12.dp,
-                        refractionAmount = 18.dp,
+            if (isGlass) {
+                LiquidIconButton(
+                    enabled = if (isRtl) enabledNext else enabledPrevious,
+                    onClick = if (isRtl) onNextChapter else onPreviousChapter,
+                    size = 40.dp,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.SkipPrevious,
+                        contentDescription = stringResource(
+                            if (isRtl) MR.strings.action_next_chapter else MR.strings.action_previous_chapter,
+                        ),
                     )
-                } else {
-                    Modifier
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.SkipPrevious,
-                    contentDescription = stringResource(
-                        if (isRtl) MR.strings.action_next_chapter else MR.strings.action_previous_chapter,
-                    ),
-                )
+                }
+            } else {
+                FilledIconButton(
+                    enabled = if (isRtl) enabledNext else enabledPrevious,
+                    onClick = if (isRtl) onNextChapter else onPreviousChapter,
+                    colors = buttonColor,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.SkipPrevious,
+                        contentDescription = stringResource(
+                            if (isRtl) MR.strings.action_next_chapter else MR.strings.action_previous_chapter,
+                        ),
+                    )
+                }
             }
 
         val sliderPillBackdrop = rememberLayerBackdrop()
@@ -192,15 +198,18 @@ fun ChapterNavigator(
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                         }
                     }
+                    val safeTotalPages = maxOf(1, totalPages)
+                    val safeCurrentPage = (currentPage + 1).coerceIn(1, safeTotalPages)
                     Slider(
                         modifier = Modifier
                             .weight(1f)
                             .padding(horizontal = 8.dp),
-                        value = currentPage,
-                        valueRange = 1..totalPages,
+                        value = safeCurrentPage,
+                        valueRange = 1..safeTotalPages,
                         onValueChange = f@{
-                            if (it == currentPage) return@f
-                            onPageIndexChange(it - 1)
+                            val newPageIndex = (it - 1).coerceIn(0, safeTotalPages - 1)
+                            if (newPageIndex == currentPage) return@f
+                            onPageIndexChange(newPageIndex)
                         },
                         interactionSource = interactionSource,
                     )
@@ -217,27 +226,32 @@ fun ChapterNavigator(
                 Spacer(Modifier.weight(1f))
             }
 
-            FilledIconButton(
-                enabled = if (isRtl) enabledPrevious else enabledNext,
-                onClick = if (isRtl) onPreviousChapter else onNextChapter,
-                colors = buttonColor,
-                modifier = if (isGlass) {
-                    Modifier.liquidGlassSurface(
-                        shape = CircleShape,
-                        blurRadius = 10.dp,
-                        refractionHeight = 12.dp,
-                        refractionAmount = 18.dp,
+            if (isGlass) {
+                LiquidIconButton(
+                    enabled = if (isRtl) enabledPrevious else enabledNext,
+                    onClick = if (isRtl) onPreviousChapter else onNextChapter,
+                    size = 40.dp,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.SkipNext,
+                        contentDescription = stringResource(
+                            if (isRtl) MR.strings.action_previous_chapter else MR.strings.action_next_chapter,
+                        ),
                     )
-                } else {
-                    Modifier
-                },
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.SkipNext,
-                    contentDescription = stringResource(
-                        if (isRtl) MR.strings.action_previous_chapter else MR.strings.action_next_chapter,
-                    ),
-                )
+                }
+            } else {
+                FilledIconButton(
+                    enabled = if (isRtl) enabledPrevious else enabledNext,
+                    onClick = if (isRtl) onPreviousChapter else onNextChapter,
+                    colors = buttonColor,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.SkipNext,
+                        contentDescription = stringResource(
+                            if (isRtl) MR.strings.action_previous_chapter else MR.strings.action_next_chapter,
+                        ),
+                    )
+                }
             }
         }
     }
@@ -283,26 +297,30 @@ fun ChapterNavigatorVert(
         )
         val textColor = MaterialTheme.colorScheme.onSurface
 
-        FilledIconButton(
-            enabled = enabledPrevious,
-            onClick = onPreviousChapter,
-            colors = buttonColor,
-            modifier = if (isGlass) {
-                Modifier.liquidGlassSurface(
-                    shape = CircleShape,
-                    blurRadius = 10.dp,
-                    refractionHeight = 12.dp,
-                    refractionAmount = 18.dp,
+        if (isGlass) {
+            LiquidIconButton(
+                enabled = enabledPrevious,
+                onClick = onPreviousChapter,
+                size = 40.dp,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.SkipPrevious,
+                    contentDescription = stringResource(MR.strings.action_previous_chapter),
+                    modifier = Modifier.rotate(90f),
                 )
-            } else {
-                Modifier
-            },
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.SkipPrevious,
-                contentDescription = stringResource(MR.strings.action_previous_chapter),
-                modifier = Modifier.rotate(90f),
-            )
+            }
+        } else {
+            FilledIconButton(
+                enabled = enabledPrevious,
+                onClick = onPreviousChapter,
+                colors = buttonColor,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.SkipPrevious,
+                    contentDescription = stringResource(MR.strings.action_previous_chapter),
+                    modifier = Modifier.rotate(90f),
+                )
+            }
         }
 
         val sliderPillBackdrop = rememberLayerBackdrop()
@@ -340,16 +358,19 @@ fun ChapterNavigatorVert(
                         // KMK <--
                     )
 
+                    val safeTotalPages = maxOf(1, totalPages)
+                    val safeCurrentPageFloat = (currentPage + 1).toFloat().coerceIn(1f, safeTotalPages.toFloat())
                     CupertinoVerticalSlider(
-                        value = currentPage.toFloat(),
+                        value = safeCurrentPageFloat,
                         onValueChange = { nextVal ->
                             val nextInt = nextVal.roundToInt()
-                            if (nextInt != currentPage) {
-                                onPageIndexChange(nextInt - 1)
+                            val newPageIndex = (nextInt - 1).coerceIn(0, safeTotalPages - 1)
+                            if (newPageIndex != currentPage) {
+                                onPageIndexChange(newPageIndex)
                                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             }
                         },
-                        valueRange = 1f..totalPages.toFloat(),
+                        valueRange = 1f..safeTotalPages.toFloat(),
                         modifier = Modifier
                             .weight(1f)
                             .padding(vertical = 4.dp),
@@ -367,26 +388,30 @@ fun ChapterNavigatorVert(
             Spacer(Modifier.weight(1f))
         }
 
-        FilledIconButton(
-            enabled = enabledNext,
-            onClick = onNextChapter,
-            colors = buttonColor,
-            modifier = if (isGlass) {
-                Modifier.liquidGlassSurface(
-                    shape = CircleShape,
-                    blurRadius = 10.dp,
-                    refractionHeight = 12.dp,
-                    refractionAmount = 18.dp,
+        if (isGlass) {
+            LiquidIconButton(
+                enabled = enabledNext,
+                onClick = onNextChapter,
+                size = 40.dp,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.SkipNext,
+                    contentDescription = stringResource(MR.strings.action_next_chapter),
+                    modifier = Modifier.rotate(90f),
                 )
-            } else {
-                Modifier
-            },
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.SkipNext,
-                contentDescription = stringResource(MR.strings.action_next_chapter),
-                modifier = Modifier.rotate(90f),
-            )
+            }
+        } else {
+            FilledIconButton(
+                enabled = enabledNext,
+                onClick = onNextChapter,
+                colors = buttonColor,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.SkipNext,
+                    contentDescription = stringResource(MR.strings.action_next_chapter),
+                    modifier = Modifier.rotate(90f),
+                )
+            }
         }
     }
 }

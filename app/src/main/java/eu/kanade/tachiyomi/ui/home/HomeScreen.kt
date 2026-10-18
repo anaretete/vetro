@@ -323,7 +323,9 @@ object HomeScreen : Screen() {
             contentAlignment = Alignment.Center,
         ) {
             LiquidBottomTabs(
-                selectedTabIndex = { selectedIndex },
+                selectedTabIndex = {
+                    tabs.indexOfFirst { it::class == currentTab::class || it.key == currentTab.key }.coerceAtLeast(0)
+                },
                 onTabSelected = { index ->
                     if (index in tabs.indices) {
                         onTabSelected(tabs[index])
@@ -331,6 +333,7 @@ object HomeScreen : Screen() {
                 },
                 backdrop = backdrop,
                 tabsCount = tabs.size,
+                accentColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 tabs.forEachIndexed { index, tab ->

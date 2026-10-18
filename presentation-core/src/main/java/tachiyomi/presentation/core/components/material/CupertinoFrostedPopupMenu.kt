@@ -65,11 +65,6 @@ fun CupertinoFrostedPopup(
                     refractionHeight = 16.dp,
                     refractionAmount = 22.dp,
                     tintColor = if (isDark) Color(0xFF252528).copy(alpha = 0.88f) else Color(0xFFF6F6F8).copy(alpha = 0.94f),
-                )
-                .border(
-                    width = 0.5.dp,
-                    color = if (isDark) Color.White.copy(alpha = 0.15f) else Color.Black.copy(alpha = 0.08f),
-                    shape = shape,
                 ),
             shape = shape,
             containerColor = Color.Transparent,
@@ -120,7 +115,7 @@ fun <T> CupertinoFrostedPopupMenu(
                         fontSize = 16.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                         color = if (isSelected) {
-                            Color(0xFF0A84FF)
+                            MaterialTheme.colorScheme.primary
                         } else if (isDark) {
                             Color(0xFFF2F2F7)
                         } else {
@@ -135,7 +130,7 @@ fun <T> CupertinoFrostedPopupMenu(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = Color(0xFF0A84FF),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .padding(start = 8.dp)
                             .size(18.dp),

@@ -98,11 +98,13 @@ fun Button(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
     val effectiveColors = if (isGlass) {
+        val primary = MaterialTheme.colorScheme.primary
+        val onPrimary = MaterialTheme.colorScheme.onPrimary
         M3ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF0A84FF),
-            contentColor = Color.White,
-            disabledContainerColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
-            disabledContentColor = Color.White.copy(alpha = 0.38f),
+            containerColor = primary,
+            contentColor = onPrimary,
+            disabledContainerColor = primary.copy(alpha = 0.38f),
+            disabledContentColor = onPrimary.copy(alpha = 0.38f),
         )
     } else colors
 
@@ -201,11 +203,12 @@ fun FilledTonalButton(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
     val effectiveColors = if (isGlass) {
+        val primary = MaterialTheme.colorScheme.primary
         M3ButtonDefaults.filledTonalButtonColors(
-            containerColor = Color(0xFF0A84FF).copy(alpha = 0.16f),
-            contentColor = Color(0xFF0A84FF),
-            disabledContainerColor = Color(0xFF0A84FF).copy(alpha = 0.08f),
-            disabledContentColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+            containerColor = primary.copy(alpha = 0.16f),
+            contentColor = primary,
+            disabledContainerColor = primary.copy(alpha = 0.08f),
+            disabledContentColor = primary.copy(alpha = 0.38f),
         )
     } else colors
 
@@ -245,15 +248,16 @@ fun OutlinedButton(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val effectiveShape = if (isGlass && shape == CircleShape) Capsule() else shape
+    val primary = MaterialTheme.colorScheme.primary
     val effectiveColors = if (isGlass) {
         M3ButtonDefaults.outlinedButtonColors(
             containerColor = Color.Transparent,
-            contentColor = Color(0xFF0A84FF),
-            disabledContentColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+            contentColor = primary,
+            disabledContentColor = primary.copy(alpha = 0.38f),
         )
     } else colors
     val effectiveBorder = if (isGlass) {
-        BorderStroke(1.dp, Color(0xFF0A84FF).copy(alpha = 0.40f))
+        BorderStroke(1.dp, primary.copy(alpha = 0.40f))
     } else border
 
     M3OutlinedButton(
@@ -286,9 +290,10 @@ fun TextButton(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val effectiveColors = if (isGlass) {
+        val primary = MaterialTheme.colorScheme.primary
         M3ButtonDefaults.textButtonColors(
-            contentColor = Color(0xFF0A84FF),
-            disabledContentColor = Color(0xFF0A84FF).copy(alpha = 0.38f),
+            contentColor = primary,
+            disabledContentColor = primary.copy(alpha = 0.38f),
         )
     } else colors
 
@@ -531,8 +536,9 @@ fun FilterChip(
         val pillShape = Capsule()
         val isDark = isSystemInDarkTheme()
         val unselectedBg = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
-        val selectedBg = Color(0xFF0A84FF)
-        val contentColor = if (selected) Color.White else (if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E))
+        val selectedBg = MaterialTheme.colorScheme.primary
+        val onPrimary = MaterialTheme.colorScheme.onPrimary
+        val contentColor = if (selected) onPrimary else (if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E))
 
         Box(
             modifier = modifier

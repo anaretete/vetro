@@ -3,6 +3,7 @@ package eu.kanade.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import com.kyant.shapes.Capsule
+import com.kyant.backdrop.catalog.components.LiquidIconButton
+import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
 import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.LocalContentColor
 import tachiyomi.presentation.core.components.material.LocalInGlassBar
@@ -200,19 +203,10 @@ fun AppBar(
                     ) {
                         navigateUp?.let {
                             if (isGlass) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 12.dp, end = 4.dp)
-                                        .size(40.dp)
-                                        .liquidGlassSurface(
-                                            shape = CircleShape,
-                                            blurRadius = 16.dp,
-                                            refractionHeight = 18.dp,
-                                            refractionAmount = 26.dp,
-                                            tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
-                                        )
-                                        .clickable(onClick = it),
-                                    contentAlignment = Alignment.Center,
+                                LiquidIconButton(
+                                    onClick = it,
+                                    modifier = Modifier.padding(start = 12.dp, end = 4.dp),
+                                    size = 40.dp,
                                 ) {
                                     UpIcon(
                                         navigationIcon = navigationIcon ?: Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
@@ -227,19 +221,10 @@ fun AppBar(
                         }
                         goHome?.let {
                             if (isGlass) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 4.dp, end = 4.dp)
-                                        .size(40.dp)
-                                        .liquidGlassSurface(
-                                            shape = CircleShape,
-                                            blurRadius = 16.dp,
-                                            refractionHeight = 18.dp,
-                                            refractionAmount = 26.dp,
-                                            tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
-                                        )
-                                        .clickable(onClick = { it.invoke() }),
-                                    contentAlignment = Alignment.Center,
+                                LiquidIconButton(
+                                    onClick = { it.invoke() },
+                                    modifier = Modifier.padding(start = 4.dp, end = 4.dp),
+                                    size = 40.dp,
                                 ) {
                                     UpIcon(
                                         navigationIcon = Icons.Filled.Home,
@@ -288,55 +273,12 @@ private fun AppBarActionsWrapper(
     isDark: Boolean,
     actions: @Composable RowScope.() -> Unit,
 ) {
-    if (!isGlass) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            actions()
-        }
-        return
-    }
-
-    SubcomposeLayout { constraints ->
-        val placeables = subcompose("content") {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                actions()
-            }
-        }.map { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
-
-        val contentWidth = placeables.maxOfOrNull { it.width } ?: 0
-        val contentHeight = placeables.maxOfOrNull { it.height } ?: 0
-
-        // If no action items were actually emitted, render nothing (0 width, 0 height)
-        if (contentWidth <= 0 || contentHeight <= 0) {
-            layout(0, 0) {}
-        } else {
-            val bgWidth = (contentWidth.toDp() + 8.dp).coerceAtLeast(40.dp)
-            val bgHeight = 40.dp
-            val backgroundMeasurables = subcompose("background") {
-                Box(
-                    modifier = Modifier
-                        .size(width = bgWidth, height = bgHeight)
-                        .liquidGlassSurface(
-                            shape = Capsule(),
-                            blurRadius = 16.dp,
-                            refractionHeight = 18.dp,
-                            refractionAmount = 26.dp,
-                            tintColor = if (isDark) Color(0xFF1C1C1E).copy(alpha = 0.75f) else Color.White.copy(alpha = 0.75f),
-                        ),
-                )
-            }
-            val bgPlaceables = backgroundMeasurables.map { it.measure(constraints) }
-            val totalContentWidth = maxOf(contentWidth, bgPlaceables.maxOfOrNull { it.width } ?: 0)
-            val totalHeight = maxOf(contentHeight, bgPlaceables.maxOfOrNull { it.height } ?: 0)
-            val endPaddingPx = 12.dp.roundToPx()
-            val totalWidth = totalContentWidth + endPaddingPx
-
-            layout(totalWidth, totalHeight) {
-                bgPlaceables.forEach { it.place(0, (totalHeight - it.height) / 2) }
-                placeables.forEach { it.place((totalContentWidth - it.width) / 2, (totalHeight - it.height) / 2) }
-            }
-        }
+    Row(
+        modifier = if (isGlass) Modifier.padding(end = 8.dp) else Modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(if (isGlass) 6.dp else 0.dp),
+    ) {
+        actions()
     }
 }
 
@@ -392,38 +334,52 @@ fun AppBarActions(
     var showMenu by remember { mutableStateOf(false) }
     val isGlass = LocalLiquidGlassConfig.current.enabled
 
-    actions.filterIsInstance<AppBar.Action>().map {
+    actions.filterIsInstance<AppBar.Action>().forEach { action ->
         TooltipBox(
             positionProvider = rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
             tooltip = {
                 PlainTooltip {
-                    Text(it.title)
+                    Text(action.title)
                 }
             },
             state = rememberTooltipState(),
             focusable = false,
         ) {
-            IconButton(
-                onClick = it.onClick,
-                enabled = it.enabled,
-                modifier = if (isGlass) Modifier.size(40.dp) else Modifier,
-            ) {
-                Icon(
-                    imageVector = it.icon,
-                    tint = it.iconTint ?: LocalContentColor.current,
-                    contentDescription = it.title,
-                )
+            if (isGlass) {
+                LiquidIconButton(
+                    onClick = action.onClick,
+                    enabled = action.enabled,
+                    size = 40.dp,
+                ) {
+                    Icon(
+                        imageVector = action.icon,
+                        tint = action.iconTint ?: LocalContentColor.current,
+                        contentDescription = action.title,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = action.onClick,
+                    enabled = action.enabled,
+                ) {
+                    Icon(
+                        imageVector = action.icon,
+                        tint = action.iconTint ?: LocalContentColor.current,
+                        contentDescription = action.title,
+                    )
+                }
             }
         }
     }
 
     // KMK -->
-    actions.filterIsInstance<AppBar.ActionCompose>().map {
+    actions.filterIsInstance<AppBar.ActionCompose>().forEach { actionCompose ->
         TooltipBox(
             positionProvider = rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
             tooltip = {
                 PlainTooltip {
-                    Text(it.title)
+                    Text(actionCompose.title)
                 }
             },
             state = rememberTooltipState(),
@@ -434,7 +390,7 @@ fun AppBarActions(
                     .size(40.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                it.content()
+                actionCompose.content()
             }
         }
     }
@@ -452,22 +408,34 @@ fun AppBarActions(
             state = rememberTooltipState(),
             focusable = false,
         ) {
-            IconButton(
-                onClick = { showMenu = !showMenu },
-                modifier = if (isGlass) Modifier.size(40.dp) else Modifier,
-            ) {
-                Icon(
-                    Icons.Outlined.MoreHoriz,
-                    contentDescription = stringResource(MR.strings.action_menu_overflow_description),
-                )
+            if (isGlass) {
+                LiquidIconButton(
+                    onClick = { showMenu = !showMenu },
+                    size = 40.dp,
+                ) {
+                    Icon(
+                        Icons.Outlined.MoreHoriz,
+                        contentDescription = stringResource(MR.strings.action_menu_overflow_description),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = { showMenu = !showMenu },
+                ) {
+                    Icon(
+                        Icons.Outlined.MoreHoriz,
+                        contentDescription = stringResource(MR.strings.action_menu_overflow_description),
+                    )
+                }
             }
         }
 
-        DropdownMenu(
+        CupertinoFrostedPopup(
             expanded = showMenu,
             onDismissRequest = { showMenu = false },
         ) {
-            overflowActions.map {
+            overflowActions.forEach {
                 DropdownMenuItem(
                     onClick = {
                         it.onClick()
@@ -502,6 +470,7 @@ fun SearchToolbar(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val focusRequester = remember { FocusRequester() }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
 
     AppBar(
         modifier = modifier,
@@ -519,13 +488,12 @@ fun SearchToolbar(
                 focusManager.moveFocus(FocusDirection.Next)
             }
 
-            val isGlass = LocalLiquidGlassConfig.current.enabled
             val searchFieldModifier = if (isGlass) {
                 Modifier
                     .fillMaxWidth()
                     .height(38.dp)
                     .liquidGlassSurface(
-                        shape = CircleShape,
+                        shape = Capsule(),
                         blurRadius = 8.dp,
                         refractionHeight = 10.dp,
                         tintColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.40f),
@@ -597,13 +565,26 @@ fun SearchToolbar(
                         state = rememberTooltipState(),
                         focusable = false,
                     ) {
-                        IconButton(
-                            onClick = onClick,
-                        ) {
-                            Icon(
-                                Icons.Outlined.Search,
-                                contentDescription = stringResource(MR.strings.action_search),
-                            )
+                        if (isGlass) {
+                            LiquidIconButton(
+                                onClick = onClick,
+                                size = 40.dp,
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Search,
+                                    contentDescription = stringResource(MR.strings.action_search),
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        } else {
+                            IconButton(
+                                onClick = onClick,
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Search,
+                                    contentDescription = stringResource(MR.strings.action_search),
+                                )
+                            }
                         }
                     }
                 } else if (searchQuery.isNotEmpty()) {
@@ -617,16 +598,32 @@ fun SearchToolbar(
                         state = rememberTooltipState(),
                         focusable = false,
                     ) {
-                        IconButton(
-                            onClick = {
-                                onClick()
-                                focusRequester.requestFocus()
-                            },
-                        ) {
-                            Icon(
-                                Icons.Outlined.Close,
-                                contentDescription = stringResource(MR.strings.action_reset),
-                            )
+                        if (isGlass) {
+                            LiquidIconButton(
+                                onClick = {
+                                    onClick()
+                                    focusRequester.requestFocus()
+                                },
+                                size = 40.dp,
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Close,
+                                    contentDescription = stringResource(MR.strings.action_reset),
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        } else {
+                            IconButton(
+                                onClick = {
+                                    onClick()
+                                    focusRequester.requestFocus()
+                                },
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Close,
+                                    contentDescription = stringResource(MR.strings.action_reset),
+                                )
+                            }
                         }
                     }
                 }

@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
+import androidx.compose.material.icons.filled.Check
+import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import androidx.compose.material3.DropdownMenu as ComposeDropdownMenu
 
 // KMK -->
@@ -43,15 +46,26 @@ fun DropdownMenu(
     properties: PopupProperties = PopupProperties(focusable = true),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    ComposeDropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        modifier = modifier.sizeIn(minWidth = 196.dp, maxWidth = 196.dp),
-        offset = offset,
-        scrollState = scrollState,
-        properties = properties,
-        content = content,
-    )
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    if (isGlass) {
+        CupertinoFrostedPopup(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier,
+            offset = offset,
+            content = content,
+        )
+    } else {
+        ComposeDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest,
+            modifier = modifier.sizeIn(minWidth = 196.dp, maxWidth = 196.dp),
+            offset = offset,
+            scrollState = scrollState,
+            properties = properties,
+            content = content,
+        )
+    }
 }
 
 @Composable
@@ -61,21 +75,32 @@ fun RadioMenuItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     DropdownMenuItem(
         text = text,
         onClick = onClick,
         trailingIcon = {
-            if (isChecked) {
-                Icon(
-                    imageVector = Icons.Outlined.RadioButtonChecked,
-                    contentDescription = stringResource(MR.strings.selected),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+            if (isGlass) {
+                if (isChecked) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = stringResource(MR.strings.selected),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
             } else {
-                Icon(
-                    imageVector = Icons.Outlined.RadioButtonUnchecked,
-                    contentDescription = stringResource(MR.strings.not_selected),
-                )
+                if (isChecked) {
+                    Icon(
+                        imageVector = Icons.Outlined.RadioButtonChecked,
+                        contentDescription = stringResource(MR.strings.selected),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.RadioButtonUnchecked,
+                        contentDescription = stringResource(MR.strings.not_selected),
+                    )
+                }
             }
         },
         modifier = modifier,

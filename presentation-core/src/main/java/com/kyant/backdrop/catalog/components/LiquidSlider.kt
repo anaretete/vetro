@@ -49,10 +49,10 @@ import kotlinx.coroutines.flow.collectLatest
 fun LiquidSlider(
     value: () -> Float,
     onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float>,
-    visibilityThreshold: Float,
     backdrop: Backdrop,
     modifier: Modifier = Modifier,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    visibilityThreshold: Float = 0.001f,
     accentColor: Color = if (!isSystemInDarkTheme()) Color(0xFF0088FF) else Color(0xFF0091FF),
 ) {
     val isLightTheme = !isSystemInDarkTheme()

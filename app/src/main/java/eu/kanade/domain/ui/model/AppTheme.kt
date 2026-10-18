@@ -7,9 +7,17 @@ import tachiyomi.i18n.kmk.KMR
 enum class AppTheme(val titleRes: StringResource?) {
     DEFAULT(MR.strings.label_default),
     CUPERTINO(MR.strings.label_default),
+    APPLE_BLUE(MR.strings.label_default),
+    APPLE_GREEN(MR.strings.label_default),
+    APPLE_ORANGE(MR.strings.label_default),
+    APPLE_RED(MR.strings.label_default),
+    APPLE_PURPLE(MR.strings.label_default),
+    APPLE_PINK(MR.strings.label_default),
+    APPLE_INDIGO(MR.strings.label_default),
+    APPLE_TEAL(MR.strings.label_default),
+    APPLE_YELLOW(MR.strings.label_default),
     APPLE_MIDNIGHT(MR.strings.label_default),
     APPLE_ALPINE(MR.strings.label_default),
-    APPLE_PURPLE(MR.strings.label_default),
     APPLE_TITANIUM(MR.strings.label_default),
     MONET(MR.strings.theme_monet),
 

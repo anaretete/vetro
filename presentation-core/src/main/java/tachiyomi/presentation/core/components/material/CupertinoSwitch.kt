@@ -27,9 +27,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.catalog.components.LiquidToggle
 import com.kyant.shapes.Capsule
+
+@Composable
+fun rememberDefaultSwitchBackdrop(): Backdrop {
+    val isDark = isSystemInDarkTheme()
+    return rememberCanvasBackdrop {
+        drawRect(if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF))
+    }
+}
 
 /**
  * Authentic Apple iOS Cupertino Liquid Glass Switch (UISwitch standard).
@@ -41,14 +49,15 @@ fun CupertinoSwitch(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    backdrop: Backdrop? = null,
 ) {
+    val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberDefaultSwitchBackdrop()
     val currentChecked by rememberUpdatedState(checked)
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
     LiquidToggle(
         selected = { currentChecked },
         onSelect = { newValue -> if (enabled) currentOnCheckedChange?.invoke(newValue) },
-        backdrop = backdrop,
+        backdrop = effectiveBackdrop,
         modifier = modifier.alpha(if (enabled) 1f else 0.5f),
     )
 }
@@ -98,8 +107,13 @@ fun SolidCupertinoSwitch(
         Box(
             modifier = Modifier
                 .offset(x = thumbOffset)
+                .shadow(
+                    elevation = 1.5.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black.copy(alpha = 0.12f),
+                    spotColor = Color.Black.copy(alpha = 0.18f),
+                )
                 .size(27.dp)
-                .shadow(elevation = 2.dp, shape = CircleShape)
                 .clip(CircleShape)
                 .background(Color.White),
         )
@@ -117,16 +131,17 @@ fun Switch(
     thumbContent: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     colors: SwitchColors = SwitchDefaults.colors(),
-    backdrop: Backdrop = LocalLayerBackdrop.current ?: rememberLayerBackdrop(),
+    backdrop: Backdrop? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberDefaultSwitchBackdrop()
     if (isGlass) {
         CupertinoSwitch(
             checked = checked,
             onCheckedChange = onCheckedChange,
             modifier = modifier,
             enabled = enabled,
-            backdrop = backdrop,
+            backdrop = effectiveBackdrop,
         )
     } else {
         SolidCupertinoSwitch(

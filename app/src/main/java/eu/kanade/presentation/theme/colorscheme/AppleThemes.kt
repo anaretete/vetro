@@ -195,3 +195,87 @@ internal object AppleTitaniumColorScheme : BaseColorScheme() {
         outlineVariant = Color(0xFFE5E5EA),
     )
 }
+
+private fun createAppleDarkScheme(primary: Color, primaryContainer: Color, secondary: Color, tertiary: Color) = darkColorScheme(
+    primary = primary,
+    onPrimary = Color.White,
+    primaryContainer = primaryContainer,
+    onPrimaryContainer = Color.White,
+    inversePrimary = primary,
+    secondary = secondary,
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFF2C2C2E),
+    onSecondaryContainer = Color(0xFFEBEBF5),
+    tertiary = tertiary,
+    onTertiary = Color.White,
+    background = Color(0xFF000000),
+    onBackground = Color(0xFFFFFFFF),
+    surface = Color(0xFF1C1C1E),
+    onSurface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFF2C2C2E),
+    onSurfaceVariant = Color(0xFFEBEBF5),
+    outline = Color(0xFF38383A),
+    outlineVariant = Color(0xFF2C2C2E),
+)
+
+private fun createAppleLightScheme(primary: Color, primaryContainer: Color, secondary: Color, tertiary: Color) = lightColorScheme(
+    primary = primary,
+    onPrimary = Color.White,
+    primaryContainer = primaryContainer,
+    onPrimaryContainer = Color(0xFF1C1C1E),
+    inversePrimary = primary,
+    secondary = secondary,
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFE5E5EA),
+    onSecondaryContainer = Color(0xFF1C1C1E),
+    tertiary = tertiary,
+    onTertiary = Color.White,
+    background = Color(0xFFF2F2F7),
+    onBackground = Color(0xFF000000),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF000000),
+    surfaceVariant = Color(0xFFE5E5EA),
+    onSurfaceVariant = Color(0xFF3C3C43),
+    outline = Color(0xFFC7C7CC),
+    outlineVariant = Color(0xFFE5E5EA),
+)
+
+internal object AppleBlueColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFF0A84FF), Color(0xFF0040A8), Color(0xFF5E5CE6), Color(0xFF64D2FF))
+    override val lightScheme = createAppleLightScheme(Color(0xFF007AFF), Color(0xFFE5F1FF), Color(0xFF5856D6), Color(0xFF30B0C7))
+}
+
+internal object AppleGreenColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFF30D158), Color(0xFF144D24), Color(0xFF34C759), Color(0xFF63E6BE))
+    override val lightScheme = createAppleLightScheme(Color(0xFF248A3D), Color(0xFFDCFCE7), Color(0xFF34C759), Color(0xFF059669))
+}
+
+internal object AppleOrangeColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFFFF9F0A), Color(0xFF5C3300), Color(0xFFFFB340), Color(0xFFFFD60A))
+    override val lightScheme = createAppleLightScheme(Color(0xFFFF9500), Color(0xFFFFEDD5), Color(0xFFF97316), Color(0xFFD97706))
+}
+
+internal object AppleRedColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFFFF453A), Color(0xFF660E0A), Color(0xFFFF6961), Color(0xFFFF375F))
+    override val lightScheme = createAppleLightScheme(Color(0xFFFF3B30), Color(0xFFFFE4E6), Color(0xFFE11D48), Color(0xFFBE123C))
+}
+
+internal object ApplePinkColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFFFF375F), Color(0xFF590E22), Color(0xFFFF6482), Color(0xFFBF5AF2))
+    override val lightScheme = createAppleLightScheme(Color(0xFFFF2D55), Color(0xFFFCE7F3), Color(0xFFDB2777), Color(0xFFBE185D))
+}
+
+internal object AppleIndigoColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFF5E5CE6), Color(0xFF1E1B6B), Color(0xFF7D7AFF), Color(0xFF0A84FF))
+    override val lightScheme = createAppleLightScheme(Color(0xFF5856D6), Color(0xFFEEF2FF), Color(0xFF4F46E5), Color(0xFF4338CA))
+}
+
+internal object AppleTealColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFF64D2FF), Color(0xFF0E4359), Color(0xFF70D7FF), Color(0xFF30D158))
+    override val lightScheme = createAppleLightScheme(Color(0xFF30B0C7), Color(0xFFE0F7FA), Color(0xFF0891B2), Color(0xFF0E7490))
+}
+
+internal object AppleYellowColorScheme : BaseColorScheme() {
+    override val darkScheme = createAppleDarkScheme(Color(0xFFFFD60A), Color(0xFF4D3F00), Color(0xFFFFDF3D), Color(0xFFFF9F0A))
+    override val lightScheme = createAppleLightScheme(Color(0xFFEAB308), Color(0xFFFEF9C3), Color(0xFFCA8A04), Color(0xFFA16207))
+}

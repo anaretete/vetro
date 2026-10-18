@@ -159,6 +159,14 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Liquid Glass UI",
                     subtitle = "Refractive glass surfaces, chromatic aberration, and spring physics",
                 ),
+                Preference.PreferenceItem.TextPreference(
+                    title = "Liquid Glass & Optics Settings",
+                    subtitle = "Configure live refraction, optical blur, lens curvature, and physics",
+                    enabled = isLiquidGlassEnabled,
+                    onClick = {
+                        navigator.push(SettingsLiquidGlassScreen)
+                    },
+                ),
                 Preference.PreferenceItem.SwitchPreference(
                     preference = uiPreferences.liquidGlassChromaticAberration(),
                     title = "Chromatic Aberration",

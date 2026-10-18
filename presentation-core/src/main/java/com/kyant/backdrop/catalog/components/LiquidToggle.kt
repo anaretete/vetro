@@ -49,12 +49,10 @@ fun LiquidToggle(
     selected: () -> Boolean,
     onSelect: (Boolean) -> Unit,
     backdrop: Backdrop,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    accentColor: Color = if (!isSystemInDarkTheme()) Color(0xFF34C759) else Color(0xFF30D158),
 ) {
     val isLightTheme = !isSystemInDarkTheme()
-    val accentColor =
-        if (isLightTheme) Color(0xFF34C759)
-        else Color(0xFF30D158)
     val trackColor =
         if (isLightTheme) Color(0xFF787878).copy(0.2f)
         else Color(0xFF787880).copy(0.36f)
@@ -148,7 +146,7 @@ fun LiquidToggle(
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
                             val scaleX = lerp(2f / 3f, 0.75f, progress)
-                            val scaleY = lerp(0f, 0.75f, progress)
+                            val scaleY = lerp(0.001f, 0.75f, progress)
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
                             }
@@ -157,33 +155,39 @@ fun LiquidToggle(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
-                        lens(
-                            5f.dp.toPx() * progress,
-                            10f.dp.toPx() * progress,
-                            chromaticAberration = true
-                        )
+                        if (progress > 0.001f) {
+                            blur(8f.dp.toPx() * (1f - progress))
+                            lens(
+                                5f.dp.toPx() * progress,
+                                10f.dp.toPx() * progress,
+                                chromaticAberration = true
+                            )
+                        }
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress
-                        Highlight.Ambient.copy(
-                            width = Highlight.Ambient.width / 1.5f,
-                            blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress
-                        )
+                        if (progress > 0.001f) {
+                            Highlight.Ambient.copy(
+                                width = Highlight.Ambient.width / 1.5f,
+                                blurRadius = Highlight.Ambient.blurRadius / 1.5f,
+                                alpha = progress
+                            )
+                        } else null
                     },
                     shadow = {
                         Shadow(
-                            radius = 4f.dp,
-                            color = Color.Black.copy(alpha = 0.05f)
+                            radius = 3f.dp,
+                            color = Color.Black.copy(alpha = 0.14f)
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
-                        InnerShadow(
-                            radius = 4f.dp * progress,
-                            alpha = progress
-                        )
+                        if (progress > 0.001f) {
+                            InnerShadow(
+                                radius = 4f.dp * progress,
+                                alpha = progress
+                            )
+                        } else null
                     },
                     layerBlock = {
                         scaleX = dampedDragAnimation.scaleX

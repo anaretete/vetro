@@ -17,6 +17,8 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import tachiyomi.presentation.core.components.material.MoreHoriz
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import com.kyant.backdrop.catalog.components.LiquidIconButton
+import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,18 +69,10 @@ fun ReaderTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Detached Circular Frosted Glass Back Button (42dp)
-            IconButton(
+            // Detached Circular Frosted Glass Back Button (42dp) with viscoelastic drag morphing
+            LiquidIconButton(
                 onClick = navigateUp,
-                modifier = Modifier
-                    .size(42.dp)
-                    .liquidGlassSurface(
-                        shape = CircleShape,
-                        blurRadius = 16.dp,
-                        refractionHeight = 18.dp,
-                        refractionAmount = 24.dp,
-                        surfaceColor = glassSurfaceColor,
-                    ),
+                size = 42.dp,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
@@ -138,17 +132,9 @@ fun ReaderTopBar(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(
+                LiquidIconButton(
                     onClick = onToggleBookmarked,
-                    modifier = Modifier
-                        .size(42.dp)
-                        .liquidGlassSurface(
-                            shape = CircleShape,
-                            blurRadius = 16.dp,
-                            refractionHeight = 18.dp,
-                            refractionAmount = 24.dp,
-                            surfaceColor = glassSurfaceColor,
-                        ),
+                    size = 42.dp,
                 ) {
                     Icon(
                         imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -161,17 +147,9 @@ fun ReaderTopBar(
 
                 if (hasOverflow) {
                     Box {
-                        IconButton(
+                        LiquidIconButton(
                             onClick = { showOverflow = true },
-                            modifier = Modifier
-                                .size(42.dp)
-                                .liquidGlassSurface(
-                                    shape = CircleShape,
-                                    blurRadius = 16.dp,
-                                    refractionHeight = 18.dp,
-                                    refractionAmount = 24.dp,
-                                    surfaceColor = glassSurfaceColor,
-                                ),
+                            size = 42.dp,
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.MoreHoriz,
@@ -180,7 +158,7 @@ fun ReaderTopBar(
                             )
                         }
 
-                        DropdownMenu(
+                        CupertinoFrostedPopup(
                             expanded = showOverflow,
                             onDismissRequest = { showOverflow = false },
                         ) {

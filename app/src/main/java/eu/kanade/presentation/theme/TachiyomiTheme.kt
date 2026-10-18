@@ -24,9 +24,17 @@ import tachiyomi.presentation.core.util.collectAsState
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleAlpineColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleBlueColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleGreenColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleIndigoColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleMidnightColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleOrangeColorScheme
+import eu.kanade.presentation.theme.colorscheme.ApplePinkColorScheme
 import eu.kanade.presentation.theme.colorscheme.ApplePurpleColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleRedColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleTealColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleTitaniumColorScheme
+import eu.kanade.presentation.theme.colorscheme.AppleYellowColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
 import eu.kanade.presentation.theme.colorscheme.CupertinoColorScheme
 import eu.kanade.presentation.theme.colorscheme.CloudflareColorScheme
@@ -180,9 +188,17 @@ private fun BaseTachiyomiTheme(
     LiquidGlassThemeWrapper {
         val isCupertino = appTheme in listOf(
             AppTheme.CUPERTINO,
+            AppTheme.APPLE_BLUE,
+            AppTheme.APPLE_GREEN,
+            AppTheme.APPLE_ORANGE,
+            AppTheme.APPLE_RED,
+            AppTheme.APPLE_PURPLE,
+            AppTheme.APPLE_PINK,
+            AppTheme.APPLE_INDIGO,
+            AppTheme.APPLE_TEAL,
+            AppTheme.APPLE_YELLOW,
             AppTheme.APPLE_MIDNIGHT,
             AppTheme.APPLE_ALPINE,
-            AppTheme.APPLE_PURPLE,
             AppTheme.APPLE_TITANIUM,
         ) || LocalLiquidGlassConfig.current.enabled
         MaterialExpressiveTheme(
@@ -234,9 +250,17 @@ private fun getThemeColorScheme(
 private val colorSchemes: Map<AppTheme, BaseColorScheme> = mapOf(
     AppTheme.DEFAULT to TachiyomiColorScheme,
     AppTheme.CUPERTINO to CupertinoColorScheme,
+    AppTheme.APPLE_BLUE to AppleBlueColorScheme,
+    AppTheme.APPLE_GREEN to AppleGreenColorScheme,
+    AppTheme.APPLE_ORANGE to AppleOrangeColorScheme,
+    AppTheme.APPLE_RED to AppleRedColorScheme,
+    AppTheme.APPLE_PURPLE to ApplePurpleColorScheme,
+    AppTheme.APPLE_PINK to ApplePinkColorScheme,
+    AppTheme.APPLE_INDIGO to AppleIndigoColorScheme,
+    AppTheme.APPLE_TEAL to AppleTealColorScheme,
+    AppTheme.APPLE_YELLOW to AppleYellowColorScheme,
     AppTheme.APPLE_MIDNIGHT to AppleMidnightColorScheme,
     AppTheme.APPLE_ALPINE to AppleAlpineColorScheme,
-    AppTheme.APPLE_PURPLE to ApplePurpleColorScheme,
     AppTheme.APPLE_TITANIUM to AppleTitaniumColorScheme,
     AppTheme.CATPPUCCIN to CatppuccinColorScheme,
     AppTheme.GREEN_APPLE to GreenAppleColorScheme,
