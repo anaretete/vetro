@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
@@ -26,14 +27,40 @@ import tachiyomi.presentation.core.components.SettingsItemsPaddings
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.Button
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
+
 @Composable
 fun ModeSelectionDialog(
     onApply: () -> Unit,
     onUseDefault: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    Box(modifier = Modifier.padding(vertical = 16.dp)) {
-        Column {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
+
+    Box(modifier = Modifier.padding(vertical = 12.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (isGlass) {
+                // Apple HIG sheet drag handle
+                Box(
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .size(36.dp, 5.dp)
+                        .clip(Capsule())
+                        .background(if (isDark) Color(0x44FFFFFF) else Color(0x33000000)),
+                )
+            }
+
             content()
 
             Row(
@@ -41,30 +68,82 @@ fun ModeSelectionDialog(
                     .fillMaxWidth()
                     .padding(
                         horizontal = SettingsItemsPaddings.Horizontal,
-                        vertical = 8.dp,
+                        vertical = 12.dp,
                     ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                onUseDefault?.let {
-                    OutlinedButton(onClick = it) {
-                        Text(text = stringResource(MR.strings.action_revert_to_default))
+                if (isGlass) {
+                    onUseDefault?.let {
+                        Button(
+                            onClick = it,
+                            modifier = Modifier
+                                .height(44.dp)
+                                .liquidGlassSurface(
+                                    shape = Capsule(),
+                                    blurRadius = 12.dp,
+                                    refractionHeight = 14.dp,
+                                    refractionAmount = 20.dp,
+                                    tintColor = if (isDark) Color(0x55252528) else Color(0x66FFFFFF),
+                                ),
+                        ) {
+                            Text(
+                                text = stringResource(MR.strings.action_revert_to_default),
+                                color = if (isDark) Color.White else Color(0xFF1C1C1E),
+                            )
+                        }
                     }
-                }
 
-                Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                FilledTonalButton(
-                    onClick = onApply,
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
-                        verticalAlignment = Alignment.CenterVertically,
+                    Button(
+                        onClick = onApply,
+                        modifier = Modifier
+                            .height(44.dp)
+                            .liquidGlassSurface(
+                                shape = Capsule(),
+                                blurRadius = 14.dp,
+                                refractionHeight = 16.dp,
+                                refractionAmount = 24.dp,
+                                tintColor = Color(0xFF0A84FF),
+                            ),
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Check,
-                            contentDescription = null,
-                        )
-                        Text(text = stringResource(MR.strings.action_apply))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = null,
+                                tint = Color.White,
+                            )
+                            Text(
+                                text = stringResource(MR.strings.action_apply),
+                                color = Color.White,
+                            )
+                        }
+                    }
+                } else {
+                    onUseDefault?.let {
+                        OutlinedButton(onClick = it) {
+                            Text(text = stringResource(MR.strings.action_revert_to_default))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    FilledTonalButton(
+                        onClick = onApply,
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = null,
+                            )
+                            Text(text = stringResource(MR.strings.action_apply))
+                        }
                     }
                 }
             }

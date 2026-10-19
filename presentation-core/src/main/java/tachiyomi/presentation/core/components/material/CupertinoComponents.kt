@@ -522,44 +522,76 @@ fun <T> CupertinoGroupedSelectionCard(
     onSelect: (T) -> Unit,
     labelProvider: @Composable (T) -> String,
     modifier: Modifier = Modifier,
+    iconProvider: (@Composable (T) -> Unit)? = null,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val cardBg = if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
+    val cardBg = if (isGlass) {
+        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
+    } else {
+        if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
+    }
+
+    val cardModifier = if (isGlass) {
+        Modifier
+            .fillMaxWidth()
+            .liquidGlassSurface(
+                shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous),
+                blurRadius = 16.dp,
+                refractionHeight = 16.dp,
+                refractionAmount = 24.dp,
+                tintColor = cardBg,
+            )
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
+            .background(cardBg)
+    }
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp),
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleSmall.copy(
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
-            ),
-            modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
-        )
+        if (title.isNotEmpty()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                ),
+                modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
+            )
+        }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
-                .background(cardBg),
+            modifier = cardModifier,
         ) {
             options.forEachIndexed { index, option ->
                 val isSelected = option == selected
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(52.dp)
                         .clickable { onSelect(option) }
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    if (iconProvider != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .padding(end = 10.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            iconProvider(option)
+                        }
+                    }
                     Text(
                         text = labelProvider(option),
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 15.sp,
+                            fontSize = 16.sp,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                             color = if (isDark) Color.White else Color(0xFF1C1C1E),
                         ),
@@ -571,7 +603,7 @@ fun <T> CupertinoGroupedSelectionCard(
                 }
                 if (index < options.lastIndex) {
                     HorizontalDivider(
-                        modifier = Modifier.padding(start = 16.dp),
+                        modifier = Modifier.padding(start = if (iconProvider != null) 58.dp else 16.dp),
                         thickness = 0.5.dp,
                         color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.10f),
                     )

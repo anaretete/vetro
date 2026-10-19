@@ -1,9 +1,14 @@
 package eu.kanade.presentation.reader
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,12 +69,21 @@ private fun DialogContent(
         onApply = { onChangeReadingMode(selected) },
     ) {
         if (isGlass) {
+            val isDark = isSystemInDarkTheme()
             CupertinoGroupedSelectionCard(
                 title = stringResource(MR.strings.pref_category_reading_mode),
                 options = ReadingModesWithoutDefault,
                 selected = selected,
                 onSelect = { selected = it },
                 labelProvider = { stringResource(it.stringRes) },
+                iconProvider = { mode ->
+                    Icon(
+                        imageVector = ImageVector.vectorResource(mode.iconRes),
+                        contentDescription = null,
+                        tint = if (mode == selected) Color(0xFF0A84FF) else (if (isDark) Color.White else Color(0xFF1C1C1E)),
+                        modifier = Modifier.size(24.dp),
+                    )
+                },
             )
         } else {
             SettingsIconGrid(MR.strings.pref_category_reading_mode) {

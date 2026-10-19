@@ -135,10 +135,13 @@ fun ChapterNavigator(
                 Box(
                     modifier = Modifier
                         .size(44.dp)
-                        .shadow(4.dp, CircleShape)
-                        .clip(CircleShape)
-                        .background(pillBgColor)
-                        .border(1.dp, pillBorderColor, CircleShape)
+                        .liquidGlassSurface(
+                            shape = CircleShape,
+                            blurRadius = 14.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 22.dp,
+                            tintColor = pillBgColor,
+                        )
                         .clickable(
                             enabled = prevEnabled,
                             interactionSource = remember { MutableInteractionSource() },
@@ -175,10 +178,13 @@ fun ChapterNavigator(
                     Modifier
                         .weight(1f)
                         .padding(horizontal = 8.dp)
-                        .shadow(6.dp, Capsule())
-                        .clip(Capsule())
-                        .background(pillBgColor)
-                        .border(1.dp, pillBorderColor, Capsule())
+                        .liquidGlassSurface(
+                            shape = Capsule(),
+                            blurRadius = 16.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 24.dp,
+                            tintColor = pillBgColor,
+                        )
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                 } else {
                     Modifier
@@ -246,10 +252,13 @@ fun ChapterNavigator(
                 Box(
                     modifier = Modifier
                         .size(44.dp)
-                        .shadow(4.dp, CircleShape)
-                        .clip(CircleShape)
-                        .background(pillBgColor)
-                        .border(1.dp, pillBorderColor, CircleShape)
+                        .liquidGlassSurface(
+                            shape = CircleShape,
+                            blurRadius = 14.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 22.dp,
+                            tintColor = pillBgColor,
+                        )
                         .clickable(
                             enabled = nextEnabled,
                             interactionSource = remember { MutableInteractionSource() },
@@ -331,10 +340,13 @@ fun ChapterNavigatorVert(
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .shadow(4.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(pillBgColor)
-                    .border(1.dp, pillBorderColor, CircleShape)
+                    .liquidGlassSurface(
+                        shape = CircleShape,
+                        blurRadius = 14.dp,
+                        refractionHeight = 16.dp,
+                        refractionAmount = 22.dp,
+                        tintColor = pillBgColor,
+                    )
                     .clickable(
                         enabled = enabledPrevious,
                         interactionSource = remember { MutableInteractionSource() },
@@ -369,10 +381,13 @@ fun ChapterNavigatorVert(
                 Modifier
                     .weight(1f)
                     .padding(vertical = 8.dp)
-                    .shadow(6.dp, Capsule())
-                    .clip(Capsule())
-                    .background(pillBgColor)
-                    .border(1.dp, pillBorderColor, Capsule())
+                    .liquidGlassSurface(
+                        shape = Capsule(),
+                        blurRadius = 16.dp,
+                        refractionHeight = 16.dp,
+                        refractionAmount = 24.dp,
+                        tintColor = pillBgColor,
+                    )
                     .padding(vertical = 12.dp, horizontal = 6.dp)
             } else {
                 Modifier
@@ -427,10 +442,13 @@ fun ChapterNavigatorVert(
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .shadow(4.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(pillBgColor)
-                    .border(1.dp, pillBorderColor, CircleShape)
+                    .liquidGlassSurface(
+                        shape = CircleShape,
+                        blurRadius = 14.dp,
+                        refractionHeight = 16.dp,
+                        refractionAmount = 22.dp,
+                        tintColor = pillBgColor,
+                    )
                     .clickable(
                         enabled = enabledNext,
                         interactionSource = remember { MutableInteractionSource() },

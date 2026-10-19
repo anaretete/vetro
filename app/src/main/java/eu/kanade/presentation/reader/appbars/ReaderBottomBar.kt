@@ -35,6 +35,7 @@ import kotlinx.collections.immutable.ImmutableSet
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 
 import androidx.compose.foundation.background
@@ -74,10 +75,13 @@ fun ReaderBottomBar(
 
     val effectiveModifier = if (isGlass) {
         modifier
-            .shadow(8.dp, Capsule())
-            .clip(Capsule())
-            .background(containerBg)
-            .border(1.dp, containerBorder, Capsule())
+            .liquidGlassSurface(
+                shape = Capsule(),
+                blurRadius = 20.dp,
+                refractionHeight = 20.dp,
+                refractionAmount = 28.dp,
+                tintColor = containerBg,
+            )
     } else {
         modifier
     }

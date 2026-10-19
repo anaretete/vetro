@@ -80,10 +80,13 @@ fun ReaderTopBar(
             Box(
                 modifier = Modifier
                     .size(44.dp)
-                    .shadow(4.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(pillBgColor)
-                    .border(1.dp, pillBorderColor, CircleShape)
+                    .liquidGlassSurface(
+                        shape = CircleShape,
+                        blurRadius = 14.dp,
+                        refractionHeight = 16.dp,
+                        refractionAmount = 22.dp,
+                        tintColor = pillBgColor,
+                    )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = ripple(bounded = true, radius = 22.dp),
@@ -107,10 +110,13 @@ fun ReaderTopBar(
             ) {
                 Column(
                     modifier = Modifier
-                        .shadow(6.dp, Capsule())
-                        .clip(Capsule())
-                        .background(pillBgColor)
-                        .border(1.dp, pillBorderColor, Capsule())
+                        .liquidGlassSurface(
+                            shape = Capsule(),
+                            blurRadius = 16.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 24.dp,
+                            tintColor = pillBgColor,
+                        )
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                         .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,10 +155,13 @@ fun ReaderTopBar(
                 Box(
                     modifier = Modifier
                         .size(44.dp)
-                        .shadow(4.dp, CircleShape)
-                        .clip(CircleShape)
-                        .background(pillBgColor)
-                        .border(1.dp, pillBorderColor, CircleShape)
+                        .liquidGlassSurface(
+                            shape = CircleShape,
+                            blurRadius = 14.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 22.dp,
+                            tintColor = pillBgColor,
+                        )
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = ripple(bounded = true, radius = 22.dp),
@@ -174,10 +183,13 @@ fun ReaderTopBar(
                         Box(
                             modifier = Modifier
                                 .size(44.dp)
-                                .shadow(4.dp, CircleShape)
-                                .clip(CircleShape)
-                                .background(pillBgColor)
-                                .border(1.dp, pillBorderColor, CircleShape)
+                                .liquidGlassSurface(
+                                    shape = CircleShape,
+                                    blurRadius = 14.dp,
+                                    refractionHeight = 16.dp,
+                                    refractionAmount = 22.dp,
+                                    tintColor = pillBgColor,
+                                )
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = ripple(bounded = true, radius = 22.dp),

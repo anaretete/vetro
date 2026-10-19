@@ -1,5 +1,13 @@
 package eu.kanade.presentation.reader.settings
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import tachiyomi.presentation.core.components.material.FilterChip
 import tachiyomi.presentation.core.components.material.CupertinoGroupedSelectionCard
 import tachiyomi.presentation.core.components.material.CupertinoGroupedSegmentedControl
@@ -38,12 +46,21 @@ internal fun ReadingModePage(screenModel: ReaderSettingsScreenModel) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
 
     if (isGlass) {
+        val isDark = isSystemInDarkTheme()
         CupertinoGroupedSelectionCard(
             title = stringResource(MR.strings.pref_category_reading_mode),
             options = ReadingMode.entries,
             selected = readingMode,
             onSelect = { screenModel.onChangeReadingMode(it) },
             labelProvider = { stringResource(it.stringRes) },
+            iconProvider = { mode ->
+                Icon(
+                    imageVector = ImageVector.vectorResource(mode.iconRes),
+                    contentDescription = null,
+                    tint = if (mode == readingMode) Color(0xFF0A84FF) else (if (isDark) Color.White else Color(0xFF1C1C1E)),
+                    modifier = Modifier.size(24.dp),
+                )
+            },
         )
         CupertinoGroupedSelectionCard(
             title = stringResource(MR.strings.rotation_type),
@@ -51,6 +68,14 @@ internal fun ReadingModePage(screenModel: ReaderSettingsScreenModel) {
             selected = orientation,
             onSelect = { screenModel.onChangeOrientation(it) },
             labelProvider = { stringResource(it.stringRes) },
+            iconProvider = { mode ->
+                Icon(
+                    imageVector = mode.icon,
+                    contentDescription = null,
+                    tint = if (mode == orientation) Color(0xFFFF9F0A) else (if (isDark) Color.White else Color(0xFF1C1C1E)),
+                    modifier = Modifier.size(24.dp),
+                )
+            },
         )
     } else {
         SettingsChipRow(MR.strings.pref_category_reading_mode) {
