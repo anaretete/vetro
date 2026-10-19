@@ -37,6 +37,11 @@ import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.i18n.stringResource
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
+import com.kyant.shapes.Capsule
+
 @Composable
 fun ReaderBottomBar(
     // SY -->
@@ -64,9 +69,21 @@ fun ReaderBottomBar(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
+    val containerBg = if (isDark) Color(0xCC18181A) else Color(0xEEFFFFFF)
+    val containerBorder = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
+
+    val effectiveModifier = if (isGlass) {
+        modifier
+            .shadow(8.dp, Capsule())
+            .clip(Capsule())
+            .background(containerBg)
+            .border(1.dp, containerBorder, Capsule())
+    } else {
+        modifier
+    }
 
     Row(
-        modifier = modifier,
+        modifier = effectiveModifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {

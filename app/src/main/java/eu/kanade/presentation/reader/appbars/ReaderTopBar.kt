@@ -1,6 +1,8 @@
 package eu.kanade.presentation.reader.appbars
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +11,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ripple
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import com.kyant.shapes.Capsule
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
@@ -60,7 +65,8 @@ fun ReaderTopBar(
     val isDark = isSystemInDarkTheme()
 
     if (isGlass) {
-        val glassSurfaceColor = if (isDark) Color(0x991C1C1E) else Color(0xBBFFFFFF)
+        val pillBgColor = if (isDark) Color(0xCC18181A) else Color(0xEEFFFFFF)
+        val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
         var showOverflow by remember { mutableStateOf(false) }
         val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
 
@@ -69,10 +75,20 @@ fun ReaderTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Detached Circular Frosted Glass Back Button (42dp) with viscoelastic drag morphing
-            LiquidIconButton(
-                onClick = navigateUp,
-                size = 44.dp,
+            // Apple HIG Frosted Circular Back Button (44dp)
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .shadow(4.dp, CircleShape)
+                    .clip(CircleShape)
+                    .background(pillBgColor)
+                    .border(1.dp, pillBorderColor, CircleShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = true, radius = 22.dp),
+                        onClick = navigateUp,
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
@@ -81,7 +97,7 @@ fun ReaderTopBar(
                 )
             }
 
-            // Compact Centered Glass Pill for Title/Chapter (floating glass capsule)
+            // Apple HIG Centered Frosted Glass Pill for Title/Chapter
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -90,14 +106,11 @@ fun ReaderTopBar(
             ) {
                 Column(
                     modifier = Modifier
-                        .liquidGlassSurface(
-                            shape = Capsule(),
-                            blurRadius = 16.dp,
-                            refractionHeight = 18.dp,
-                            refractionAmount = 24.dp,
-                            surfaceColor = glassSurfaceColor,
-                        )
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                        .shadow(6.dp, Capsule())
+                        .clip(Capsule())
+                        .background(pillBgColor)
+                        .border(1.dp, pillBorderColor, Capsule())
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
                         .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -127,14 +140,24 @@ fun ReaderTopBar(
                 }
             }
 
-            // Right Actions: Detached Circular Frosted Glass Bookmark & Overflow (42dp)
+            // Right Actions: Detached Circular Frosted Glass Bookmark & Overflow (44dp)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                LiquidIconButton(
-                    onClick = onToggleBookmarked,
-                    size = 44.dp,
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .shadow(4.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(pillBgColor)
+                        .border(1.dp, pillBorderColor, CircleShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = true, radius = 22.dp),
+                            onClick = onToggleBookmarked,
+                        ),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -147,9 +170,19 @@ fun ReaderTopBar(
 
                 if (hasOverflow) {
                     Box {
-                        LiquidIconButton(
-                            onClick = { showOverflow = true },
-                            size = 44.dp,
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .shadow(4.dp, CircleShape)
+                                .clip(CircleShape)
+                                .background(pillBgColor)
+                                .border(1.dp, pillBorderColor, CircleShape)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(bounded = true, radius = 22.dp),
+                                    onClick = { showOverflow = true },
+                                ),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.MoreHoriz,

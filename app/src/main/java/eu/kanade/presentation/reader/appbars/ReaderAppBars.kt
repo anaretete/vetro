@@ -257,13 +257,6 @@ fun ReaderAppBars(
                         .windowInsetsPadding(WindowInsets.navigationBars)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .height(60.dp)
-                        .liquidGlassSurface(
-                            shape = Capsule(),
-                            blurRadius = 18.dp,
-                            refractionHeight = 22.dp,
-                            refractionAmount = 30.dp,
-                            surfaceColor = if (isSystemInDarkTheme()) Color(0x991C1C1E) else Color(0xBBFFFFFF),
-                        )
                 } else {
                     Modifier
                         .fillMaxWidth()

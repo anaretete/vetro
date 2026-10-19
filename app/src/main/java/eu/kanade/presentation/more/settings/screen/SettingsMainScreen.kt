@@ -266,13 +266,6 @@ object SettingsMainScreen : Screen() {
             screen = SettingsAppearanceScreen,
         ),
         Item(
-            customTitle = "Liquid Glass",
-            customSubtitle = "Refraction, blur, lenses, and physics",
-            icon = Icons.Outlined.AutoAwesome,
-            badgeColor = Color(0xFF30B0C7),
-            screen = SettingsLiquidGlassScreen,
-        ),
-        Item(
             titleRes = MR.strings.pref_category_library,
             subtitleRes = MR.strings.pref_library_summary,
             icon = Icons.Outlined.CollectionsBookmark,

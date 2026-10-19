@@ -83,7 +83,6 @@ fun CupertinoSlider(
                     newValue
                 }
                 currentOnValueChange(clamped)
-                currentOnValueChangeFinished?.invoke()
             }
         },
         valueRange = valueRange,
@@ -233,31 +232,17 @@ fun Slider(
         SliderDefaults.Track(colors = colors, enabled = enabled, sliderState = sliderState)
     },
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    if (isGlass) {
-        CupertinoSlider(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            valueRange = valueRange,
-            steps = steps,
-            onValueChangeFinished = onValueChangeFinished,
-            backdrop = backdrop,
-            accentColor = accentColor,
-        )
-    } else {
-        SolidCupertinoSlider(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            valueRange = valueRange,
-            steps = steps,
-            onValueChangeFinished = onValueChangeFinished,
-            accentColor = accentColor ?: if (!isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF0A84FF),
-        )
-    }
+    CupertinoSlider(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        valueRange = valueRange,
+        steps = steps,
+        onValueChangeFinished = onValueChangeFinished,
+        backdrop = backdrop,
+        accentColor = accentColor,
+    )
 }
 
 @Composable

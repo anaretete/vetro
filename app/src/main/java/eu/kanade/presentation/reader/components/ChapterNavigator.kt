@@ -1,9 +1,13 @@
 package eu.kanade.presentation.reader.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ripple
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,6 +117,9 @@ fun ChapterNavigator(
     }
     val textColor = MaterialTheme.colorScheme.onSurface
 
+    val pillBgColor = if (isDark) Color(0xCC18181A) else Color(0xEEFFFFFF)
+    val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
+
     // We explicitly handle direction based on the reader viewer rather than the system direction
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
@@ -121,23 +128,36 @@ fun ChapterNavigator(
                 .padding(horizontal = horizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val prevEnabled = if (isRtl) enabledNext else enabledPrevious
+            val prevAction = if (isRtl) onNextChapter else onPreviousChapter
             if (isGlass) {
-                LiquidIconButton(
-                    enabled = if (isRtl) enabledNext else enabledPrevious,
-                    onClick = if (isRtl) onNextChapter else onPreviousChapter,
-                    size = 44.dp,
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .shadow(4.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(pillBgColor)
+                        .border(1.dp, pillBorderColor, CircleShape)
+                        .clickable(
+                            enabled = prevEnabled,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = true, radius = 22.dp),
+                            onClick = prevAction,
+                        ),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.SkipPrevious,
                         contentDescription = stringResource(
                             if (isRtl) MR.strings.action_next_chapter else MR.strings.action_previous_chapter,
                         ),
+                        tint = if (prevEnabled) (if (isDark) Color.White else Color.Black) else Color.Gray,
                     )
                 }
             } else {
                 FilledIconButton(
-                    enabled = if (isRtl) enabledNext else enabledPrevious,
-                    onClick = if (isRtl) onNextChapter else onPreviousChapter,
+                    enabled = prevEnabled,
+                    onClick = prevAction,
                     colors = buttonColor,
                 ) {
                     Icon(
@@ -149,100 +169,106 @@ fun ChapterNavigator(
                 }
             }
 
-        val sliderPillBackdrop = rememberLayerBackdrop()
-        if (totalPages > 1) {
-            val sliderModifier = if (isGlass) {
-                Modifier
-                    .weight(1f)
-                    .liquidGlassSurface(
-                        shape = Capsule(),
-                        blurRadius = 14.dp,
-                        refractionHeight = 16.dp,
-                        refractionAmount = 24.dp,
-                        surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
-                        exportedBackdrop = sliderPillBackdrop,
-                    )
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
-            } else {
-                Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(backgroundColor)
-                    .padding(horizontal = 16.dp)
-            }
-            CompositionLocalProvider(
-                LocalLayoutDirection provides layoutDirection,
-                LocalLayerBackdrop provides (if (isGlass) sliderPillBackdrop else LocalLayerBackdrop.current),
-            ) {
-                Row(
-                    modifier = sliderModifier,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(contentAlignment = Alignment.CenterEnd) {
+            if (totalPages > 1) {
+                val sliderModifier = if (isGlass) {
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                        .shadow(6.dp, Capsule())
+                        .clip(Capsule())
+                        .background(pillBgColor)
+                        .border(1.dp, pillBorderColor, Capsule())
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                } else {
+                    Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(backgroundColor)
+                        .padding(horizontal = 16.dp)
+                }
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                    Row(
+                        modifier = sliderModifier,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(contentAlignment = Alignment.CenterEnd) {
+                            Text(
+                                // SY -->
+                                text = currentPageText,
+                                // SY <--
+                                // KMK -->
+                                color = textColor,
+                                // KMK <--
+                            )
+                            // Taking up full length so the slider doesn't shift when 'currentPage' length changes
+                            Text(text = totalPages.toString(), color = Color.Transparent)
+                        }
+
+                        val interactionSource = remember { MutableInteractionSource() }
+                        val sliderDragged by interactionSource.collectIsDraggedAsState()
+                        LaunchedEffect(currentPage) {
+                            if (sliderDragged) {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            }
+                        }
+                        val safeTotalPages = maxOf(1, totalPages)
+                        val safeCurrentPage = (currentPage + 1).coerceIn(1, safeTotalPages)
+                        Slider(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 8.dp),
+                            value = safeCurrentPage,
+                            valueRange = 1..safeTotalPages,
+                            onValueChange = f@{
+                                val newPageIndex = (it - 1).coerceIn(0, safeTotalPages - 1)
+                                if (newPageIndex == currentPage) return@f
+                                onPageIndexChange(newPageIndex)
+                            },
+                            interactionSource = interactionSource,
+                        )
+
                         Text(
-                            // SY -->
-                            text = currentPageText,
-                            // SY <--
+                            text = totalPages.toString(),
                             // KMK -->
                             color = textColor,
                             // KMK <--
                         )
-                        // Taking up full length so the slider doesn't shift when 'currentPage' length changes
-                        Text(text = totalPages.toString(), color = Color.Transparent)
                     }
-
-                    val interactionSource = remember { MutableInteractionSource() }
-                    val sliderDragged by interactionSource.collectIsDraggedAsState()
-                    LaunchedEffect(currentPage) {
-                        if (sliderDragged) {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        }
-                    }
-                    val safeTotalPages = maxOf(1, totalPages)
-                    val safeCurrentPage = (currentPage + 1).coerceIn(1, safeTotalPages)
-                    Slider(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 8.dp),
-                        value = safeCurrentPage,
-                        valueRange = 1..safeTotalPages,
-                        onValueChange = f@{
-                            val newPageIndex = (it - 1).coerceIn(0, safeTotalPages - 1)
-                            if (newPageIndex == currentPage) return@f
-                            onPageIndexChange(newPageIndex)
-                        },
-                        interactionSource = interactionSource,
-                    )
-
-                    Text(
-                        text = totalPages.toString(),
-                        // KMK -->
-                        color = textColor,
-                        // KMK <--
-                    )
                 }
-            }
-        } else {
+            } else {
                 Spacer(Modifier.weight(1f))
             }
 
+            val nextEnabled = if (isRtl) enabledPrevious else enabledNext
+            val nextAction = if (isRtl) onPreviousChapter else onNextChapter
             if (isGlass) {
-                LiquidIconButton(
-                    enabled = if (isRtl) enabledPrevious else enabledNext,
-                    onClick = if (isRtl) onPreviousChapter else onNextChapter,
-                    size = 44.dp,
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .shadow(4.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(pillBgColor)
+                        .border(1.dp, pillBorderColor, CircleShape)
+                        .clickable(
+                            enabled = nextEnabled,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = true, radius = 22.dp),
+                            onClick = nextAction,
+                        ),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.SkipNext,
                         contentDescription = stringResource(
                             if (isRtl) MR.strings.action_previous_chapter else MR.strings.action_next_chapter,
                         ),
+                        tint = if (nextEnabled) (if (isDark) Color.White else Color.Black) else Color.Gray,
                     )
                 }
             } else {
                 FilledIconButton(
-                    enabled = if (isRtl) enabledPrevious else enabledNext,
-                    onClick = if (isRtl) onPreviousChapter else onNextChapter,
+                    enabled = nextEnabled,
+                    onClick = nextAction,
                     colors = buttonColor,
                 ) {
                     Icon(
@@ -297,16 +323,30 @@ fun ChapterNavigatorVert(
         )
         val textColor = MaterialTheme.colorScheme.onSurface
 
+        val pillBgColor = if (isDark) Color(0xCC18181A) else Color(0xEEFFFFFF)
+        val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
+
         if (isGlass) {
-            LiquidIconButton(
-                enabled = enabledPrevious,
-                onClick = onPreviousChapter,
-                size = 44.dp,
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .shadow(4.dp, CircleShape)
+                    .clip(CircleShape)
+                    .background(pillBgColor)
+                    .border(1.dp, pillBorderColor, CircleShape)
+                    .clickable(
+                        enabled = enabledPrevious,
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = true, radius = 22.dp),
+                        onClick = onPreviousChapter,
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.SkipPrevious,
                     contentDescription = stringResource(MR.strings.action_previous_chapter),
                     modifier = Modifier.rotate(90f),
+                    tint = if (enabledPrevious) (if (isDark) Color.White else Color.Black) else Color.Gray,
                 )
             }
         } else {
@@ -323,20 +363,16 @@ fun ChapterNavigatorVert(
             }
         }
 
-        val sliderPillBackdrop = rememberLayerBackdrop()
         if (totalPages > 1) {
             val sliderModifier = if (isGlass) {
                 Modifier
                     .weight(1f)
-                    .liquidGlassSurface(
-                        shape = Capsule(),
-                        blurRadius = 14.dp,
-                        refractionHeight = 16.dp,
-                        refractionAmount = 24.dp,
-                        surfaceColor = if (isDark) Color(0x6616161A) else Color(0x55FFFFFF),
-                        exportedBackdrop = sliderPillBackdrop,
-                    )
-                    .padding(vertical = 12.dp, horizontal = 4.dp)
+                    .padding(vertical = 8.dp)
+                    .shadow(6.dp, Capsule())
+                    .clip(Capsule())
+                    .background(pillBgColor)
+                    .border(1.dp, pillBorderColor, Capsule())
+                    .padding(vertical = 12.dp, horizontal = 6.dp)
             } else {
                 Modifier
                     .weight(1f)
@@ -344,60 +380,69 @@ fun ChapterNavigatorVert(
                     .background(backgroundColor)
                     .padding(vertical = 12.dp)
             }
-            CompositionLocalProvider(LocalLayerBackdrop provides (if (isGlass) sliderPillBackdrop else LocalLayerBackdrop.current)) {
-                Column(
-                    modifier = sliderModifier,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        // SY -->
-                        text = currentPageText,
-                        // SY <--
-                        // KMK -->
-                        color = textColor,
-                        // KMK <--
-                    )
+            Column(
+                modifier = sliderModifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    // SY -->
+                    text = currentPageText,
+                    // SY <--
+                    // KMK -->
+                    color = textColor,
+                    // KMK <--
+                )
 
-                    val safeTotalPages = maxOf(1, totalPages)
-                    val safeCurrentPageFloat = (currentPage + 1).toFloat().coerceIn(1f, safeTotalPages.toFloat())
-                    CupertinoVerticalSlider(
-                        value = safeCurrentPageFloat,
-                        onValueChange = { nextVal ->
-                            val nextInt = nextVal.roundToInt()
-                            val newPageIndex = (nextInt - 1).coerceIn(0, safeTotalPages - 1)
-                            if (newPageIndex != currentPage) {
-                                onPageIndexChange(newPageIndex)
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            }
-                        },
-                        valueRange = 1f..safeTotalPages.toFloat(),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(vertical = 4.dp),
-                    )
+                val safeTotalPages = maxOf(1, totalPages)
+                val safeCurrentPageFloat = (currentPage + 1).toFloat().coerceIn(1f, safeTotalPages.toFloat())
+                CupertinoVerticalSlider(
+                    value = safeCurrentPageFloat,
+                    onValueChange = { nextVal ->
+                        val nextInt = nextVal.roundToInt()
+                        val newPageIndex = (nextInt - 1).coerceIn(0, safeTotalPages - 1)
+                        if (newPageIndex != currentPage) {
+                            onPageIndexChange(newPageIndex)
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        }
+                    },
+                    valueRange = 1f..safeTotalPages.toFloat(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = 4.dp),
+                )
 
-                    Text(
-                        text = totalPages.toString(),
-                        // KMK -->
-                        color = textColor,
-                        // KMK <--
-                    )
-                }
+                Text(
+                    text = totalPages.toString(),
+                    // KMK -->
+                    color = textColor,
+                    // KMK <--
+                )
             }
         } else {
             Spacer(Modifier.weight(1f))
         }
 
         if (isGlass) {
-            LiquidIconButton(
-                enabled = enabledNext,
-                onClick = onNextChapter,
-                size = 44.dp,
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .shadow(4.dp, CircleShape)
+                    .clip(CircleShape)
+                    .background(pillBgColor)
+                    .border(1.dp, pillBorderColor, CircleShape)
+                    .clickable(
+                        enabled = enabledNext,
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = true, radius = 22.dp),
+                        onClick = onNextChapter,
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.SkipNext,
                     contentDescription = stringResource(MR.strings.action_next_chapter),
                     modifier = Modifier.rotate(90f),
+                    tint = if (enabledNext) (if (isDark) Color.White else Color.Black) else Color.Gray,
                 )
             }
         } else {

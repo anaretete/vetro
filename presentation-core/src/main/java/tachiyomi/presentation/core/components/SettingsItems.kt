@@ -283,8 +283,15 @@ fun BaseSliderItem(
                     )
                 }
             }
+            val isPercentage = valueString.endsWith("%")
             Pill(
-                text = if (localPosition.roundToInt() == value) valueString else "${localPosition.roundToInt()}%",
+                text = if (localPosition.roundToInt() == value) {
+                    valueString
+                } else if (isPercentage) {
+                    "${localPosition.roundToInt()}%"
+                } else {
+                    "${localPosition.roundToInt()}"
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = pillColor,
             )

@@ -133,22 +133,12 @@ fun Switch(
     colors: SwitchColors = SwitchDefaults.colors(),
     backdrop: Backdrop? = null,
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
     val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberDefaultSwitchBackdrop()
-    if (isGlass) {
-        CupertinoSwitch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = modifier,
-            enabled = enabled,
-            backdrop = effectiveBackdrop,
-        )
-    } else {
-        SolidCupertinoSwitch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = modifier,
-            enabled = enabled,
-        )
-    }
+    CupertinoSwitch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        enabled = enabled,
+        backdrop = effectiveBackdrop,
+    )
 }
