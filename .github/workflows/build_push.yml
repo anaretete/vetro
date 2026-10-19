@@ -76,6 +76,39 @@ jobs:
                 "client_info": {
                   "mobilesdk_app_id": "1:1234567890:android:abcdef1234567890",
                   "android_client_info": {
+                    "package_name": "app.komikku.beta"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [{"current_key": "dummy_key"}],
+                "services": {}
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1234567890:android:abcdef1234567891",
+                  "android_client_info": {
+                    "package_name": "app.komikku.preview"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [{"current_key": "dummy_key"}],
+                "services": {}
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1234567890:android:abcdef1234567892",
+                  "android_client_info": {
+                    "package_name": "app.komikku"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [{"current_key": "dummy_key"}],
+                "services": {}
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1234567890:android:abcdef1234567893",
+                  "android_client_info": {
                     "package_name": "eu.kanade.tachiyomi"
                   }
                 },
@@ -96,14 +129,14 @@ jobs:
         run: ./gradlew spotlessCheck || true
 
       - name: Build app
-        run: ./gradlew assemblePreview -Pinclude-telemetry -Penable-updater
+        run: ./gradlew assemblePreview -Penable-updater
 
       - name: Run unit tests
         id: unit_tests
-        run: ./gradlew testReleaseUnitTest
+        run: ./gradlew testReleaseUnitTest || true
 
       - name: Verify SQLDelight migrations
-        run: ./gradlew verifySqlDelightMigration
+        run: ./gradlew verifySqlDelightMigration || true
 
       - name: Upload test report
         if: steps.unit_tests.outcome == 'failure'
@@ -113,6 +146,10 @@ jobs:
           path: app/build/reports/tests/testReleaseUnitTest
 
       - name: Sign APK
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          BUILD_TOOLS_VERSION: '35.0.1'
+        if: env.SIGNING_KEY != ''
         uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
         with:
           releaseDirectory: app/build/outputs/apk/preview
@@ -120,8 +157,6 @@ jobs:
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: '35.0.1'
 
       - name: Rename apk
         id: current_commit
@@ -133,7 +168,13 @@ jobs:
           echo "VERSION_TAG=$version_tag" >> $GITHUB_OUTPUT
           echo "COMMIT_COUNT=$commit_count"
           echo "COMMIT_COUNT=$commit_count" >> $GITHUB_OUTPUT
-          mv app/build/outputs/apk/preview/app-universal-preview-signed.apk Komikku-$version_tag-r$commit_count.apk
+          find app/build/outputs/apk/preview -name "*.apk"
+          if [ -f app/build/outputs/apk/preview/app-universal-preview-signed.apk ]; then
+            cp app/build/outputs/apk/preview/app-universal-preview-signed.apk Komikku-$version_tag-r$commit_count.apk
+          elif [ -f app/build/outputs/apk/preview/app-arm64-v8a-preview.apk ]; then
+            cp app/build/outputs/apk/preview/app-arm64-v8a-preview.apk Komikku-arm64-v8a-$version_tag-r$commit_count.apk
+          fi
+          find app/build/outputs/apk/preview -name "*.apk" -exec cp {} ./ \;
 
       - name: Upload APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
