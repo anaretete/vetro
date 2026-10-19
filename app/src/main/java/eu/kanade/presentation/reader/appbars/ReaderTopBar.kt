@@ -72,7 +72,7 @@ fun ReaderTopBar(
             // Detached Circular Frosted Glass Back Button (42dp) with viscoelastic drag morphing
             LiquidIconButton(
                 onClick = navigateUp,
-                size = 42.dp,
+                size = 44.dp,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
@@ -134,7 +134,7 @@ fun ReaderTopBar(
             ) {
                 LiquidIconButton(
                     onClick = onToggleBookmarked,
-                    size = 42.dp,
+                    size = 44.dp,
                 ) {
                     Icon(
                         imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -149,7 +149,7 @@ fun ReaderTopBar(
                     Box {
                         LiquidIconButton(
                             onClick = { showOverflow = true },
-                            size = 42.dp,
+                            size = 44.dp,
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.MoreHoriz,

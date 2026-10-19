@@ -45,7 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import androidx.compose.ui.Alignment
@@ -340,28 +340,17 @@ class ReaderActivity : BaseActivity() {
                 )
             }
 
-            val readerPageBackdrop = rememberLayerBackdrop()
-
-            // 1. Background layer capturing content
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .layerBackdrop(readerPageBackdrop),
-            ) {
-                AndroidView(
-                    factory = {
-                        (binding.viewerContainer.parent as? ViewGroup)?.removeView(binding.viewerContainer)
-                        binding.viewerContainer
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                )
-                ContentOverlay(state = state)
+            val isDark = isSystemInDarkTheme()
+            val readerBackdrop = rememberCanvasBackdrop {
+                val baseColor = if (isDark) ComposeColor(0xFF16161A).copy(alpha = 0.85f) else ComposeColor(0xFFF2F2F6).copy(alpha = 0.88f)
+                drawRect(baseColor)
             }
 
-            // 2. Foreground sibling overlay consuming backdrop (NOT inside layerBackdrop)
             Box(
                 modifier = Modifier.fillMaxSize(),
             ) {
+                ContentOverlay(state = state)
+
                 if (!state.menuVisible && showPageNumber) {
                     ReaderPageIndicator(
                         // SY -->
@@ -374,7 +363,7 @@ class ReaderActivity : BaseActivity() {
                     )
                 }
 
-                CompositionLocalProvider(LocalLayerBackdrop provides readerPageBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides readerBackdrop) {
                     AppBars(state = state)
                 }
             }
@@ -392,7 +381,7 @@ class ReaderActivity : BaseActivity() {
             // KMK <--
 
             val onDismissRequest = viewModel::closeDialog
-            CompositionLocalProvider(LocalLayerBackdrop provides readerPageBackdrop) {
+            CompositionLocalProvider(LocalLayerBackdrop provides readerBackdrop) {
                 when (state.dialog) {
                 is ReaderViewModel.Dialog.Loading -> {
                     AlertDialog(

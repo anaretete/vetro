@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.kyant.shapes.Capsule
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.ui.graphics.Color
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.runtime.Composable
@@ -254,13 +255,14 @@ fun ReaderAppBars(
                     Modifier
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.navigationBars)
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                        .height(56.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .height(60.dp)
                         .liquidGlassSurface(
                             shape = Capsule(),
                             blurRadius = 18.dp,
                             refractionHeight = 22.dp,
                             refractionAmount = 30.dp,
+                            surfaceColor = if (isSystemInDarkTheme()) Color(0x991C1C1E) else Color(0xBBFFFFFF),
                         )
                 } else {
                     Modifier

@@ -125,7 +125,7 @@ fun ChapterNavigator(
                 LiquidIconButton(
                     enabled = if (isRtl) enabledNext else enabledPrevious,
                     onClick = if (isRtl) onNextChapter else onPreviousChapter,
-                    size = 40.dp,
+                    size = 44.dp,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.SkipPrevious,
@@ -230,7 +230,7 @@ fun ChapterNavigator(
                 LiquidIconButton(
                     enabled = if (isRtl) enabledPrevious else enabledNext,
                     onClick = if (isRtl) onPreviousChapter else onNextChapter,
-                    size = 40.dp,
+                    size = 44.dp,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.SkipNext,
@@ -301,7 +301,7 @@ fun ChapterNavigatorVert(
             LiquidIconButton(
                 enabled = enabledPrevious,
                 onClick = onPreviousChapter,
-                size = 40.dp,
+                size = 44.dp,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.SkipPrevious,
@@ -392,7 +392,7 @@ fun ChapterNavigatorVert(
             LiquidIconButton(
                 enabled = enabledNext,
                 onClick = onNextChapter,
-                size = 40.dp,
+                size = 44.dp,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.SkipNext,

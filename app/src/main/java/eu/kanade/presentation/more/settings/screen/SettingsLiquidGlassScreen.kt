@@ -226,6 +226,8 @@ object SettingsLiquidGlassScreen : SearchableSettings {
                     LiquidSlider(
                         value = { previewSliderValue },
                         onValueChange = { previewSliderValue = it },
+                        valueRange = 0f..1f,
+                        visibilityThreshold = 0.001f,
                         backdrop = backdrop,
                         modifier = Modifier.weight(1f),
                     )
