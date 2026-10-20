@@ -451,7 +451,6 @@ private fun WebtoonViewerSettings(
                     screenModel.preferences.webtoonSidePadding().set(it)
                 },
                 pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             )
         }
     } else {
