@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidToggle
 
 /**
@@ -24,7 +25,8 @@ fun CupertinoSwitch(
 ) {
     val currentChecked by rememberUpdatedState(checked)
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
-    val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current
+    val fallbackBackdrop = rememberLayerBackdrop()
+    val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current ?: fallbackBackdrop
 
     LiquidToggle(
         selected = { currentChecked },
