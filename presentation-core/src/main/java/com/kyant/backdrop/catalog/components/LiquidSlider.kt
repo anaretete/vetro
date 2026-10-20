@@ -53,16 +53,14 @@ fun LiquidSlider(
     visibilityThreshold: Float,
     backdrop: Backdrop,
     modifier: Modifier = Modifier,
-    accentColor: Color? = null,
 ) {
     val isLightTheme = !isSystemInDarkTheme()
-    val defaultAccentColor =
+    val accentColor =
         if (isLightTheme) {
             Color(0xFF0088FF)
         } else {
             Color(0xFF0091FF)
         }
-    val effectiveAccent = accentColor ?: defaultAccentColor
     val trackColor =
         if (isLightTheme) {
             Color(0xFF787878).copy(0.2f)
@@ -77,7 +75,6 @@ fun LiquidSlider(
         contentAlignment = Alignment.CenterStart,
     ) {
         val trackWidth = constraints.maxWidth
-        val safeTrackWidth = maxOf(1, trackWidth)
 
         val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
         val animationScope = rememberCoroutineScope()
@@ -100,7 +97,7 @@ fun LiquidSlider(
                     if (!didDrag) {
                         didDrag = dragAmount.x != 0f
                     }
-                    val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / safeTrackWidth)
+                    val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / trackWidth)
                     onValueChange(
                         if (isLtr) {
                             (targetValue + delta).coerceIn(valueRange)
@@ -127,7 +124,7 @@ fun LiquidSlider(
                     .background(trackColor)
                     .pointerInput(animationScope) {
                         detectTapGestures { position ->
-                            val delta = (valueRange.endInclusive - valueRange.start) * (position.x / safeTrackWidth)
+                            val delta = (valueRange.endInclusive - valueRange.start) * (position.x / trackWidth)
                             val targetValue =
                                 (
                                     if (isLtr) {
@@ -148,7 +145,7 @@ fun LiquidSlider(
             Box(
                 Modifier
                     .clip(Capsule())
-                    .background(effectiveAccent)
+                    .background(accentColor)
                     .height(6f.dp)
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
@@ -163,11 +160,9 @@ fun LiquidSlider(
         Box(
             Modifier
                 .graphicsLayer {
-                    val minX = -size.width / 4f
-                    val maxX = maxOf(minX, safeTrackWidth - size.width * 3f / 4f)
                     translationX =
-                        (-size.width / 2f + safeTrackWidth * dampedDragAnimation.progress)
-                            .fastCoerceIn(minX, maxX) * if (isLtr) 1f else -1f
+                        (-size.width / 2f + trackWidth * dampedDragAnimation.progress)
+                            .fastCoerceIn(-size.width / 4f, trackWidth - size.width * 3f / 4f) * if (isLtr) 1f else -1f
                 }
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
@@ -216,7 +211,7 @@ fun LiquidSlider(
                     layerBlock = {
                         scaleX = dampedDragAnimation.scaleX
                         scaleY = dampedDragAnimation.scaleY
-                        val velocity = dampedDragAnimation.velocity / 50f
+                        val velocity = dampedDragAnimation.velocity / 10f
                         scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
                         scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                     },
