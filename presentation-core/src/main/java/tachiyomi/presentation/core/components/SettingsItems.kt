@@ -64,7 +64,6 @@ import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.preference.toggle
 import tachiyomi.presentation.core.components.material.CupertinoCheckmark
-import tachiyomi.presentation.core.components.material.CupertinoSwitch
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.Slider
@@ -175,9 +174,8 @@ fun CheckboxItem(label: String, checked: Boolean, onClick: () -> Unit) {
         label = label,
         widget = {
             if (isGlass) {
-                CupertinoSwitch(
+                CupertinoCheckmark(
                     checked = checked,
-                    onCheckedChange = { onClick() },
                 )
             } else {
                 Checkbox(
