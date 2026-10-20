@@ -74,10 +74,15 @@ fun AdaptiveSheet(
     val scope = rememberCoroutineScope()
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val sheetBg = if (isDark) Color(0xFF0D0D0F).copy(alpha = 0.88f) else Color(0xFFF2F2F7).copy(alpha = 0.90f)
+    val sheetBg = if (isDark) Color(0xFF16161A).copy(alpha = 0.85f) else Color(0xFFF2F2F6).copy(alpha = 0.88f)
     val sheetBackdrop = rememberCanvasBackdrop {
-        val baseColor = if (isDark) Color(0xFF16161A).copy(alpha = 0.85f) else Color(0xFFF2F2F6).copy(alpha = 0.88f)
-        drawRect(baseColor)
+        val baseColor = if (isDark) Color(0xFF121214) else Color(0xFFEBEBF0)
+        val highlight = if (isDark) Color(0xFF28282C) else Color(0xFFFFFFFF)
+        drawRect(
+            androidx.compose.ui.graphics.Brush.verticalGradient(
+                listOf(highlight.copy(alpha = 0.90f), baseColor.copy(alpha = 0.85f)),
+            ),
+        )
     }
 
     if (isTabletUi) {
@@ -138,24 +143,24 @@ fun AdaptiveSheet(
                 .alpha(alpha),
             contentAlignment = Alignment.Center,
         ) {
-            Surface(
-                modifier = tabletModifier,
-                shape = tabletShape,
-                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                content = {
-                    BackHandler(
-                        enabled = remember { derivedStateOf { alpha > 0f } }.value,
-                        onBack = internalOnDismissRequest,
-                    )
-                    CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
+            CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
+                Surface(
+                    modifier = tabletModifier,
+                    shape = tabletShape,
+                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                    content = {
+                        BackHandler(
+                            enabled = remember { derivedStateOf { alpha > 0f } }.value,
+                            onBack = internalOnDismissRequest,
+                        )
                         content()
-                    }
-                },
-            )
-
-            LaunchedEffect(Unit) {
-                targetAlpha = 1f
+                    },
+                )
             }
+        }
+
+        LaunchedEffect(Unit) {
+            targetAlpha = 1f
         }
     } else {
         val anchoredDraggableState = rememberSaveable(saver = AnchoredDraggableState.Saver()) {
@@ -180,11 +185,7 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
-        val bottomSheetShape = if (isGlass) {
-            com.kyant.shapes.UnevenRoundedRectangle(32.dp, 32.dp, 0.dp, 0.dp, com.kyant.shapes.RoundedCornerStyle.Continuous)
-        } else {
-            RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
-        }
+        val bottomSheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
 
         Box(
             modifier = Modifier
@@ -268,16 +269,16 @@ fun AdaptiveSheet(
                 phoneBaseModifier
             }
 
-            Surface(
-                modifier = phoneModifier,
-                shape = bottomSheetShape,
-                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                content = {
-                    BackHandler(
-                        enabled = anchoredDraggableState.targetValue == 0,
-                        onBack = internalOnDismissRequest,
-                    )
-                    CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
+            CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
+                Surface(
+                    modifier = phoneModifier,
+                    shape = bottomSheetShape,
+                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                    content = {
+                        BackHandler(
+                            enabled = anchoredDraggableState.targetValue == 0,
+                            onBack = internalOnDismissRequest,
+                        )
                         if (isGlass) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -289,9 +290,9 @@ fun AdaptiveSheet(
                         } else {
                             content()
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
 
             LaunchedEffect(isAnchored) {
                 if (isAnchored) {

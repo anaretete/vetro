@@ -1,6 +1,5 @@
 package com.kyant.backdrop.catalog.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -15,7 +14,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
@@ -28,11 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.utils.DampedDragAnimation
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
-import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
@@ -55,9 +60,9 @@ fun LiquidToggle(
         }
     val trackColor =
         if (isLightTheme) {
-            Color(0xFF787878).copy(alpha = 0.2f)
+            Color(0xFF787878).copy(0.2f)
         } else {
-            Color(0xFF787880).copy(alpha = 0.36f)
+            Color(0xFF787880).copy(0.36f)
         }
 
     val density = LocalDensity.current
@@ -116,66 +121,33 @@ fun LiquidToggle(
             }
     }
 
+    val trackBackdrop = rememberLayerBackdrop()
+
     Box(
-        modifier = modifier.clickable(
-            interactionSource = null,
-            indication = null,
-        ) {
-            val next = !selected()
-            fraction = if (next) 1f else 0f
-            onSelect(next)
-        },
+        modifier,
         contentAlignment = Alignment.CenterStart,
     ) {
-        // Outer Glass Capsule: 100% optically transparent, with zero background fill or solid tint
         Box(
             Modifier
-                .size(64f.dp, 28f.dp)
-                .drawBackdrop(
-                    backdrop = backdrop,
-                    shape = { Capsule() },
-                    effects = {
-                        vibrancy()
-                        blur(4f.dp.toPx())
-                        lens(
-                            6f.dp.toPx(),
-                            12f.dp.toPx(),
-                            chromaticAberration = true,
-                        )
-                    },
-                    highlight = {
-                        Highlight.Ambient.copy(
-                            width = Highlight.Ambient.width / 1.5f,
-                            blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = 0.55f,
-                        )
-                    },
-                    shadow = {
-                        Shadow(
-                            radius = 4f.dp,
-                            color = Color.Black.copy(alpha = 0.06f),
-                        )
-                    },
-                    innerShadow = {
-                        InnerShadow(
-                            radius = 3f.dp,
-                            alpha = 0.35f,
-                        )
-                    },
-                ),
+                .layerBackdrop(trackBackdrop)
+                .clip(Capsule())
+                .drawBehind {
+                    val fraction = dampedDragAnimation.value
+                    drawRect(lerp(trackColor, accentColor, fraction))
+                }
+                .size(64f.dp, 28f.dp),
         )
 
-        // Inner Track / Thumb Fill: strictly holds the active emerald green or inactive track color
         Box(
             Modifier
                 .graphicsLayer {
-                    val currentFraction = dampedDragAnimation.value
+                    val fraction = dampedDragAnimation.value
                     val padding = 2f.dp.toPx()
                     translationX =
                         if (isLtr) {
-                            lerp(padding, padding + dragWidth, currentFraction)
+                            lerp(padding, padding + dragWidth, fraction)
                         } else {
-                            lerp(-padding, -(padding + dragWidth), currentFraction)
+                            lerp(-padding, -(padding + dragWidth), fraction)
                         }
                 }
                 .semantics {
@@ -183,7 +155,17 @@ fun LiquidToggle(
                 }
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
-                    backdrop = backdrop,
+                    backdrop = rememberCombinedBackdrop(
+                        backdrop,
+                        rememberBackdrop(trackBackdrop) { drawBackdrop ->
+                            val progress = dampedDragAnimation.pressProgress
+                            val scaleX = lerp(2f / 3f, 0.75f, progress)
+                            val scaleY = lerp(0f, 0.75f, progress)
+                            scale(scaleX, scaleY) {
+                                drawBackdrop()
+                            }
+                        },
+                    ),
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
@@ -223,9 +205,8 @@ fun LiquidToggle(
                         scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                     },
                     onDrawSurface = {
-                        val currentFraction = dampedDragAnimation.value
-                        val fillColor = lerp(trackColor, accentColor, currentFraction)
-                        drawRect(fillColor)
+                        val progress = dampedDragAnimation.pressProgress
+                        drawRect(Color.White.copy(alpha = 1f - progress))
                     },
                 )
                 .size(40f.dp, 24f.dp),
