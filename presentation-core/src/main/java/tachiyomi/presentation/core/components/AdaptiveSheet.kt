@@ -10,8 +10,11 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
@@ -20,9 +23,11 @@ import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -37,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -45,21 +51,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
-import androidx.compose.runtime.CompositionLocalProvider
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import tachiyomi.presentation.core.components.material.CupertinoGrabber
-import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
-import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import tachiyomi.presentation.core.components.material.CupertinoGrabber
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import kotlin.math.roundToInt
 
 @Composable
@@ -75,6 +75,10 @@ fun AdaptiveSheet(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val sheetBg = if (isDark) Color(0xFF0D0D0F).copy(alpha = 0.88f) else Color(0xFFF2F2F7).copy(alpha = 0.90f)
+    val sheetBackdrop = rememberCanvasBackdrop {
+        val baseColor = if (isDark) Color(0xFF16161A).copy(alpha = 0.85f) else Color(0xFFF2F2F6).copy(alpha = 0.88f)
+        drawRect(baseColor)
+    }
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -89,7 +93,6 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
-        val tabletExportedBackdrop = rememberLayerBackdrop()
         val tabletShape = RoundedCornerShape(24.dp)
         val tabletModifier: Modifier = if (isGlass) {
             Modifier
@@ -108,7 +111,6 @@ fun AdaptiveSheet(
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
-                    exportedBackdrop = tabletExportedBackdrop,
                 )
                 .then(modifier)
         } else {
@@ -145,7 +147,7 @@ fun AdaptiveSheet(
                         enabled = remember { derivedStateOf { alpha > 0f } }.value,
                         onBack = internalOnDismissRequest,
                     )
-                    CompositionLocalProvider(LocalLayerBackdrop provides tabletExportedBackdrop) {
+                    CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
                         content()
                     }
                 },
@@ -254,7 +256,6 @@ fun AdaptiveSheet(
                 .navigationBarsPadding()
                 .statusBarsPadding()
 
-            val sheetExportedBackdrop = rememberLayerBackdrop()
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier.liquidGlassSurface(
                     shape = bottomSheetShape,
@@ -262,7 +263,6 @@ fun AdaptiveSheet(
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
-                    exportedBackdrop = sheetExportedBackdrop,
                 )
             } else {
                 phoneBaseModifier
@@ -277,7 +277,7 @@ fun AdaptiveSheet(
                         enabled = anchoredDraggableState.targetValue == 0,
                         onBack = internalOnDismissRequest,
                     )
-                    CompositionLocalProvider(LocalLayerBackdrop provides sheetExportedBackdrop) {
+                    CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
                         if (isGlass) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -340,8 +340,16 @@ private fun <T> AnchoredDraggableState<T>.preUpPostDownNestedScrollConnection(
 
     override suspend fun onPreFling(available: Velocity): Velocity {
         val toFling = available.toFloat()
-        val currentOffset = try { offset } catch (_: Throwable) { 0f }
-        val minPos = try { anchors.minPosition() } catch (_: Throwable) { 0f }
+        val currentOffset = try {
+            offset
+        } catch (_: Throwable) {
+            0f
+        }
+        val minPos = try {
+            anchors.minPosition()
+        } catch (_: Throwable) {
+            0f
+        }
         return if (toFling < 0 && currentOffset > minPos) {
             onFling(toFling)
             // since we go to the anchor with tween settling, consume all for the best UX

@@ -22,23 +22,20 @@ import android.view.View
 import android.view.View.LAYER_TYPE_HARDWARE
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.compose.ui.viewinterop.AndroidView
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
-import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import tachiyomi.presentation.core.components.material.TextButton
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -46,15 +43,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
 import androidx.core.graphics.Insets
 import androidx.core.net.toUri
@@ -68,6 +63,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.hippo.unifile.UniFile
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import eu.kanade.core.util.ifSourcesLoaded
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.connections.service.ConnectionsPreferences
@@ -149,6 +146,9 @@ import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.AlertDialog
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -384,156 +384,156 @@ class ReaderActivity : BaseActivity() {
             val onDismissRequest = viewModel::closeDialog
             CompositionLocalProvider(LocalLayerBackdrop provides readerBackdrop) {
                 when (state.dialog) {
-                is ReaderViewModel.Dialog.Loading -> {
-                    AlertDialog(
-                        onDismissRequest = {},
-                        confirmButton = {},
-                        text = {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                CircularProgressIndicator(
-                                    // KMK -->
-                                    color = MaterialTheme.colorScheme.primary,
-                                    // KMK <--
-                                )
-                                Text(stringResource(MR.strings.loading))
-                            }
-                        },
-                    )
-                }
-
-                is ReaderViewModel.Dialog.Settings -> {
-                    ReaderSettingsDialog(
-                        onDismissRequest = onDismissRequest,
-                        onShowMenus = { setMenuVisibility(true) },
-                        onHideMenus = { setMenuVisibility(false) },
-                        screenModel = settingsScreenModel,
-                    )
-                }
-
-                is ReaderViewModel.Dialog.ReadingModeSelect -> {
-                    ReadingModeSelectDialog(
-                        onDismissRequest = onDismissRequest,
-                        screenModel = settingsScreenModel,
-                        onChange = { stringRes ->
-                            menuToggleToast?.cancel()
-                            if (!readerPreferences.showReadingMode().get()) {
-                                menuToggleToast = toast(stringRes)
-                            }
-                        },
-                    )
-                }
-
-                is ReaderViewModel.Dialog.OrientationModeSelect -> {
-                    OrientationSelectDialog(
-                        onDismissRequest = onDismissRequest,
-                        screenModel = settingsScreenModel,
-                        onChange = { stringRes ->
-                            menuToggleToast?.cancel()
-                            menuToggleToast = toast(stringRes)
-                        },
-                    )
-                }
-
-                is ReaderViewModel.Dialog.PageActions -> {
-                    ReaderPageActionsDialog(
-                        onDismissRequest = onDismissRequest,
-                        onSetAsCover = viewModel::setAsCover,
-                        onShare = viewModel::shareImage,
-                        // SY -->
-                        onSave = { extra ->
-                            // KMK -->
-                            if (externalStoragePermissionNotGranted) {
-                                permissionRequester.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            } else {
-                                // KMK <--
-                                viewModel.saveImage(extra)
-                            }
-                        },
-                        onShareCombined = viewModel::shareImages,
-                        onSaveCombined = {
-                            // KMK -->
-                            if (externalStoragePermissionNotGranted) {
-                                permissionRequester.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            } else {
-                                // KMK <--
-                                viewModel.saveImages()
-                            }
-                        },
-                        hasExtraPage = (state.dialog as? ReaderViewModel.Dialog.PageActions)?.extraPage != null,
-                    )
-                }
-
-                is ReaderViewModel.Dialog.ChapterList -> {
-                    var chapters by remember {
-                        mutableStateOf(viewModel.getChapters().toImmutableList())
-                    }
-                    ChapterListDialog(
-                        onDismissRequest = onDismissRequest,
-                        screenModel = settingsScreenModel,
-                        chapters = chapters,
-                        onClickChapter = {
-                            viewModel.loadNewChapterFromDialog(it)
-                            onDismissRequest()
-                        },
-                        onBookmark = { chapter ->
-                            viewModel.toggleBookmark(chapter.id, !chapter.bookmark)
-                            chapters = chapters.map {
-                                if (it.chapter.id == chapter.id) {
-                                    it.copy(chapter = chapter.copy(bookmark = !chapter.bookmark))
-                                } else {
-                                    it
+                    is ReaderViewModel.Dialog.Loading -> {
+                        AlertDialog(
+                            onDismissRequest = {},
+                            confirmButton = {},
+                            text = {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    CircularProgressIndicator(
+                                        // KMK -->
+                                        color = MaterialTheme.colorScheme.primary,
+                                        // KMK <--
+                                    )
+                                    Text(stringResource(MR.strings.loading))
                                 }
-                            }.toImmutableList()
+                            },
+                        )
+                    }
+
+                    is ReaderViewModel.Dialog.Settings -> {
+                        ReaderSettingsDialog(
+                            onDismissRequest = onDismissRequest,
+                            onShowMenus = { setMenuVisibility(true) },
+                            onHideMenus = { setMenuVisibility(false) },
+                            screenModel = settingsScreenModel,
+                        )
+                    }
+
+                    is ReaderViewModel.Dialog.ReadingModeSelect -> {
+                        ReadingModeSelectDialog(
+                            onDismissRequest = onDismissRequest,
+                            screenModel = settingsScreenModel,
+                            onChange = { stringRes ->
+                                menuToggleToast?.cancel()
+                                if (!readerPreferences.showReadingMode().get()) {
+                                    menuToggleToast = toast(stringRes)
+                                }
+                            },
+                        )
+                    }
+
+                    is ReaderViewModel.Dialog.OrientationModeSelect -> {
+                        OrientationSelectDialog(
+                            onDismissRequest = onDismissRequest,
+                            screenModel = settingsScreenModel,
+                            onChange = { stringRes ->
+                                menuToggleToast?.cancel()
+                                menuToggleToast = toast(stringRes)
+                            },
+                        )
+                    }
+
+                    is ReaderViewModel.Dialog.PageActions -> {
+                        ReaderPageActionsDialog(
+                            onDismissRequest = onDismissRequest,
+                            onSetAsCover = viewModel::setAsCover,
+                            onShare = viewModel::shareImage,
+                            // SY -->
+                            onSave = { extra ->
+                                // KMK -->
+                                if (externalStoragePermissionNotGranted) {
+                                    permissionRequester.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                } else {
+                                    // KMK <--
+                                    viewModel.saveImage(extra)
+                                }
+                            },
+                            onShareCombined = viewModel::shareImages,
+                            onSaveCombined = {
+                                // KMK -->
+                                if (externalStoragePermissionNotGranted) {
+                                    permissionRequester.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                } else {
+                                    // KMK <--
+                                    viewModel.saveImages()
+                                }
+                            },
+                            hasExtraPage = (state.dialog as? ReaderViewModel.Dialog.PageActions)?.extraPage != null,
+                        )
+                    }
+
+                    is ReaderViewModel.Dialog.ChapterList -> {
+                        var chapters by remember {
+                            mutableStateOf(viewModel.getChapters().toImmutableList())
+                        }
+                        ChapterListDialog(
+                            onDismissRequest = onDismissRequest,
+                            screenModel = settingsScreenModel,
+                            chapters = chapters,
+                            onClickChapter = {
+                                viewModel.loadNewChapterFromDialog(it)
+                                onDismissRequest()
+                            },
+                            onBookmark = { chapter ->
+                                viewModel.toggleBookmark(chapter.id, !chapter.bookmark)
+                                chapters = chapters.map {
+                                    if (it.chapter.id == chapter.id) {
+                                        it.copy(chapter = chapter.copy(bookmark = !chapter.bookmark))
+                                    } else {
+                                        it
+                                    }
+                                }.toImmutableList()
+                            },
+                            state.dateRelativeTime,
+                            // KMK -->
+                            onDownloadAction = { chapter, action ->
+                                viewModel.handleDownloadAction(chapter, action)
+                            },
+                            // KMK <--
+                        )
+                    }
+
+                    ReaderViewModel.Dialog.AutoScrollHelp -> AlertDialog(
+                        onDismissRequest = onDismissRequest,
+                        confirmButton = {
+                            TextButton(onClick = onDismissRequest) {
+                                Text(text = stringResource(MR.strings.action_ok))
+                            }
                         },
-                        state.dateRelativeTime,
-                        // KMK -->
-                        onDownloadAction = { chapter, action ->
-                            viewModel.handleDownloadAction(chapter, action)
-                        },
-                        // KMK <--
+                        title = { Text(text = stringResource(SYMR.strings.eh_autoscroll_help)) },
+                        text = { Text(text = stringResource(SYMR.strings.eh_autoscroll_help_message)) },
                     )
+
+                    ReaderViewModel.Dialog.BoostPageHelp -> AlertDialog(
+                        onDismissRequest = onDismissRequest,
+                        confirmButton = {
+                            TextButton(onClick = onDismissRequest) {
+                                Text(text = stringResource(MR.strings.action_ok))
+                            }
+                        },
+                        title = { Text(text = stringResource(SYMR.strings.eh_boost_page_help)) },
+                        text = { Text(text = stringResource(SYMR.strings.eh_boost_page_help_message)) },
+                    )
+
+                    ReaderViewModel.Dialog.RetryAllHelp -> AlertDialog(
+                        onDismissRequest = onDismissRequest,
+                        confirmButton = {
+                            TextButton(onClick = onDismissRequest) {
+                                Text(text = stringResource(MR.strings.action_ok))
+                            }
+                        },
+                        title = { Text(text = stringResource(SYMR.strings.eh_retry_all_help)) },
+                        text = { Text(text = stringResource(SYMR.strings.eh_retry_all_help_message)) },
+                    )
+                    // SY <--
+                    null -> {}
                 }
-
-                ReaderViewModel.Dialog.AutoScrollHelp -> AlertDialog(
-                    onDismissRequest = onDismissRequest,
-                    confirmButton = {
-                        TextButton(onClick = onDismissRequest) {
-                            Text(text = stringResource(MR.strings.action_ok))
-                        }
-                    },
-                    title = { Text(text = stringResource(SYMR.strings.eh_autoscroll_help)) },
-                    text = { Text(text = stringResource(SYMR.strings.eh_autoscroll_help_message)) },
-                )
-
-                ReaderViewModel.Dialog.BoostPageHelp -> AlertDialog(
-                    onDismissRequest = onDismissRequest,
-                    confirmButton = {
-                        TextButton(onClick = onDismissRequest) {
-                            Text(text = stringResource(MR.strings.action_ok))
-                        }
-                    },
-                    title = { Text(text = stringResource(SYMR.strings.eh_boost_page_help)) },
-                    text = { Text(text = stringResource(SYMR.strings.eh_boost_page_help_message)) },
-                )
-
-                ReaderViewModel.Dialog.RetryAllHelp -> AlertDialog(
-                    onDismissRequest = onDismissRequest,
-                    confirmButton = {
-                        TextButton(onClick = onDismissRequest) {
-                            Text(text = stringResource(MR.strings.action_ok))
-                        }
-                    },
-                    title = { Text(text = stringResource(SYMR.strings.eh_retry_all_help)) },
-                    text = { Text(text = stringResource(SYMR.strings.eh_retry_all_help_message)) },
-                )
-                // SY <--
-                null -> {}
             }
         }
-    }
     }
 
     /**

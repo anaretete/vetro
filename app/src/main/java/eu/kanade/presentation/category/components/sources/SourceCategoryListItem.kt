@@ -12,12 +12,12 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Label
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
-import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.padding
 
 @Composable

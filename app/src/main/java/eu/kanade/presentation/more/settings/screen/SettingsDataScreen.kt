@@ -17,12 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.QrCodeScanner
-import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.Text
-import tachiyomi.presentation.core.components.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
@@ -89,6 +86,9 @@ import tachiyomi.domain.storage.service.StoragePreferences
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.AlertDialog
+import tachiyomi.presentation.core.components.material.IconButton
+import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt

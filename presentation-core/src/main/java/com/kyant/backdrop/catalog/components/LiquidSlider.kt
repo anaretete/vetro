@@ -52,21 +52,29 @@ fun LiquidSlider(
     valueRange: ClosedFloatingPointRange<Float>,
     visibilityThreshold: Float,
     backdrop: Backdrop,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    accentColor: Color? = null,
 ) {
     val isLightTheme = !isSystemInDarkTheme()
-    val accentColor =
-        if (isLightTheme) Color(0xFF0088FF)
-        else Color(0xFF0091FF)
+    val defaultAccentColor =
+        if (isLightTheme) {
+            Color(0xFF0088FF)
+        } else {
+            Color(0xFF0091FF)
+        }
+    val effectiveAccent = accentColor ?: defaultAccentColor
     val trackColor =
-        if (isLightTheme) Color(0xFF787878).copy(0.2f)
-        else Color(0xFF787880).copy(0.36f)
+        if (isLightTheme) {
+            Color(0xFF787878).copy(0.2f)
+        } else {
+            Color(0xFF787880).copy(0.36f)
+        }
 
     val trackBackdrop = rememberLayerBackdrop()
 
     BoxWithConstraints(
         modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterStart
+        contentAlignment = Alignment.CenterStart,
     ) {
         val trackWidth = constraints.maxWidth
         val safeTrackWidth = maxOf(1, trackWidth)
@@ -94,10 +102,13 @@ fun LiquidSlider(
                     }
                     val delta = (valueRange.endInclusive - valueRange.start) * (dragAmount.x / safeTrackWidth)
                     onValueChange(
-                        if (isLtr) (targetValue + delta).coerceIn(valueRange)
-                        else (targetValue - delta).coerceIn(valueRange)
+                        if (isLtr) {
+                            (targetValue + delta).coerceIn(valueRange)
+                        } else {
+                            (targetValue - delta).coerceIn(valueRange)
+                        },
                     )
-                }
+                },
             )
         }
         LaunchedEffect(dampedDragAnimation) {
@@ -118,21 +129,26 @@ fun LiquidSlider(
                         detectTapGestures { position ->
                             val delta = (valueRange.endInclusive - valueRange.start) * (position.x / safeTrackWidth)
                             val targetValue =
-                                (if (isLtr) valueRange.start + delta
-                                else valueRange.endInclusive - delta)
+                                (
+                                    if (isLtr) {
+                                        valueRange.start + delta
+                                    } else {
+                                        valueRange.endInclusive - delta
+                                    }
+                                    )
                                     .coerceIn(valueRange)
                             dampedDragAnimation.animateToValue(targetValue)
                             onValueChange(targetValue)
                         }
                     }
                     .height(6f.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             )
 
             Box(
                 Modifier
                     .clip(Capsule())
-                    .background(accentColor)
+                    .background(effectiveAccent)
                     .height(6f.dp)
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
@@ -140,7 +156,7 @@ fun LiquidSlider(
                         layout(width, placeable.height) {
                             placeable.place(0, 0)
                         }
-                    }
+                    },
             )
         }
 
@@ -164,7 +180,7 @@ fun LiquidSlider(
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
                             }
-                        }
+                        },
                     ),
                     shape = { Capsule() },
                     effects = {
@@ -173,7 +189,7 @@ fun LiquidSlider(
                         lens(
                             10f.dp.toPx() * progress,
                             14f.dp.toPx() * progress,
-                            chromaticAberration = true
+                            chromaticAberration = true,
                         )
                     },
                     highlight = {
@@ -181,20 +197,20 @@ fun LiquidSlider(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress
+                            alpha = progress,
                         )
                     },
                     shadow = {
                         Shadow(
                             radius = 4f.dp,
-                            color = Color.Black.copy(alpha = 0.05f)
+                            color = Color.Black.copy(alpha = 0.05f),
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
                             radius = 4f.dp * progress,
-                            alpha = progress
+                            alpha = progress,
                         )
                     },
                     layerBlock = {
@@ -207,9 +223,9 @@ fun LiquidSlider(
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
                         drawRect(Color.White.copy(alpha = 1f - progress))
-                    }
+                    },
                 )
-                .size(40f.dp, 24f.dp)
+                .size(40f.dp, 24f.dp),
         )
     }
 }

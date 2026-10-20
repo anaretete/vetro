@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.RadioButtonChecked
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.DropdownMenuItem
@@ -22,10 +23,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import tachiyomi.i18n.MR
-import tachiyomi.presentation.core.i18n.stringResource
-import androidx.compose.material.icons.filled.Check
 import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.i18n.stringResource
 import androidx.compose.material3.DropdownMenu as ComposeDropdownMenu
 
 // KMK -->

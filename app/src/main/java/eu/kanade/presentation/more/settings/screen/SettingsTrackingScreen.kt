@@ -12,13 +12,9 @@ import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Close
-import tachiyomi.presentation.core.components.material.AlertDialog
-import tachiyomi.presentation.core.components.material.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.MaterialTheme
-import tachiyomi.presentation.core.components.material.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,6 +60,10 @@ import tachiyomi.domain.source.service.SourceManager
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.AlertDialog
+import tachiyomi.presentation.core.components.material.Button
+import tachiyomi.presentation.core.components.material.IconButton
+import tachiyomi.presentation.core.components.material.OutlinedButton
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import uy.kohesive.injekt.Injekt

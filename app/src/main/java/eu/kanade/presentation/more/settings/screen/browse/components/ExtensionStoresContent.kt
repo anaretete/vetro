@@ -18,7 +18,6 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
-import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,6 +37,7 @@ import mihon.domain.extension.model.ExtensionStore
 import mihon.domain.extension.model.KOMIKKU_SIGNATURE
 import mihon.domain.extension.model.REPO_SIGNATURE
 import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.icons.CustomIcons

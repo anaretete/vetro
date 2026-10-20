@@ -23,12 +23,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -37,11 +37,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallExtendedFloatingActionButton
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
-import tachiyomi.presentation.core.components.material.LiquidButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -60,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -72,16 +68,16 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.ui.UiPreferences
-import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import eu.kanade.presentation.browse.RelatedMangaTitle
 import eu.kanade.presentation.components.relativeDateText
 import eu.kanade.presentation.manga.components.ChapterDownloadAction
@@ -136,8 +132,11 @@ import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.TwoPanelBox
 import tachiyomi.presentation.core.components.VerticalFastScroller
+import tachiyomi.presentation.core.components.material.LiquidButton
+import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import tachiyomi.presentation.core.components.material.PullRefresh
 import tachiyomi.presentation.core.components.material.Scaffold
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
@@ -555,61 +554,61 @@ private fun MangaScreenSmallImpl(
                     hasUnread && !isAnySelected
                 }
                 SmallExtendedFloatingActionButton(
-                text = {
-                    val isReading = remember(state.chapters) {
-                        state.chapters.fastAny { it.chapter.read }
-                    }
-                    Text(
-                        text = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start),
-                    )
-                },
-                icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
-                onClick = onContinueReading,
-                expanded = chapterListState.shouldExpandFAB(),
-                modifier = Modifier.animateFloatingActionButton(
-                    visible = isFABVisible,
-                    alignment = Alignment.BottomEnd,
-                )
-                    .then(
-                        if (isGlass) {
-                            Modifier.liquidGlassSurface(
-                                shape = androidx.compose.foundation.shape.CircleShape,
-                                blurRadius = 14.dp,
-                                refractionHeight = 18.dp,
-                                refractionAmount = 28.dp,
-                                tintColor = Color(0xFF007AFF),
-                            )
-                        } else {
-                            Modifier
-                        },
-                    )
-                    // KMK -->
-                    .offset { IntOffset(offsetX.roundToInt(), 0) }
-                    .onGloballyPositioned { coordinates ->
-                        fabSize = coordinates.size
-                        positionOnScreen = coordinates.positionOnScreen()
-                    }
-                    .pointerInput(Unit) {
-                        detectHorizontalDragGestures(
-                            onDragEnd = {
-                                if (positionOnScreen.x + fabSize.width / 2 >= layoutSize.width / 2) {
-                                    readButtonPosition.set(FabPosition.End.toString())
-                                } else {
-                                    readButtonPosition.set(FabPosition.Start.toString())
-                                }
-                                offsetX = 0f
-                            },
-                        ) { change, dragAmount ->
-                            change.consume()
-                            val newOffsetX = offsetX + dragAmount
-                            if (!newOffsetX.isNaN()) {
-                                offsetX = newOffsetX
-                            }
+                    text = {
+                        val isReading = remember(state.chapters) {
+                            state.chapters.fastAny { it.chapter.read }
                         }
+                        Text(
+                            text = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start),
+                        )
                     },
-                containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
-                // KMK <--
-            )
+                    icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
+                    onClick = onContinueReading,
+                    expanded = chapterListState.shouldExpandFAB(),
+                    modifier = Modifier.animateFloatingActionButton(
+                        visible = isFABVisible,
+                        alignment = Alignment.BottomEnd,
+                    )
+                        .then(
+                            if (isGlass) {
+                                Modifier.liquidGlassSurface(
+                                    shape = androidx.compose.foundation.shape.CircleShape,
+                                    blurRadius = 14.dp,
+                                    refractionHeight = 18.dp,
+                                    refractionAmount = 28.dp,
+                                    tintColor = Color(0xFF007AFF),
+                                )
+                            } else {
+                                Modifier
+                            },
+                        )
+                        // KMK -->
+                        .offset { IntOffset(offsetX.roundToInt(), 0) }
+                        .onGloballyPositioned { coordinates ->
+                            fabSize = coordinates.size
+                            positionOnScreen = coordinates.positionOnScreen()
+                        }
+                        .pointerInput(Unit) {
+                            detectHorizontalDragGestures(
+                                onDragEnd = {
+                                    if (positionOnScreen.x + fabSize.width / 2 >= layoutSize.width / 2) {
+                                        readButtonPosition.set(FabPosition.End.toString())
+                                    } else {
+                                        readButtonPosition.set(FabPosition.Start.toString())
+                                    }
+                                    offsetX = 0f
+                                },
+                            ) { change, dragAmount ->
+                                change.consume()
+                                val newOffsetX = offsetX + dragAmount
+                                if (!newOffsetX.isNaN()) {
+                                    offsetX = newOffsetX
+                                }
+                            }
+                        },
+                    containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
+                    // KMK <--
+                )
             }
         },
         // KMK -->
@@ -674,247 +673,247 @@ private fun MangaScreenSmallImpl(
                             )
                         }
 
-                    item(
-                        key = MangaScreenItem.ACTION_ROW,
-                        contentType = MangaScreenItem.ACTION_ROW,
-                    ) {
-                        MangaActionRow(
-                            favorite = state.manga.favorite,
-                            trackingCount = state.trackingCount,
-                            nextUpdate = nextUpdate,
-                            isUserIntervalMode = state.manga.fetchInterval < 0,
-                            onAddToLibraryClicked = onAddToLibraryClicked,
-                            onWebViewClicked = onWebViewClicked,
-                            onWebViewLongClicked = onWebViewLongClicked,
-                            onTrackingClicked = onTrackingClicked,
-                            onEditIntervalClicked = onEditIntervalClicked,
-                            onEditCategory = onEditCategoryClicked,
-                            // SY -->
-                            onMergeClicked = onMergeClicked.takeUnless { state.showMergeInOverflow },
-                            // SY <--
-                            // KMK -->
-                            status = state.manga.status,
-                            interval = state.manga.fetchInterval,
-                            // KMK <--
-                        )
-                    }
-
-                    item(
-                        key = "HERO_RESUME_CTA",
-                        contentType = "HERO_RESUME_CTA",
-                    ) {
-                        val hasUnread = remember(chapters) {
-                            chapters.fastAny { !it.chapter.read }
-                        }
-                        if (hasUnread) {
-                            val isReading = remember(state.chapters) {
-                                state.chapters.fastAny { it.chapter.read }
-                            }
-                            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
-                            val buttonText = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start)
-                            if (isGlass) {
-                                LiquidButton(
-                                    onClick = onContinueReading,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                                        .height(48.dp),
-                                    tint = Color(0xFF007AFF),
-                                    contentColor = Color.White,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.PlayArrow,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = buttonText,
-                                        style = MaterialTheme.typography.labelLarge.copy(
-                                            fontSize = 15.sp,
-                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                            letterSpacing = (-0.2f).sp,
-                                            color = Color.White,
-                                        ),
-                                    )
-                                }
-                            } else {
-                                tachiyomi.presentation.core.components.material.Button(
-                                    onClick = onContinueReading,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                                        .height(48.dp),
-                                    shape = androidx.compose.foundation.shape.CircleShape,
-                                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = Color.White,
-                                    ),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.PlayArrow,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(20.dp),
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = buttonText,
-                                        style = MaterialTheme.typography.labelLarge.copy(
-                                            fontSize = 15.sp,
-                                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                            letterSpacing = (-0.2f).sp,
-                                            color = Color.White,
-                                        ),
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // SY -->
-                    if (metadataDescription != null) {
                         item(
-                            key = MangaScreenItem.METADATA_INFO,
-                            contentType = MangaScreenItem.METADATA_INFO,
+                            key = MangaScreenItem.ACTION_ROW,
+                            contentType = MangaScreenItem.ACTION_ROW,
                         ) {
-                            metadataDescription(
-                                state,
-                                onMetadataViewerClicked,
-                            ) {
-                                onSearch(it, false)
+                            MangaActionRow(
+                                favorite = state.manga.favorite,
+                                trackingCount = state.trackingCount,
+                                nextUpdate = nextUpdate,
+                                isUserIntervalMode = state.manga.fetchInterval < 0,
+                                onAddToLibraryClicked = onAddToLibraryClicked,
+                                onWebViewClicked = onWebViewClicked,
+                                onWebViewLongClicked = onWebViewLongClicked,
+                                onTrackingClicked = onTrackingClicked,
+                                onEditIntervalClicked = onEditIntervalClicked,
+                                onEditCategory = onEditCategoryClicked,
+                                // SY -->
+                                onMergeClicked = onMergeClicked.takeUnless { state.showMergeInOverflow },
+                                // SY <--
+                                // KMK -->
+                                status = state.manga.status,
+                                interval = state.manga.fetchInterval,
+                                // KMK <--
+                            )
+                        }
+
+                        item(
+                            key = "HERO_RESUME_CTA",
+                            contentType = "HERO_RESUME_CTA",
+                        ) {
+                            val hasUnread = remember(chapters) {
+                                chapters.fastAny { !it.chapter.read }
+                            }
+                            if (hasUnread) {
+                                val isReading = remember(state.chapters) {
+                                    state.chapters.fastAny { it.chapter.read }
+                                }
+                                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+                                val buttonText = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start)
+                                if (isGlass) {
+                                    LiquidButton(
+                                        onClick = onContinueReading,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                                            .height(48.dp),
+                                        tint = Color(0xFF007AFF),
+                                        contentColor = Color.White,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.PlayArrow,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(20.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = buttonText,
+                                            style = MaterialTheme.typography.labelLarge.copy(
+                                                fontSize = 15.sp,
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                letterSpacing = (-0.2f).sp,
+                                                color = Color.White,
+                                            ),
+                                        )
+                                    }
+                                } else {
+                                    tachiyomi.presentation.core.components.material.Button(
+                                        onClick = onContinueReading,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                                            .height(48.dp),
+                                        shape = androidx.compose.foundation.shape.CircleShape,
+                                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = Color.White,
+                                        ),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.PlayArrow,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(20.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = buttonText,
+                                            style = MaterialTheme.typography.labelLarge.copy(
+                                                fontSize = 15.sp,
+                                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                                letterSpacing = (-0.2f).sp,
+                                                color = Color.White,
+                                            ),
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-                    // SY <--
 
-                    item(
-                        key = MangaScreenItem.DESCRIPTION_WITH_TAG,
-                        contentType = MangaScreenItem.DESCRIPTION_WITH_TAG,
-                    ) {
-                        ExpandableMangaDescription(
-                            defaultExpandState = state.isFromSource && !state.manga.favorite,
-                            description = state.manga.description,
-                            tagsProvider = { state.manga.genre },
-                            notes = state.manga.notes,
-                            onTagSearch = onTagSearch,
-                            onCopyTagToClipboard = onCopyTagToClipboard,
-                            onEditNotes = onEditNotesClicked,
-                            // SY -->
-                            doSearch = onSearch,
-                            searchMetadataChips = remember(state.meta, state.source.id, state.manga.genre) {
-                                SearchMetadataChips(state.meta, state.source.id, state.manga.genre)
-                            },
-                            // SY <--
-                        )
-                    }
+                        // SY -->
+                        if (metadataDescription != null) {
+                            item(
+                                key = MangaScreenItem.METADATA_INFO,
+                                contentType = MangaScreenItem.METADATA_INFO,
+                            ) {
+                                metadataDescription(
+                                    state,
+                                    onMetadataViewerClicked,
+                                ) {
+                                    onSearch(it, false)
+                                }
+                            }
+                        }
+                        // SY <--
 
-                    // KMK -->
-                    if (state.source !is StubSource &&
-                        relatedMangasEnabled &&
-                        state.manga.source != MERGED_SOURCE_ID
-                    ) {
-                        if (expandRelatedMangas) {
-                            if (state.relatedMangasSorted?.isNotEmpty() != false) {
-                                item { HorizontalDivider() }
+                        item(
+                            key = MangaScreenItem.DESCRIPTION_WITH_TAG,
+                            contentType = MangaScreenItem.DESCRIPTION_WITH_TAG,
+                        ) {
+                            ExpandableMangaDescription(
+                                defaultExpandState = state.isFromSource && !state.manga.favorite,
+                                description = state.manga.description,
+                                tagsProvider = { state.manga.genre },
+                                notes = state.manga.notes,
+                                onTagSearch = onTagSearch,
+                                onCopyTagToClipboard = onCopyTagToClipboard,
+                                onEditNotes = onEditNotesClicked,
+                                // SY -->
+                                doSearch = onSearch,
+                                searchMetadataChips = remember(state.meta, state.source.id, state.manga.genre) {
+                                    SearchMetadataChips(state.meta, state.source.id, state.manga.genre)
+                                },
+                                // SY <--
+                            )
+                        }
+
+                        // KMK -->
+                        if (state.source !is StubSource &&
+                            relatedMangasEnabled &&
+                            state.manga.source != MERGED_SOURCE_ID
+                        ) {
+                            if (expandRelatedMangas) {
+                                if (state.relatedMangasSorted?.isNotEmpty() != false) {
+                                    item { HorizontalDivider() }
+                                    item(
+                                        key = MangaScreenItem.RELATED_MANGAS,
+                                        contentType = MangaScreenItem.RELATED_MANGAS,
+                                    ) {
+                                        Column {
+                                            RelatedMangaTitle(
+                                                title = stringResource(KMR.strings.pref_source_related_mangas),
+                                                subtitle = null,
+                                                onClick = onRelatedMangasScreenClick,
+                                                onLongClick = null,
+                                                modifier = Modifier
+                                                    .padding(horizontal = MaterialTheme.padding.medium),
+                                            )
+                                            RelatedMangasRow(
+                                                relatedMangas = state.relatedMangasSorted,
+                                                getMangaState = getMangaState,
+                                                onMangaClick = onRelatedMangaClick,
+                                                onMangaLongClick = onRelatedMangaLongClick,
+                                            )
+                                        }
+                                    }
+                                    item { HorizontalDivider() }
+                                }
+                            } else if (!showRelatedMangasInOverflow) {
                                 item(
                                     key = MangaScreenItem.RELATED_MANGAS,
                                     contentType = MangaScreenItem.RELATED_MANGAS,
                                 ) {
-                                    Column {
-                                        RelatedMangaTitle(
-                                            title = stringResource(KMR.strings.pref_source_related_mangas),
-                                            subtitle = null,
-                                            onClick = onRelatedMangasScreenClick,
-                                            onLongClick = null,
-                                            modifier = Modifier
-                                                .padding(horizontal = MaterialTheme.padding.medium),
-                                        )
-                                        RelatedMangasRow(
-                                            relatedMangas = state.relatedMangasSorted,
-                                            getMangaState = getMangaState,
-                                            onMangaClick = onRelatedMangaClick,
-                                            onMangaLongClick = onRelatedMangaLongClick,
-                                        )
-                                    }
+                                    OutlinedButtonWithArrow(
+                                        text = stringResource(KMR.strings.pref_source_related_mangas)
+                                            .uppercase(),
+                                        onClick = onRelatedMangasScreenClick,
+                                    )
                                 }
-                                item { HorizontalDivider() }
                             }
-                        } else if (!showRelatedMangasInOverflow) {
+                        }
+                        // KMK <--
+
+                        // SY -->
+                        if (!state.showRecommendationsInOverflow || state.showMergeWithAnother) {
                             item(
-                                key = MangaScreenItem.RELATED_MANGAS,
-                                contentType = MangaScreenItem.RELATED_MANGAS,
+                                key = MangaScreenItem.INFO_BUTTONS,
+                                contentType = MangaScreenItem.INFO_BUTTONS,
                             ) {
-                                OutlinedButtonWithArrow(
-                                    text = stringResource(KMR.strings.pref_source_related_mangas)
-                                        .uppercase(),
-                                    onClick = onRelatedMangasScreenClick,
+                                MangaInfoButtons(
+                                    showRecommendsButton = !state.showRecommendationsInOverflow,
+                                    showMergeWithAnotherButton = state.showMergeWithAnother,
+                                    onRecommendClicked = onRecommendClicked,
+                                    onMergeWithAnotherClicked = onMergeWithAnotherClicked,
                                 )
                             }
                         }
-                    }
-                    // KMK <--
 
-                    // SY -->
-                    if (!state.showRecommendationsInOverflow || state.showMergeWithAnother) {
-                        item(
-                            key = MangaScreenItem.INFO_BUTTONS,
-                            contentType = MangaScreenItem.INFO_BUTTONS,
-                        ) {
-                            MangaInfoButtons(
-                                showRecommendsButton = !state.showRecommendationsInOverflow,
-                                showMergeWithAnotherButton = state.showMergeWithAnother,
-                                onRecommendClicked = onRecommendClicked,
-                                onMergeWithAnotherClicked = onMergeWithAnotherClicked,
+                        if (state.pagePreviewsState !is PagePreviewState.Unused && previewsRowCount > 0) {
+                            PagePreviewItems(
+                                pagePreviewState = state.pagePreviewsState,
+                                onOpenPage = onOpenPagePreview,
+                                onMorePreviewsClicked = onMorePreviewsClicked,
+                                maxWidth = maxWidth,
+                                setMaxWidth = { maxWidth = it },
+                                rowCount = previewsRowCount,
                             )
                         }
-                    }
-
-                    if (state.pagePreviewsState !is PagePreviewState.Unused && previewsRowCount > 0) {
-                        PagePreviewItems(
-                            pagePreviewState = state.pagePreviewsState,
-                            onOpenPage = onOpenPagePreview,
-                            onMorePreviewsClicked = onMorePreviewsClicked,
-                            maxWidth = maxWidth,
-                            setMaxWidth = { maxWidth = it },
-                            rowCount = previewsRowCount,
-                        )
-                    }
-                    // SY <--
-
-                    item(
-                        key = MangaScreenItem.CHAPTER_HEADER,
-                        contentType = MangaScreenItem.CHAPTER_HEADER,
-                    ) {
-                        val missingChapterCount = remember(chapters) {
-                            chapters.map { it.chapter.chapterNumber }.missingChaptersCount()
-                        }
-                        ChapterHeader(
-                            enabled = !isAnySelected,
-                            chapterCount = chapters.size,
-                            missingChapterCount = missingChapterCount,
-                            onClick = onFilterClicked,
-                        )
-                    }
-
-                    sharedChapterItems(
-                        manga = state.manga,
-                        mergedData = state.mergedData,
-                        chapters = listItem,
-                        isAnyChapterSelected = chapters.fastAny { it.selected },
-                        chapterSwipeStartAction = chapterSwipeStartAction,
-                        chapterSwipeEndAction = chapterSwipeEndAction,
-                        // SY -->
-                        alwaysShowReadingProgress = state.alwaysShowReadingProgress,
                         // SY <--
-                        onChapterClicked = onChapterClicked,
-                        onDownloadChapter = onDownloadChapter,
-                        onChapterSelected = onChapterSelected,
-                        onChapterSwipe = onChapterSwipe,
-                    )
+
+                        item(
+                            key = MangaScreenItem.CHAPTER_HEADER,
+                            contentType = MangaScreenItem.CHAPTER_HEADER,
+                        ) {
+                            val missingChapterCount = remember(chapters) {
+                                chapters.map { it.chapter.chapterNumber }.missingChaptersCount()
+                            }
+                            ChapterHeader(
+                                enabled = !isAnySelected,
+                                chapterCount = chapters.size,
+                                missingChapterCount = missingChapterCount,
+                                onClick = onFilterClicked,
+                            )
+                        }
+
+                        sharedChapterItems(
+                            manga = state.manga,
+                            mergedData = state.mergedData,
+                            chapters = listItem,
+                            isAnyChapterSelected = chapters.fastAny { it.selected },
+                            chapterSwipeStartAction = chapterSwipeStartAction,
+                            chapterSwipeEndAction = chapterSwipeEndAction,
+                            // SY -->
+                            alwaysShowReadingProgress = state.alwaysShowReadingProgress,
+                            // SY <--
+                            onChapterClicked = onChapterClicked,
+                            onDownloadChapter = onDownloadChapter,
+                            onChapterSelected = onChapterSelected,
+                            onChapterSwipe = onChapterSwipe,
+                        )
+                    }
                 }
-            }
             }
         }
     }
@@ -1217,67 +1216,67 @@ private fun MangaScreenLargeImpl(
                                 coverBackdrop = mangaCoverBackdrop,
                                 // KMK <--
                             )
-                        MangaActionRow(
-                            favorite = state.manga.favorite,
-                            trackingCount = state.trackingCount,
-                            nextUpdate = nextUpdate,
-                            isUserIntervalMode = state.manga.fetchInterval < 0,
-                            onAddToLibraryClicked = onAddToLibraryClicked,
-                            onWebViewClicked = onWebViewClicked,
-                            onWebViewLongClicked = onWebViewLongClicked,
-                            onTrackingClicked = onTrackingClicked,
-                            onEditIntervalClicked = onEditIntervalClicked,
-                            onEditCategory = onEditCategoryClicked,
-                            // SY -->
-                            onMergeClicked = onMergeClicked.takeUnless { state.showMergeInOverflow },
-                            // SY <--
-                            // KMK -->
-                            status = state.manga.status,
-                            interval = state.manga.fetchInterval,
-                            // KMK <--
-                        )
-                        // SY -->
-                        metadataDescription?.invoke(
-                            state,
-                            onMetadataViewerClicked,
-                        ) {
-                            onSearch(it, false)
-                        }
-                        // SY <--
-                        ExpandableMangaDescription(
-                            defaultExpandState = true,
-                            description = state.manga.description,
-                            tagsProvider = { state.manga.genre },
-                            notes = state.manga.notes,
-                            onTagSearch = onTagSearch,
-                            onCopyTagToClipboard = onCopyTagToClipboard,
-                            onEditNotes = onEditNotesClicked,
-                            // SY -->
-                            doSearch = onSearch,
-                            searchMetadataChips = remember(state.meta, state.source.id, state.manga.genre) {
-                                SearchMetadataChips(state.meta, state.source.id, state.manga.genre)
-                            },
-                            // SY <--
-                        )
-                        // SY -->
-                        if (!state.showRecommendationsInOverflow || state.showMergeWithAnother) {
-                            MangaInfoButtons(
-                                showRecommendsButton = !state.showRecommendationsInOverflow,
-                                showMergeWithAnotherButton = state.showMergeWithAnother,
-                                onRecommendClicked = onRecommendClicked,
-                                onMergeWithAnotherClicked = onMergeWithAnotherClicked,
+                            MangaActionRow(
+                                favorite = state.manga.favorite,
+                                trackingCount = state.trackingCount,
+                                nextUpdate = nextUpdate,
+                                isUserIntervalMode = state.manga.fetchInterval < 0,
+                                onAddToLibraryClicked = onAddToLibraryClicked,
+                                onWebViewClicked = onWebViewClicked,
+                                onWebViewLongClicked = onWebViewLongClicked,
+                                onTrackingClicked = onTrackingClicked,
+                                onEditIntervalClicked = onEditIntervalClicked,
+                                onEditCategory = onEditCategoryClicked,
+                                // SY -->
+                                onMergeClicked = onMergeClicked.takeUnless { state.showMergeInOverflow },
+                                // SY <--
+                                // KMK -->
+                                status = state.manga.status,
+                                interval = state.manga.fetchInterval,
+                                // KMK <--
                             )
-                        }
-                        if (state.pagePreviewsState !is PagePreviewState.Unused && previewsRowCount > 0) {
-                            PagePreviews(
-                                pagePreviewState = state.pagePreviewsState,
-                                onOpenPage = onOpenPagePreview,
-                                onMorePreviewsClicked = onMorePreviewsClicked,
-                                rowCount = previewsRowCount,
+                            // SY -->
+                            metadataDescription?.invoke(
+                                state,
+                                onMetadataViewerClicked,
+                            ) {
+                                onSearch(it, false)
+                            }
+                            // SY <--
+                            ExpandableMangaDescription(
+                                defaultExpandState = true,
+                                description = state.manga.description,
+                                tagsProvider = { state.manga.genre },
+                                notes = state.manga.notes,
+                                onTagSearch = onTagSearch,
+                                onCopyTagToClipboard = onCopyTagToClipboard,
+                                onEditNotes = onEditNotesClicked,
+                                // SY -->
+                                doSearch = onSearch,
+                                searchMetadataChips = remember(state.meta, state.source.id, state.manga.genre) {
+                                    SearchMetadataChips(state.meta, state.source.id, state.manga.genre)
+                                },
+                                // SY <--
                             )
+                            // SY -->
+                            if (!state.showRecommendationsInOverflow || state.showMergeWithAnother) {
+                                MangaInfoButtons(
+                                    showRecommendsButton = !state.showRecommendationsInOverflow,
+                                    showMergeWithAnotherButton = state.showMergeWithAnother,
+                                    onRecommendClicked = onRecommendClicked,
+                                    onMergeWithAnotherClicked = onMergeWithAnotherClicked,
+                                )
+                            }
+                            if (state.pagePreviewsState !is PagePreviewState.Unused && previewsRowCount > 0) {
+                                PagePreviews(
+                                    pagePreviewState = state.pagePreviewsState,
+                                    onOpenPage = onOpenPagePreview,
+                                    onMorePreviewsClicked = onMorePreviewsClicked,
+                                    rowCount = previewsRowCount,
+                                )
+                            }
+                            // SY <--
                         }
-                        // SY <--
-                    }
                     }
                 },
                 endContent = {

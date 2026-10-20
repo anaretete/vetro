@@ -1,8 +1,6 @@
 package eu.kanade.presentation.more.settings.screen
 
-import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.Text
-import tachiyomi.presentation.core.components.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +20,8 @@ import kotlinx.coroutines.withContext
 import tachiyomi.core.common.util.lang.launchUI
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.AlertDialog
+import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.i18n.stringResource
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get

@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import tachiyomi.presentation.core.components.material.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,10 +21,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import tachiyomi.presentation.core.components.material.padding
-
-import tachiyomi.presentation.core.components.material.LiquidButton
 import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LiquidButton
+import tachiyomi.presentation.core.components.material.OutlinedButton
+import tachiyomi.presentation.core.components.material.padding
 
 @Composable
 fun OutlinedButtonWithArrow(

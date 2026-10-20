@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material3.Surface
-import tachiyomi.presentation.core.components.material.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -13,6 +12,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
+import tachiyomi.presentation.core.components.material.Switch
 
 @Composable
 fun SwitchPreferenceWidget(
@@ -42,7 +42,11 @@ fun SwitchPreferenceWidget(
                 modifier = Modifier.padding(start = TrailingWidgetBuffer),
             )
         },
-        onPreferenceClick = if (enabled) { { onCheckedChanged(!checked) } } else null,
+        onPreferenceClick = if (enabled) {
+            { onCheckedChanged(!checked) }
+        } else {
+            null
+        },
     )
 }
 

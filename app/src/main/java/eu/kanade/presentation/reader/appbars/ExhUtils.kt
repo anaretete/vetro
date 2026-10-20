@@ -16,12 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Icon
-import tachiyomi.presentation.core.components.material.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import tachiyomi.presentation.core.components.material.Switch
 import androidx.compose.material3.Text
-import tachiyomi.presentation.core.components.material.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -40,6 +37,9 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.IconButton
+import tachiyomi.presentation.core.components.material.Switch
+import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.i18n.stringResource
 
 @Composable

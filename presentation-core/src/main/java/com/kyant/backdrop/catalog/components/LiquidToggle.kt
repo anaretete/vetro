@@ -48,11 +48,17 @@ fun LiquidToggle(
 ) {
     val isLightTheme = !isSystemInDarkTheme()
     val accentColor =
-        if (isLightTheme) Color(0xFF34C759)
-        else Color(0xFF30D158)
+        if (isLightTheme) {
+            Color(0xFF34C759)
+        } else {
+            Color(0xFF30D158)
+        }
     val trackColor =
-        if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f)
-        else Color(0xFF787880).copy(alpha = 0.36f)
+        if (isLightTheme) {
+            Color(0xFF787878).copy(alpha = 0.2f)
+        } else {
+            Color(0xFF787880).copy(alpha = 0.36f)
+        }
 
     val density = LocalDensity.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
@@ -85,8 +91,11 @@ fun LiquidToggle(
                 }
                 val delta = dragAmount.x / dragWidth
                 fraction =
-                    if (isLtr) (fraction + delta).fastCoerceIn(0f, 1f)
-                    else (fraction - delta).fastCoerceIn(0f, 1f)
+                    if (isLtr) {
+                        (fraction + delta).fastCoerceIn(0f, 1f)
+                    } else {
+                        (fraction - delta).fastCoerceIn(0f, 1f)
+                    }
             },
         )
     }
@@ -163,8 +172,11 @@ fun LiquidToggle(
                     val currentFraction = dampedDragAnimation.value
                     val padding = 2f.dp.toPx()
                     translationX =
-                        if (isLtr) lerp(padding, padding + dragWidth, currentFraction)
-                        else lerp(-padding, -(padding + dragWidth), currentFraction)
+                        if (isLtr) {
+                            lerp(padding, padding + dragWidth, currentFraction)
+                        } else {
+                            lerp(-padding, -(padding + dragWidth), currentFraction)
+                        }
                 }
                 .semantics {
                     role = Role.Switch

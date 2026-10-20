@@ -20,24 +20,13 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
-import com.kyant.shapes.Capsule
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.ButtonColors as M3ButtonColors
-import androidx.compose.material3.ButtonDefaults as M3ButtonDefaults
-import androidx.compose.material3.ButtonElevation as M3ButtonElevation
 import androidx.compose.material3.ChipColors
 import androidx.compose.material3.ChipElevation
 import androidx.compose.material3.FilterChipDefaults
@@ -45,6 +34,8 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableChipColors
 import androidx.compose.material3.SelectableChipElevation
@@ -55,18 +46,27 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.kyant.shapes.Capsule
 import tachiyomi.presentation.core.util.animateElevation
 import androidx.compose.material3.AssistChip as M3AssistChip
 import androidx.compose.material3.Button as M3Button
+import androidx.compose.material3.ButtonColors as M3ButtonColors
+import androidx.compose.material3.ButtonDefaults as M3ButtonDefaults
+import androidx.compose.material3.ButtonElevation as M3ButtonElevation
 import androidx.compose.material3.ElevatedButton as M3ElevatedButton
 import androidx.compose.material3.ExtendedFloatingActionButton as M3ExtendedFloatingActionButton
 import androidx.compose.material3.FilledIconButton as M3FilledIconButton
@@ -106,7 +106,9 @@ fun Button(
             disabledContainerColor = primary.copy(alpha = 0.38f),
             disabledContentColor = onPrimary.copy(alpha = 0.38f),
         )
-    } else colors
+    } else {
+        colors
+    }
 
     val pressed by interactionSource.collectIsPressedAsState()
     val pressScale by animateFloatAsState(
@@ -171,7 +173,9 @@ fun ElevatedButton(
             containerColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
             contentColor = if (isDark) Color.White else Color(0xFF1C1C1E),
         )
-    } else colors
+    } else {
+        colors
+    }
 
     M3ElevatedButton(
         onClick = onClick,
@@ -210,7 +214,9 @@ fun FilledTonalButton(
             disabledContainerColor = primary.copy(alpha = 0.08f),
             disabledContentColor = primary.copy(alpha = 0.38f),
         )
-    } else colors
+    } else {
+        colors
+    }
 
     val pressed by interactionSource.collectIsPressedAsState()
     val pressScale by animateFloatAsState(
@@ -221,7 +227,14 @@ fun FilledTonalButton(
 
     M3FilledTonalButton(
         onClick = onClick,
-        modifier = if (isGlass) modifier.graphicsLayer { scaleX = pressScale; scaleY = pressScale } else modifier,
+        modifier = if (isGlass) {
+            modifier.graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
+        } else {
+            modifier
+        },
         enabled = enabled,
         shape = effectiveShape,
         colors = effectiveColors,
@@ -255,10 +268,14 @@ fun OutlinedButton(
             contentColor = primary,
             disabledContentColor = primary.copy(alpha = 0.38f),
         )
-    } else colors
+    } else {
+        colors
+    }
     val effectiveBorder = if (isGlass) {
         BorderStroke(1.dp, primary.copy(alpha = 0.40f))
-    } else border
+    } else {
+        border
+    }
 
     M3OutlinedButton(
         onClick = onClick,
@@ -295,7 +312,9 @@ fun TextButton(
             contentColor = primary,
             disabledContentColor = primary.copy(alpha = 0.38f),
         )
-    } else colors
+    } else {
+        colors
+    }
 
     val baseModifier = if (onLongClick != null) {
         modifier.combinedClickable(
@@ -611,7 +630,9 @@ fun AssistChip(
             containerColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
             labelColor = if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E),
         )
-    } else colors
+    } else {
+        colors
+    }
 
     M3AssistChip(
         onClick = onClick,
@@ -649,7 +670,9 @@ fun SuggestionChip(
             containerColor = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
             labelColor = if (isDark) Color(0xFFEBEBF5) else Color(0xFF1C1C1E),
         )
-    } else colors
+    } else {
+        colors
+    }
 
     M3SuggestionChip(
         onClick = onClick,

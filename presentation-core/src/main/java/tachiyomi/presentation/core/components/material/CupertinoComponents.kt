@@ -491,7 +491,7 @@ fun CupertinoSegmentedControl(
                                             Color(0xFFFF3B30)
                                         } else {
                                             (if (isDark) Color.White else Color.Black).copy(alpha = 0.15f)
-                                        }
+                                        },
                                     )
                                     .padding(horizontal = 4.dp, vertical = 1.dp),
                             ) {
@@ -614,6 +614,163 @@ fun <T> CupertinoGroupedSelectionCard(
 }
 
 /**
+ * Authentic Apple iOS 26 Inset Grouped Table Card for Grouped Settings
+ */
+@Composable
+fun CupertinoGroupedCard(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
+    val cardBg = if (isGlass) {
+        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
+    } else {
+        if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
+    }
+
+    val cardModifier = if (isGlass) {
+        Modifier
+            .fillMaxWidth()
+            .liquidGlassSurface(
+                shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous),
+                blurRadius = 16.dp,
+                refractionHeight = 16.dp,
+                refractionAmount = 24.dp,
+                tintColor = cardBg,
+            )
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
+            .background(cardBg)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+    ) {
+        if (!title.isNullOrEmpty()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                ),
+                modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
+            )
+        }
+        Column(
+            modifier = cardModifier,
+            content = content,
+        )
+    }
+}
+
+/**
+ * Standard iOS Settings Row with Label and Action/Widget
+ */
+@Composable
+fun CupertinoGroupedRow(
+    label: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    onClick: (() -> Unit)? = null,
+    widget: (@Composable () -> Unit)? = null,
+) {
+    val isDark = isSystemInDarkTheme()
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(onClick = onClick)
+                } else {
+                    Modifier
+                },
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = if (isDark) Color.White else Color(0xFF1C1C1E),
+                ),
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 13.sp,
+                        color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                    ),
+                )
+            }
+        }
+        if (widget != null) {
+            widget()
+        }
+    }
+}
+
+/**
+ * Standard iOS Settings Toggle Switch Row powered by LiquidToggle
+ */
+@Composable
+fun CupertinoGroupedToggleRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    subtitle: String? = null,
+) {
+    CupertinoGroupedRow(
+        label = label,
+        modifier = modifier,
+        subtitle = subtitle,
+        onClick = if (enabled) {
+            { onCheckedChange(!checked) }
+        } else {
+            null
+        },
+        widget = {
+            CupertinoSwitch(
+                checked = checked,
+                onCheckedChange = if (enabled) onCheckedChange else null,
+                enabled = enabled,
+            )
+        },
+    )
+}
+
+/**
+ * Inset Divider for Grouped Settings Cards
+ */
+@Composable
+fun CupertinoGroupedDivider(modifier: Modifier = Modifier) {
+    val isDark = isSystemInDarkTheme()
+    HorizontalDivider(
+        modifier = modifier.padding(start = 16.dp),
+        thickness = 0.5.dp,
+        color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.10f),
+    )
+}
+
+/**
  * Authentic Apple iOS 26 Segmented Control Setting Row
  */
 @Composable
@@ -647,50 +804,39 @@ fun CupertinoGroupedSegmentedControl(
     }
 }
 
-/**
- * iOS Horizontal 3-Dot Overflow Icon (•••)
- */
-val Icons.Filled.MoreHoriz: ImageVector
-    get() {
-        if (_moreHoriz != null) {
-            return _moreHoriz!!
+val CupertinoMoreHoriz: ImageVector by lazy {
+    ImageVector.Builder(
+        name = "Filled.MoreHoriz",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f,
+    ).apply {
+        path(fill = SolidColor(Color.Black)) {
+            moveTo(6.0f, 10.0f)
+            curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+            reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
+            reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
+            reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
+            close()
+            moveTo(18.0f, 10.0f)
+            curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+            reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
+            reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
+            reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
+            close()
+            moveTo(12.0f, 10.0f)
+            curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+            reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
+            reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
+            reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
+            close()
         }
-        _moreHoriz = ImageVector.Builder(
-            name = "Filled.MoreHoriz",
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = 24f,
-            viewportHeight = 24f,
-        ).apply {
-            path(fill = SolidColor(Color.Black)) {
-                moveTo(6.0f, 10.0f)
-                curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
-                reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
-                reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
-                reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
-                close()
-                moveTo(18.0f, 10.0f)
-                curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
-                reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
-                reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
-                reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
-                close()
-                moveTo(12.0f, 10.0f)
-                curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
-                reflectiveCurveToRelative(0.9f, 2.0f, 2.0f, 2.0f)
-                reflectiveCurveToRelative(2.0f, -0.9f, 2.0f, -2.0f)
-                reflectiveCurveToRelative(-0.9f, -2.0f, -2.0f, -2.0f)
-                close()
-            }
-        }.build()
-        return _moreHoriz!!
-    }
+    }.build()
+}
+
+val Icons.Filled.MoreHoriz: ImageVector
+    get() = CupertinoMoreHoriz
 
 val Icons.Outlined.MoreHoriz: ImageVector
-    get() = Icons.Filled.MoreHoriz
-
-val CupertinoMoreHoriz: ImageVector
-    get() = Icons.Filled.MoreHoriz
-
-private var _moreHoriz: ImageVector? = null
-
+    get() = CupertinoMoreHoriz

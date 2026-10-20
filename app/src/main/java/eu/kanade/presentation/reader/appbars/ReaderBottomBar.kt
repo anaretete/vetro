@@ -1,5 +1,7 @@
 package eu.kanade.presentation.reader.appbars
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,11 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.kyant.shapes.Capsule
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderBottomButton
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
@@ -37,11 +41,6 @@ import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.ui.draw.shadow
-import com.kyant.shapes.Capsule
 
 @Composable
 fun ReaderBottomBar(

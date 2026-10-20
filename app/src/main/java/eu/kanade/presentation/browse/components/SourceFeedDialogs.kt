@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import tachiyomi.presentation.core.components.material.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import tachiyomi.presentation.core.components.material.OutlinedButton
 import androidx.compose.material3.Text
-import tachiyomi.presentation.core.components.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +27,9 @@ import eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
 import tachiyomi.domain.source.model.FeedSavedSearch
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.AlertDialog
+import tachiyomi.presentation.core.components.material.OutlinedButton
+import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.i18n.stringResource
 
 @Composable

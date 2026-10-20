@@ -30,10 +30,8 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import com.kyant.shapes.Capsule
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import tachiyomi.presentation.core.components.material.MoreHoriz
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -55,12 +53,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import com.kyant.shapes.Capsule
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.MoreHoriz
 import tachiyomi.presentation.core.components.material.TabText
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 
 object TabbedDialogPaddings {
@@ -93,14 +94,22 @@ fun TabbedDialog(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    // Segmented Control Stadium Track
+                    val isDark = isSystemInDarkTheme()
+                    val trackBg = if (isDark) Color(0x332C2C2E) else Color(0x44E5E5EA)
+                    val pillBg = if (isDark) Color(0xBB636366) else Color(0xD0FFFFFF)
+                    val closeBg = if (isDark) Color(0x442C2C2E) else Color(0x55E5E5EA)
+
+                    // Segmented Control Stadium Track with Liquid Glass
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(1f)
                             .height(36.dp)
-                            .clip(Capsule())
-                            .background(
-                                if (isSystemInDarkTheme()) Color(0xFF2C2C2E) else Color(0xFFE5E5EA),
+                            .liquidGlassSurface(
+                                shape = Capsule(),
+                                blurRadius = 14.dp,
+                                refractionHeight = 14.dp,
+                                refractionAmount = 18.dp,
+                                tintColor = trackBg,
                             )
                             .padding(2.dp),
                         contentAlignment = Alignment.CenterStart,
@@ -115,18 +124,23 @@ fun TabbedDialog(
                             label = "SegmentPillOffset",
                         )
 
-                        // Sliding Apple Segmented Pill Indicator
+                        // Sliding Apple Segmented Pill Indicator with Liquid Glass lens
                         Box(
                             modifier = Modifier
                                 .offset(x = indicatorOffset)
                                 .width(segmentWidth)
                                 .fillMaxHeight()
-                                .clip(Capsule())
-                                .background(if (isSystemInDarkTheme()) Color(0xFF636366) else Color.White)
+                                .liquidGlassSurface(
+                                    shape = Capsule(),
+                                    blurRadius = 8.dp,
+                                    refractionHeight = 10.dp,
+                                    refractionAmount = 14.dp,
+                                    tintColor = pillBg,
+                                )
                                 .border(
                                     BorderStroke(
                                         0.5.dp,
-                                        if (isSystemInDarkTheme()) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
+                                        if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
                                     ),
                                     shape = Capsule(),
                                 ),
@@ -166,17 +180,22 @@ fun TabbedDialog(
                         }
                     }
 
-                    // iOS circular close button "X"
+                    // iOS circular close button "X" with Liquid Glass
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .clip(CircleShape)
-                            .background(if (isSystemInDarkTheme()) Color(0xFF2C2C2E) else Color(0xFFE5E5EA))
+                            .liquidGlassSurface(
+                                shape = CircleShape,
+                                blurRadius = 10.dp,
+                                refractionHeight = 12.dp,
+                                refractionAmount = 16.dp,
+                                tintColor = closeBg,
+                            )
                             .border(
                                 BorderStroke(
                                     0.5.dp,
-                                    if (isSystemInDarkTheme()) Color(0xFF5A5A5E).copy(alpha = 0.4f) else Color(0xFFD1D1D6),
+                                    if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.4f) else Color(0xFFD1D1D6),
                                 ),
                                 shape = CircleShape,
                             )
@@ -186,7 +205,7 @@ fun TabbedDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(MR.strings.action_close),
-                            tint = if (isSystemInDarkTheme()) Color(0xFF8E8E93) else Color(0xFF636366),
+                            tint = if (isDark) Color(0xFF8E8E93) else Color(0xFF636366),
                             modifier = Modifier.size(16.dp),
                         )
                     }

@@ -2,9 +2,11 @@ package eu.kanade.presentation.theme
 
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -12,17 +14,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.materialkolor.DynamicMaterialExpressiveTheme
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.materialkolor.DynamicMaterialExpressiveTheme
 import eu.kanade.domain.ui.UiPreferences
-import tachiyomi.presentation.core.components.material.LiquidGlassConfig
-import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
-import tachiyomi.presentation.core.util.collectAsState
 import eu.kanade.domain.ui.model.AppTheme
-import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleAlpineColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleBlueColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleGreenColorScheme
@@ -35,10 +31,11 @@ import eu.kanade.presentation.theme.colorscheme.AppleRedColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleTealColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleTitaniumColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleYellowColorScheme
+import eu.kanade.presentation.theme.colorscheme.BaseColorScheme
 import eu.kanade.presentation.theme.colorscheme.CatppuccinColorScheme
-import eu.kanade.presentation.theme.colorscheme.CupertinoColorScheme
 import eu.kanade.presentation.theme.colorscheme.CloudflareColorScheme
 import eu.kanade.presentation.theme.colorscheme.CottoncandyColorScheme
+import eu.kanade.presentation.theme.colorscheme.CupertinoColorScheme
 import eu.kanade.presentation.theme.colorscheme.CustomColorScheme
 import eu.kanade.presentation.theme.colorscheme.DoomColorScheme
 import eu.kanade.presentation.theme.colorscheme.GreenAppleColorScheme
@@ -57,6 +54,9 @@ import eu.kanade.presentation.theme.colorscheme.TealTurqoiseColorScheme
 import eu.kanade.presentation.theme.colorscheme.TidalWaveColorScheme
 import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
 import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
+import tachiyomi.presentation.core.components.material.LiquidGlassConfig
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 

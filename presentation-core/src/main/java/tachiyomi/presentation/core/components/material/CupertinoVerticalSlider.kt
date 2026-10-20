@@ -68,11 +68,17 @@ fun CupertinoVerticalSlider(
         drawRect(baseColor)
     }
     val accentColor =
-        if (isLightTheme) Color(0xFF007AFF)
-        else Color(0xFF0A84FF)
+        if (isLightTheme) {
+            Color(0xFF007AFF)
+        } else {
+            Color(0xFF0A84FF)
+        }
     val trackColor =
-        if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f)
-        else Color(0xFF787880).copy(alpha = 0.36f)
+        if (isLightTheme) {
+            Color(0xFF787878).copy(alpha = 0.2f)
+        } else {
+            Color(0xFF787880).copy(alpha = 0.36f)
+        }
 
     val trackBackdrop = rememberLayerBackdrop()
     val density = LocalDensity.current
@@ -127,7 +133,9 @@ fun CupertinoVerticalSlider(
         val updateFromY: (Float) -> Unit = { posY ->
             val fraction = if (maxTravel > 0f) {
                 ((posY - thumbHeightPx / 2f) / maxTravel).coerceIn(0f, 1f)
-            } else 0f
+            } else {
+                0f
+            }
             val targetValue = if (!invertDirection) {
                 valueRange.start + fraction * (valueRange.endInclusive - valueRange.start)
             } else {

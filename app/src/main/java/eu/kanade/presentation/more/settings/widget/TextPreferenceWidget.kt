@@ -2,7 +2,9 @@ package eu.kanade.presentation.more.settings.widget
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,14 +20,11 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
-import tachiyomi.presentation.core.util.secondaryItemAlpha
-
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.util.secondaryItemAlpha
 
 @Composable
 fun TextPreferenceWidget(
@@ -103,14 +102,14 @@ fun TextPreferenceWidget(
                         tint = iconTint,
                         contentDescription = null,
                     )
-                // KMK -->
+                    // KMK -->
                 } else if (icon is Painter) {
                     Icon(
                         painter = icon,
                         tint = iconTint,
                         contentDescription = null,
                     )
-                // KMK <--
+                    // KMK <--
                 }
             }
         } else {

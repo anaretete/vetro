@@ -6,12 +6,14 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.LayerBackdrop
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.catalog.utils.InteractiveHighlight
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -34,10 +37,7 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
-import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.kyant.shapes.RoundedRectangularShape
-import com.kyant.backdrop.catalog.utils.InteractiveHighlight
 
 @Immutable
 data class LiquidGlassConfig(
@@ -129,8 +129,11 @@ fun Modifier.liquidGlassSurface(
     val baseTint = if (tintColor.isSpecified && tintColor != Color.Transparent) {
         tintColor.copy(alpha = effectiveTintAlpha)
     } else {
-        if (isDark) Color.White.copy(alpha = (0.12f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
-        else Color.White.copy(alpha = (0.35f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+        if (isDark) {
+            Color.White.copy(alpha = (0.12f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+        } else {
+            Color.White.copy(alpha = (0.35f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+        }
     }
 
     val backdropModifier = Modifier.drawBackdrop(
