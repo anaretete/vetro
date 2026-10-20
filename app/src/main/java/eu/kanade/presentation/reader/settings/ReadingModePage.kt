@@ -440,16 +440,32 @@ private fun WebtoonViewerSettings(
     // KMK <--
 
     val webtoonSidePadding by screenModel.preferences.webtoonSidePadding().collectAsState()
-    SliderItem(
-        value = webtoonSidePadding,
-        valueRange = ReaderPreferences.let { it.WEBTOON_PADDING_MIN..it.WEBTOON_PADDING_MAX },
-        label = stringResource(MR.strings.pref_webtoon_side_padding),
-        valueString = numberFormat.format(webtoonSidePadding / 100f),
-        onChange = {
-            screenModel.preferences.webtoonSidePadding().set(it)
-        },
-        pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-    )
+    if (isGlass) {
+        CupertinoGroupedCard {
+            SliderItem(
+                value = webtoonSidePadding,
+                valueRange = ReaderPreferences.let { it.WEBTOON_PADDING_MIN..it.WEBTOON_PADDING_MAX },
+                label = stringResource(MR.strings.pref_webtoon_side_padding),
+                valueString = numberFormat.format(webtoonSidePadding / 100f),
+                onChange = {
+                    screenModel.preferences.webtoonSidePadding().set(it)
+                },
+                pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            )
+        }
+    } else {
+        SliderItem(
+            value = webtoonSidePadding,
+            valueRange = ReaderPreferences.let { it.WEBTOON_PADDING_MIN..it.WEBTOON_PADDING_MAX },
+            label = stringResource(MR.strings.pref_webtoon_side_padding),
+            valueString = numberFormat.format(webtoonSidePadding / 100f),
+            onChange = {
+                screenModel.preferences.webtoonSidePadding().set(it)
+            },
+            pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        )
+    }
 
     if (isGlass) {
         val smallerTapZone by screenModel.preferences.smallerTapZone().collectAsState()
