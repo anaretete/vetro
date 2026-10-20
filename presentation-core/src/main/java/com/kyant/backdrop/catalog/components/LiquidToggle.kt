@@ -1,199 +1,215 @@
 package com.kyant.backdrop.catalog.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.catalog.utils.DampedDragAnimation
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
+import kotlinx.coroutines.flow.collectLatest
 
-/**
- * Authentic Apple iOS Cupertino Liquid Toggle Switch (UISwitch standard).
- *
- * Dimensions: 51dp x 31dp stadium capsule pill.
- * Active state: Vibrant Apple Emerald Green (Dark: #30D158 / Light: #34C759).
- * Inactive state: Translucent Apple Gray (Dark: #39393D / Light: #E9E9EB).
- * Thumb: 27dp circular pure white disc with subtle drop shadow and liquid glass refraction.
- */
 @Composable
 fun LiquidToggle(
     selected: () -> Boolean,
     onSelect: (Boolean) -> Unit,
-    backdrop: Backdrop? = null,
+    backdrop: Backdrop,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
 ) {
-    val isDark = isSystemInDarkTheme()
-    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val isLightTheme = !isSystemInDarkTheme()
+    val accentColor =
+        if (isLightTheme) {
+            Color(0xFF34C759)
+        } else {
+            Color(0xFF30D158)
+        }
+    val trackColor =
+        if (isLightTheme) {
+            Color(0xFF787878).copy(0.2f)
+        } else {
+            Color(0xFF787880).copy(0.36f)
+        }
+
     val density = LocalDensity.current
-    val haptic = LocalHapticFeedback.current
-
-    val currentSelected = selected()
-    val currentOnSelect by rememberUpdatedState(onSelect)
-
-    val activeColor = if (isDark) Color(0xFF30D158) else Color(0xFF34C759)
-    val inactiveColor = if (isDark) Color(0xFF39393D) else Color(0xFFE9E9EB)
-
-    val trackColor by animateColorAsState(
-        targetValue = if (currentSelected) activeColor else inactiveColor,
-        animationSpec = spring(stiffness = 500f),
-        label = "LiquidToggleTrackColor",
-    )
-
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    var isDragging by remember { mutableStateOf(false) }
-
-    // Standard iOS dimensions
-    val switchWidthDp = 51.dp
-    val switchHeightDp = 31.dp
-    val thumbBaseSizeDp = 27.dp
-    val paddingDp = 2.dp
-
-    // Subtle Apple thumb stretch when pressed or dragging
-    val thumbWidthDp by animateDpAsState(
-        targetValue = if (isPressed || isDragging) 31.dp else thumbBaseSizeDp,
-        animationSpec = spring(dampingRatio = 0.8f, stiffness = 600f),
-        label = "LiquidToggleThumbWidth",
-    )
-
-    val minOffsetDp = paddingDp
-    val maxOffsetDp = switchWidthDp - thumbWidthDp - paddingDp
-    val travelDistanceDp = switchWidthDp - thumbBaseSizeDp - (paddingDp * 2)
-
-    val baseTargetOffsetDp = if (currentSelected) 22.dp else minOffsetDp
-    val animatedBaseOffsetDp by animateDpAsState(
-        targetValue = baseTargetOffsetDp,
-        animationSpec = spring(dampingRatio = 0.82f, stiffness = 500f),
-        label = "LiquidToggleThumbOffset",
-    )
-
-    var dragOffsetPx by remember { mutableFloatStateOf(0f) }
-    val maxDragPx = with(density) { travelDistanceDp.toPx() }
-
-    val draggableState = rememberDraggableState { delta ->
-        val adjustedDelta = if (isLtr) delta else -delta
-        dragOffsetPx = (dragOffsetPx + adjustedDelta).coerceIn(
-            if (currentSelected) -maxDragPx else 0f,
-            if (currentSelected) 0f else maxDragPx,
+    val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val dragWidth = with(density) { 20f.dp.toPx() }
+    val animationScope = rememberCoroutineScope()
+    var didDrag by remember { mutableStateOf(false) }
+    var fraction by remember { mutableFloatStateOf(if (selected()) 1f else 0f) }
+    val dampedDragAnimation = remember(animationScope) {
+        DampedDragAnimation(
+            animationScope = animationScope,
+            initialValue = fraction,
+            valueRange = 0f..1f,
+            visibilityThreshold = 0.001f,
+            initialScale = 1f,
+            pressedScale = 1.5f,
+            onDragStarted = {},
+            onDragStopped = {
+                if (didDrag) {
+                    fraction = if (targetValue >= 0.5f) 1f else 0f
+                    onSelect(fraction == 1f)
+                    didDrag = false
+                } else {
+                    fraction = if (selected()) 0f else 1f
+                    onSelect(fraction == 1f)
+                }
+            },
+            onDrag = { _, dragAmount ->
+                if (!didDrag) {
+                    didDrag = dragAmount.x != 0f
+                }
+                val delta = dragAmount.x / dragWidth
+                fraction =
+                    if (isLtr) {
+                        (fraction + delta).fastCoerceIn(0f, 1f)
+                    } else {
+                        (fraction - delta).fastCoerceIn(0f, 1f)
+                    }
+            },
         )
     }
+    LaunchedEffect(dampedDragAnimation) {
+        snapshotFlow { fraction }
+            .collectLatest { fraction ->
+                dampedDragAnimation.updateValue(fraction)
+            }
+    }
+    LaunchedEffect(selected) {
+        snapshotFlow { selected() }
+            .collectLatest { isSelected ->
+                val target = if (isSelected) 1f else 0f
+                if (target != fraction) {
+                    fraction = target
+                    dampedDragAnimation.animateToValue(target)
+                }
+            }
+    }
 
-    val dragOffsetDp = with(density) { dragOffsetPx.toDp() }
-    val effectiveOffsetDp = (if (isDragging) (if (currentSelected) 22.dp else minOffsetDp) + dragOffsetDp else animatedBaseOffsetDp)
-        .coerceIn(minOffsetDp, maxOffsetDp)
+    val trackBackdrop = rememberLayerBackdrop()
 
     Box(
-        modifier = modifier
-            .size(width = switchWidthDp, height = switchHeightDp)
-            .semantics { role = Role.Switch }
-            .clip(Capsule())
-            .background(trackColor)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = {
-                    val next = !currentSelected
-                    currentOnSelect(next)
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                },
-            )
-            .draggable(
-                state = draggableState,
-                orientation = Orientation.Horizontal,
-                enabled = enabled,
-                onDragStarted = { isDragging = true },
-                onDragStopped = {
-                    val shouldToggle = if (currentSelected) {
-                        dragOffsetPx < -maxDragPx / 2
-                    } else {
-                        dragOffsetPx > maxDragPx / 2
-                    }
-                    if (shouldToggle) {
-                        currentOnSelect(!currentSelected)
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    }
-                    dragOffsetPx = 0f
-                    isDragging = false
-                },
-            ),
+        modifier,
         contentAlignment = Alignment.CenterStart,
     ) {
-        val thumbModifier = Modifier
-            .offset {
-                IntOffset(
-                    x = with(density) {
-                        if (isLtr) effectiveOffsetDp.roundToPx() else -effectiveOffsetDp.roundToPx()
-                    },
-                    y = 0,
-                )
-            }
-            .shadow(
-                elevation = 2.dp,
-                shape = Capsule(),
-                ambientColor = Color.Black.copy(alpha = 0.14f),
-                spotColor = Color.Black.copy(alpha = 0.22f),
-            )
-            .size(width = thumbWidthDp, height = thumbBaseSizeDp)
-            .clip(Capsule())
+        Box(
+            Modifier
+                .layerBackdrop(trackBackdrop)
+                .clip(Capsule())
+                .drawBehind {
+                    val fraction = dampedDragAnimation.value
+                    drawRect(lerp(trackColor, accentColor, fraction))
+                }
+                .size(64f.dp, 28f.dp),
+        )
 
-        if (backdrop != null) {
-            Box(
-                thumbModifier
-                    .drawBackdrop(
-                        backdrop = backdrop,
-                        shape = { Capsule() },
-                        effects = {
-                            blur(4f.dp.toPx())
-                            lens(3f.dp.toPx(), 6f.dp.toPx(), chromaticAberration = true)
+        Box(
+            Modifier
+                .graphicsLayer {
+                    val fraction = dampedDragAnimation.value
+                    val padding = 2f.dp.toPx()
+                    translationX =
+                        if (isLtr) {
+                            lerp(padding, padding + dragWidth, fraction)
+                        } else {
+                            lerp(-padding, -(padding + dragWidth), fraction)
+                        }
+                }
+                .semantics {
+                    role = Role.Switch
+                }
+                .then(dampedDragAnimation.modifier)
+                .drawBackdrop(
+                    backdrop = rememberCombinedBackdrop(
+                        backdrop,
+                        rememberBackdrop(trackBackdrop) { drawBackdrop ->
+                            val progress = dampedDragAnimation.pressProgress
+                            val scaleX = lerp(2f / 3f, 0.75f, progress)
+                            val scaleY = lerp(0f, 0.75f, progress)
+                            scale(scaleX, scaleY) {
+                                drawBackdrop()
+                            }
                         },
-                        highlight = { Highlight.Ambient.copy(alpha = 0.45f) },
-                        shadow = { Shadow(radius = 2f.dp, color = Color.Black.copy(0.12f)) },
-                        onDrawSurface = { drawRect(Color.White.copy(alpha = 0.90f)) },
                     ),
-            )
-        } else {
-            Box(
-                thumbModifier.background(Color.White),
-            )
-        }
+                    shape = { Capsule() },
+                    effects = {
+                        val progress = dampedDragAnimation.pressProgress
+                        blur(8f.dp.toPx() * (1f - progress))
+                        lens(
+                            5f.dp.toPx() * progress,
+                            10f.dp.toPx() * progress,
+                            chromaticAberration = true,
+                        )
+                    },
+                    highlight = {
+                        val progress = dampedDragAnimation.pressProgress
+                        Highlight.Ambient.copy(
+                            width = Highlight.Ambient.width / 1.5f,
+                            blurRadius = Highlight.Ambient.blurRadius / 1.5f,
+                            alpha = progress,
+                        )
+                    },
+                    shadow = {
+                        Shadow(
+                            radius = 4f.dp,
+                            color = Color.Black.copy(alpha = 0.05f),
+                        )
+                    },
+                    innerShadow = {
+                        val progress = dampedDragAnimation.pressProgress
+                        InnerShadow(
+                            radius = 4f.dp * progress,
+                            alpha = progress,
+                        )
+                    },
+                    layerBlock = {
+                        scaleX = dampedDragAnimation.scaleX
+                        scaleY = dampedDragAnimation.scaleY
+                        val velocity = dampedDragAnimation.velocity / 50f
+                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                    },
+                    onDrawSurface = {
+                        val progress = dampedDragAnimation.pressProgress
+                        drawRect(Color.White.copy(alpha = 1f - progress))
+                    },
+                )
+                .size(40f.dp, 24f.dp),
+        )
     }
 }
