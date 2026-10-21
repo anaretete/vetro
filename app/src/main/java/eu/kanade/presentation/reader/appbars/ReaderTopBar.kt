@@ -66,7 +66,7 @@ fun ReaderTopBar(
     val isDark = isSystemInDarkTheme()
 
     if (isGlass) {
-        val pillBgColor = if (isDark) Color(0xCC18181A) else Color(0xEEFFFFFF)
+        val glassTintColor = if (isDark) Color(0x3318181A) else Color(0x33FFFFFF)
         val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
         var showOverflow by remember { mutableStateOf(false) }
         val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
@@ -85,7 +85,7 @@ fun ReaderTopBar(
                         blurRadius = 14.dp,
                         refractionHeight = 16.dp,
                         refractionAmount = 22.dp,
-                        tintColor = pillBgColor,
+                        tintColor = glassTintColor,
                     )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -115,7 +115,7 @@ fun ReaderTopBar(
                             blurRadius = 16.dp,
                             refractionHeight = 16.dp,
                             refractionAmount = 24.dp,
-                            tintColor = pillBgColor,
+                            tintColor = glassTintColor,
                         )
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                         .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
@@ -160,7 +160,7 @@ fun ReaderTopBar(
                             blurRadius = 14.dp,
                             refractionHeight = 16.dp,
                             refractionAmount = 22.dp,
-                            tintColor = pillBgColor,
+                            tintColor = glassTintColor,
                         )
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -188,7 +188,7 @@ fun ReaderTopBar(
                                     blurRadius = 14.dp,
                                     refractionHeight = 16.dp,
                                     refractionAmount = 22.dp,
-                                    tintColor = pillBgColor,
+                                    tintColor = glassTintColor,
                                 )
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },

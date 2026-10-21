@@ -70,36 +70,17 @@ private fun DialogContent(
         }.takeIf { orientation != ReaderOrientation.DEFAULT },
         onApply = { onChangeOrientation(selected) },
     ) {
-        if (isGlass) {
-            val isDark = isSystemInDarkTheme()
-            CupertinoGroupedSelectionCard(
-                title = stringResource(MR.strings.rotation_type),
-                options = ReaderOrientationsWithoutDefault,
-                selected = selected,
-                onSelect = { selected = it },
-                labelProvider = { stringResource(it.stringRes) },
-                iconProvider = { mode ->
-                    Icon(
-                        imageVector = mode.icon,
-                        contentDescription = null,
-                        tint = if (mode == selected) Color(0xFFFF9F0A) else (if (isDark) Color.White else Color(0xFF1C1C1E)),
-                        modifier = Modifier.size(24.dp),
-                    )
-                },
-            )
-        } else {
-            SettingsIconGrid(MR.strings.rotation_type) {
-                items(ReaderOrientationsWithoutDefault) { mode ->
-                    IconToggleButton(
-                        checked = mode == selected,
-                        onCheckedChange = {
-                            selected = mode
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        imageVector = mode.icon,
-                        title = stringResource(mode.stringRes),
-                    )
-                }
+        SettingsIconGrid(MR.strings.rotation_type) {
+            items(ReaderOrientationsWithoutDefault) { mode ->
+                IconToggleButton(
+                    checked = mode == selected,
+                    onCheckedChange = {
+                        selected = mode
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    imageVector = mode.icon,
+                    title = stringResource(mode.stringRes),
+                )
             }
         }
     }

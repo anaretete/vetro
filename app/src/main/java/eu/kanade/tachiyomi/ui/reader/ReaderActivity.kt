@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -342,9 +343,17 @@ class ReaderActivity : BaseActivity() {
             }
 
             val isDark = isSystemInDarkTheme()
+            val currentBinding = binding
             val readerBackdrop = rememberCanvasBackdrop {
-                val baseColor = if (isDark) ComposeColor(0xFF16161A).copy(alpha = 0.85f) else ComposeColor(0xFFF2F2F6).copy(alpha = 0.88f)
+                val baseColor = if (isDark) ComposeColor(0xFF16161A) else ComposeColor(0xFFF2F2F6)
                 drawRect(baseColor)
+                try {
+                    val nativeCanvas = drawContext.canvas.nativeCanvas
+                    if (currentBinding.viewerContainer.width > 0 && currentBinding.viewerContainer.height > 0) {
+                        currentBinding.viewerContainer.draw(nativeCanvas)
+                    }
+                } catch (_: Throwable) {
+                }
             }
 
             Box(

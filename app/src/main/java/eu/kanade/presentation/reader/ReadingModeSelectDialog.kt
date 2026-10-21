@@ -68,36 +68,17 @@ private fun DialogContent(
         onUseDefault = { onChangeReadingMode(ReadingMode.DEFAULT) }.takeIf { readingMode != ReadingMode.DEFAULT },
         onApply = { onChangeReadingMode(selected) },
     ) {
-        if (isGlass) {
-            val isDark = isSystemInDarkTheme()
-            CupertinoGroupedSelectionCard(
-                title = stringResource(MR.strings.pref_category_reading_mode),
-                options = ReadingModesWithoutDefault,
-                selected = selected,
-                onSelect = { selected = it },
-                labelProvider = { stringResource(it.stringRes) },
-                iconProvider = { mode ->
-                    Icon(
-                        imageVector = ImageVector.vectorResource(mode.iconRes),
-                        contentDescription = null,
-                        tint = if (mode == selected) Color(0xFF0A84FF) else (if (isDark) Color.White else Color(0xFF1C1C1E)),
-                        modifier = Modifier.size(24.dp),
-                    )
-                },
-            )
-        } else {
-            SettingsIconGrid(MR.strings.pref_category_reading_mode) {
-                items(ReadingModesWithoutDefault) { mode ->
-                    IconToggleButton(
-                        checked = mode == selected,
-                        onCheckedChange = {
-                            selected = mode
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        imageVector = ImageVector.vectorResource(mode.iconRes),
-                        title = stringResource(mode.stringRes),
-                    )
-                }
+        SettingsIconGrid(MR.strings.pref_category_reading_mode) {
+            items(ReadingModesWithoutDefault) { mode ->
+                IconToggleButton(
+                    checked = mode == selected,
+                    onCheckedChange = {
+                        selected = mode
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    imageVector = ImageVector.vectorResource(mode.iconRes),
+                    title = stringResource(mode.stringRes),
+                )
             }
         }
     }

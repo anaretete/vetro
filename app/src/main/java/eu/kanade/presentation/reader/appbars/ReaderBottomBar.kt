@@ -69,14 +69,14 @@ fun ReaderBottomBar(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val containerBg = if (isDark) Color(0xCC18181A) else Color(0xEEFFFFFF)
+    val containerBg = if (isDark) Color(0x3318181A) else Color(0x33FFFFFF)
     val containerBorder = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
 
     val effectiveModifier = if (isGlass) {
         modifier
             .liquidGlassSurface(
                 shape = Capsule(),
-                blurRadius = 20.dp,
+                blurRadius = 18.dp,
                 refractionHeight = 20.dp,
                 refractionAmount = 28.dp,
                 tintColor = containerBg,
