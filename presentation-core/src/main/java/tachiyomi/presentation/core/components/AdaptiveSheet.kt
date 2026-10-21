@@ -74,15 +74,11 @@ fun AdaptiveSheet(
     val scope = rememberCoroutineScope()
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val sheetBg = if (isDark) Color(0xFF16161A).copy(alpha = 0.85f) else Color(0xFFF2F2F6).copy(alpha = 0.88f)
-    val sheetBackdrop = rememberCanvasBackdrop {
-        val baseColor = if (isDark) Color(0xFF121214) else Color(0xFFEBEBF0)
-        val highlight = if (isDark) Color(0xFF28282C) else Color(0xFFFFFFFF)
-        drawRect(
-            androidx.compose.ui.graphics.Brush.verticalGradient(
-                listOf(highlight.copy(alpha = 0.90f), baseColor.copy(alpha = 0.85f)),
-            ),
-        )
+    val existingBackdrop = LocalLayerBackdrop.current
+    val sheetBg = if (isDark) Color(0x3316161A) else Color(0x33F2F2F6)
+    val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
+        val baseColor = if (isDark) Color(0x33121214) else Color(0x33EBEBF0)
+        drawRect(baseColor)
     }
 
     if (isTabletUi) {

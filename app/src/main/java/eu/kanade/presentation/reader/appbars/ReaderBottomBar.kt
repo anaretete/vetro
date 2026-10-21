@@ -69,7 +69,7 @@ fun ReaderBottomBar(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val containerBg = if (isDark) Color(0x3318181A) else Color(0x33FFFFFF)
+    val containerBg = if (isDark) Color(0x1418181A) else Color(0x14FFFFFF)
     val containerBorder = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
 
     val effectiveModifier = if (isGlass) {

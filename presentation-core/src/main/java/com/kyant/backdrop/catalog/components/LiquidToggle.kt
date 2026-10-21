@@ -1,6 +1,5 @@
 package com.kyant.backdrop.catalog.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -125,30 +124,20 @@ fun LiquidToggle(
     val trackBackdrop = rememberLayerBackdrop()
 
     Box(
-        modifier = modifier
-            .clickable(
-                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                indication = null,
-            ) {
-                val next = !selected()
-                fraction = if (next) 1f else 0f
-                onSelect(next)
-            },
+        modifier,
         contentAlignment = Alignment.CenterStart,
     ) {
-        // Inner smaller track pill that transitions to Emerald Green
         Box(
-            modifier = Modifier
+            Modifier
                 .layerBackdrop(trackBackdrop)
                 .clip(Capsule())
                 .drawBehind {
                     val fraction = dampedDragAnimation.value
                     drawRect(lerp(trackColor, accentColor, fraction))
                 }
-                .size(51.dp, 31.dp),
+                .size(64f.dp, 28f.dp),
         )
 
-        // Glass Thumb: 27dp circular optical glass lens
         Box(
             Modifier
                 .graphicsLayer {
@@ -170,8 +159,8 @@ fun LiquidToggle(
                         backdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
-                            val scaleX = lerp(0.85f, 1f, progress)
-                            val scaleY = lerp(0.85f, 1f, progress)
+                            val scaleX = lerp(2f / 3f, 0.75f, progress)
+                            val scaleY = lerp(0f, 0.75f, progress)
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
                             }
@@ -180,9 +169,9 @@ fun LiquidToggle(
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        blur(6f.dp.toPx() * (1f - progress))
+                        blur(8f.dp.toPx() * (1f - progress))
                         lens(
-                            6f.dp.toPx() * progress,
+                            5f.dp.toPx() * progress,
                             10f.dp.toPx() * progress,
                             chromaticAberration = true,
                         )
@@ -192,19 +181,19 @@ fun LiquidToggle(
                         Highlight.Ambient.copy(
                             width = Highlight.Ambient.width / 1.5f,
                             blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = 0.4f + 0.6f * progress,
+                            alpha = progress,
                         )
                     },
                     shadow = {
                         Shadow(
-                            radius = 3.dp,
-                            color = Color.Black.copy(alpha = 0.15f),
+                            radius = 4f.dp,
+                            color = Color.Black.copy(alpha = 0.05f),
                         )
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
                         InnerShadow(
-                            radius = 3.dp * progress,
+                            radius = 4f.dp * progress,
                             alpha = progress,
                         )
                     },
@@ -217,10 +206,10 @@ fun LiquidToggle(
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress * 0.2f))
+                        drawRect(Color.White.copy(alpha = 1f - progress))
                     },
                 )
-                .size(27.dp, 27.dp),
+                .size(40f.dp, 24f.dp),
         )
     }
 }

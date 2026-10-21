@@ -118,7 +118,7 @@ fun ChapterNavigator(
     }
     val textColor = MaterialTheme.colorScheme.onSurface
 
-    val pillBgColor = if (isDark) Color(0x3318181A) else Color(0x33FFFFFF)
+    val pillBgColor = if (isDark) Color(0x1418181A) else Color(0x14FFFFFF)
     val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
 
     // We explicitly handle direction based on the reader viewer rather than the system direction

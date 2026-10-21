@@ -87,7 +87,7 @@ fun TabbedDialog(
 
         Column(modifier = Modifier.fillMaxWidth()) {
             if (isGlass) {
-                // iOS 26 Segmented Control Header with circular 'X' close button
+                // iOS Segmented Control Header with circular 'X' close button (NO liquid glass)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -95,22 +95,17 @@ fun TabbedDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val isDark = isSystemInDarkTheme()
-                    val trackBg = if (isDark) Color(0x332C2C2E) else Color(0x44E5E5EA)
-                    val pillBg = if (isDark) Color(0xBB636366) else Color(0xD0FFFFFF)
-                    val closeBg = if (isDark) Color(0x442C2C2E) else Color(0x55E5E5EA)
+                    val trackBg = if (isDark) Color(0x33767680) else Color(0x1F767680)
+                    val pillBg = if (isDark) Color(0xFF636366) else Color.White
+                    val closeBg = if (isDark) Color(0x33767680) else Color(0x1F767680)
 
-                    // Segmented Control Stadium Track with Liquid Glass
+                    // Clean Segmented Control Stadium Track (NO liquid glass)
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(1f)
                             .height(36.dp)
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 14.dp,
-                                refractionHeight = 14.dp,
-                                refractionAmount = 18.dp,
-                                tintColor = trackBg,
-                            )
+                            .clip(Capsule())
+                            .background(trackBg)
                             .padding(2.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
@@ -118,32 +113,21 @@ fun TabbedDialog(
                         val indicatorOffset by animateDpAsState(
                             targetValue = segmentWidth * pagerState.currentPage,
                             animationSpec = spring(
-                                dampingRatio = 0.76f,
+                                dampingRatio = 0.85f,
                                 stiffness = Spring.StiffnessMediumLow,
                             ),
                             label = "SegmentPillOffset",
                         )
 
-                        // Sliding Apple Segmented Pill Indicator with Liquid Glass lens
+                        // Sliding Apple Segmented Pill Indicator (NO liquid glass)
                         Box(
                             modifier = Modifier
                                 .offset(x = indicatorOffset)
                                 .width(segmentWidth)
                                 .fillMaxHeight()
-                                .liquidGlassSurface(
-                                    shape = Capsule(),
-                                    blurRadius = 8.dp,
-                                    refractionHeight = 10.dp,
-                                    refractionAmount = 14.dp,
-                                    tintColor = pillBg,
-                                )
-                                .border(
-                                    BorderStroke(
-                                        0.5.dp,
-                                        if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
-                                    ),
-                                    shape = Capsule(),
-                                ),
+                                .shadow(elevation = 2.dp, shape = Capsule())
+                                .clip(Capsule())
+                                .background(pillBg),
                         )
 
                         // Segment Text Buttons
@@ -169,9 +153,9 @@ fun TabbedDialog(
                                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                         ),
                                         color = if (isSelected) {
-                                            Color.White
+                                            if (isDark) Color.White else Color.Black
                                         } else {
-                                            Color(0xFF8E8E93)
+                                            if (isDark) Color(0xFF8E8E93) else Color(0xFF636366)
                                         },
                                         maxLines = 1,
                                     )
@@ -180,25 +164,13 @@ fun TabbedDialog(
                         }
                     }
 
-                    // iOS circular close button "X" with Liquid Glass
+                    // iOS circular close button "X" (NO liquid glass)
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .liquidGlassSurface(
-                                shape = CircleShape,
-                                blurRadius = 10.dp,
-                                refractionHeight = 12.dp,
-                                refractionAmount = 16.dp,
-                                tintColor = closeBg,
-                            )
-                            .border(
-                                BorderStroke(
-                                    0.5.dp,
-                                    if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.4f) else Color(0xFFD1D1D6),
-                                ),
-                                shape = CircleShape,
-                            )
+                            .clip(CircleShape)
+                            .background(closeBg)
                             .clickable(onClick = onDismissRequest),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -241,6 +213,7 @@ fun TabbedDialog(
                     .weight(1f, fill = false)
                     .animateContentSize(),
                 state = pagerState,
+                userScrollEnabled = false,
                 verticalAlignment = Alignment.Top,
                 pageContent = { page -> content(page) },
             )
