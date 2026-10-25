@@ -237,8 +237,8 @@ fun CupertinoVerticalSlider(
                         activeBackdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
-                            val scaleX = lerp(0f, 1f, progress)
-                            val scaleY = lerp(2f / 3f, 1f, progress)
+                            val scaleX = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
+                            val scaleY = lerp(2f / 3f, 1f, progress).coerceAtLeast(0.001f)
                             scale(scaleX, scaleY) {
                                 drawBackdrop()
                             }
@@ -248,11 +248,13 @@ fun CupertinoVerticalSlider(
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
                         blur(8f.dp.toPx() * (1f - progress))
-                        lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
-                            chromaticAberration = true,
-                        )
+                        if (progress > 0.001f) {
+                            lens(
+                                (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                chromaticAberration = true,
+                            )
+                        }
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress

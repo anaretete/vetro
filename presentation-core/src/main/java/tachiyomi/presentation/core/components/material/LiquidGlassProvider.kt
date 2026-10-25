@@ -85,6 +85,7 @@ fun Modifier.liquidGlassSurface(
     refractionAmount: Dp = 22.dp,
     tintColor: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
+    backdrop: Backdrop? = null,
     exportedBackdrop: LayerBackdrop? = null,
     isInteractive: Boolean = false,
 ): Modifier = composed {
@@ -119,9 +120,14 @@ fun Modifier.liquidGlassSurface(
 
     val safeShape = remember(shape) { sanitizeLensShape(shape) }
 
-    val activeBackdrop = LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
-        val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
-        drawRect(baseColor)
+    val candidateBackdrop = backdrop ?: LocalLayerBackdrop.current
+    val activeBackdrop = if (candidateBackdrop != null && candidateBackdrop !== exportedBackdrop) {
+        candidateBackdrop
+    } else {
+        rememberCanvasBackdrop {
+            val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
+            drawRect(baseColor)
+        }
     }
 
     val defaultAlpha = if (isDark) 0.22f else 0.28f

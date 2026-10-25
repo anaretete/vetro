@@ -114,6 +114,7 @@ fun AdaptiveSheet(
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
+                    backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
                 )
                 .then(modifier)
@@ -142,22 +143,22 @@ fun AdaptiveSheet(
                 .alpha(alpha),
             contentAlignment = Alignment.Center,
         ) {
-            CompositionLocalProvider(
-                LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
-            ) {
-                Surface(
-                    modifier = tabletModifier,
-                    shape = tabletShape,
-                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                    content = {
+            Surface(
+                modifier = tabletModifier,
+                shape = tabletShape,
+                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                content = {
+                    CompositionLocalProvider(
+                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+                    ) {
                         BackHandler(
                             enabled = remember { derivedStateOf { alpha > 0f } }.value,
                             onBack = internalOnDismissRequest,
                         )
                         content()
-                    },
-                )
-            }
+                    }
+                },
+            )
         }
 
         LaunchedEffect(Unit) {
@@ -265,20 +266,21 @@ fun AdaptiveSheet(
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
+                    backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
                 )
             } else {
                 phoneBaseModifier
             }
 
-            CompositionLocalProvider(
-                LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
-            ) {
-                Surface(
-                    modifier = phoneModifier,
-                    shape = bottomSheetShape,
-                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                    content = {
+            Surface(
+                modifier = phoneModifier,
+                shape = bottomSheetShape,
+                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                content = {
+                    CompositionLocalProvider(
+                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+                    ) {
                         BackHandler(
                             enabled = anchoredDraggableState.targetValue == 0,
                             onBack = internalOnDismissRequest,
@@ -294,9 +296,9 @@ fun AdaptiveSheet(
                         } else {
                             content()
                         }
-                    },
-                )
-            }
+                    }
+                },
+            )
 
             LaunchedEffect(isAnchored) {
                 if (isAnchored) {

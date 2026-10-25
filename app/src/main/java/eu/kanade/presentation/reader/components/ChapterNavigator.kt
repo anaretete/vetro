@@ -174,6 +174,7 @@ fun ChapterNavigator(
             }
 
             if (totalPages > 1) {
+                val parentBackdrop = LocalLayerBackdrop.current
                 val sliderPillBackdrop = rememberLayerBackdrop()
                 val sliderModifier = if (isGlass) {
                     Modifier
@@ -185,6 +186,7 @@ fun ChapterNavigator(
                             refractionHeight = 16.dp,
                             refractionAmount = 24.dp,
                             tintColor = pillBgColor,
+                            backdrop = parentBackdrop,
                             exportedBackdrop = sliderPillBackdrop,
                         )
                         .padding(horizontal = 16.dp, vertical = 6.dp)
@@ -195,10 +197,7 @@ fun ChapterNavigator(
                         .background(backgroundColor)
                         .padding(horizontal = 16.dp)
                 }
-                CompositionLocalProvider(
-                    LocalLayoutDirection provides layoutDirection,
-                    LocalLayerBackdrop provides if (isGlass) sliderPillBackdrop else LocalLayerBackdrop.current,
-                ) {
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                     Row(
                         modifier = sliderModifier,
                         verticalAlignment = Alignment.CenterVertically,
@@ -225,19 +224,23 @@ fun ChapterNavigator(
                         }
                         val safeTotalPages = maxOf(1, totalPages)
                         val safeCurrentPage = (currentPage + 1).coerceIn(1, safeTotalPages)
-                        Slider(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = 8.dp),
-                            value = safeCurrentPage,
-                            valueRange = 1..safeTotalPages,
-                            onValueChange = f@{
-                                val newPageIndex = (it - 1).coerceIn(0, safeTotalPages - 1)
-                                if (newPageIndex == currentPage) return@f
-                                onPageIndexChange(newPageIndex)
-                            },
-                            interactionSource = interactionSource,
-                        )
+                        CompositionLocalProvider(
+                            LocalLayerBackdrop provides if (isGlass) sliderPillBackdrop else parentBackdrop,
+                        ) {
+                            Slider(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = 8.dp),
+                                value = safeCurrentPage,
+                                valueRange = 1..safeTotalPages,
+                                onValueChange = f@{
+                                    val newPageIndex = (it - 1).coerceIn(0, safeTotalPages - 1)
+                                    if (newPageIndex == currentPage) return@f
+                                    onPageIndexChange(newPageIndex)
+                                },
+                                interactionSource = interactionSource,
+                            )
+                        }
 
                         Text(
                             text = totalPages.toString(),
@@ -382,6 +385,7 @@ fun ChapterNavigatorVert(
         }
 
         if (totalPages > 1) {
+            val parentBackdrop = LocalLayerBackdrop.current
             val sliderPillBackdrop = rememberLayerBackdrop()
             val sliderModifier = if (isGlass) {
                 Modifier
@@ -393,6 +397,7 @@ fun ChapterNavigatorVert(
                         refractionHeight = 16.dp,
                         refractionAmount = 24.dp,
                         tintColor = pillBgColor,
+                        backdrop = parentBackdrop,
                         exportedBackdrop = sliderPillBackdrop,
                     )
                     .padding(vertical = 12.dp, horizontal = 6.dp)
@@ -403,24 +408,24 @@ fun ChapterNavigatorVert(
                     .background(backgroundColor)
                     .padding(vertical = 12.dp)
             }
-            CompositionLocalProvider(
-                LocalLayerBackdrop provides if (isGlass) sliderPillBackdrop else LocalLayerBackdrop.current,
+            Column(
+                modifier = sliderModifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Column(
-                    modifier = sliderModifier,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        // SY -->
-                        text = currentPageText,
-                        // SY <--
-                        // KMK -->
-                        color = textColor,
-                        // KMK <--
-                    )
+                Text(
+                    // SY -->
+                    text = currentPageText,
+                    // SY <--
+                    // KMK -->
+                    color = textColor,
+                    // KMK <--
+                )
 
-                    val safeTotalPages = maxOf(1, totalPages)
-                    val safeCurrentPageFloat = (currentPage + 1).toFloat().coerceIn(1f, safeTotalPages.toFloat())
+                val safeTotalPages = maxOf(1, totalPages)
+                val safeCurrentPageFloat = (currentPage + 1).toFloat().coerceIn(1f, safeTotalPages.toFloat())
+                CompositionLocalProvider(
+                    LocalLayerBackdrop provides if (isGlass) sliderPillBackdrop else parentBackdrop,
+                ) {
                     CupertinoVerticalSlider(
                         value = safeCurrentPageFloat,
                         onValueChange = { nextVal ->
@@ -436,14 +441,14 @@ fun ChapterNavigatorVert(
                             .weight(1f)
                             .padding(vertical = 4.dp),
                     )
-
-                    Text(
-                        text = totalPages.toString(),
-                        // KMK -->
-                        color = textColor,
-                        // KMK <--
-                    )
                 }
+
+                Text(
+                    text = totalPages.toString(),
+                    // KMK -->
+                    color = textColor,
+                    // KMK <--
+                )
             }
         } else {
             Spacer(Modifier.weight(1f))
