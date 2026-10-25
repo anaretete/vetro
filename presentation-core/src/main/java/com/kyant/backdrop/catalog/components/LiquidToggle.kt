@@ -164,33 +164,25 @@ fun LiquidToggle(
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
                         rememberCanvasBackdrop { drawRect(surfaceColor) },
-                        rememberBackdrop(backdrop) { drawBackdrop ->
-                            if (dampedDragAnimation.pressProgress > 0.005f) {
-                                drawBackdrop()
-                            }
-                        },
+                        backdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
-                            if (progress > 0.005f) {
-                                val scaleX = lerp(2f / 3f, 0.75f, progress)
-                                val scaleY = lerp(0f, 0.75f, progress)
-                                scale(scaleX, scaleY) {
-                                    drawBackdrop()
-                                }
+                            val scaleX = lerp(2f / 3f, 0.75f, progress)
+                            val scaleY = lerp(0f, 0.75f, progress)
+                            scale(scaleX, scaleY) {
+                                drawBackdrop()
                             }
                         },
                     ),
                     shape = { Capsule() },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        if (progress > 0.005f) {
-                            blur(8f.dp.toPx() * (1f - progress))
-                            lens(
-                                5f.dp.toPx() * progress,
-                                10f.dp.toPx() * progress,
-                                chromaticAberration = true,
-                            )
-                        }
+                        blur(8f.dp.toPx() * (1f - progress))
+                        lens(
+                            5f.dp.toPx() * progress,
+                            10f.dp.toPx() * progress,
+                            chromaticAberration = true,
+                        )
                     },
                     highlight = {
                         val progress = dampedDragAnimation.pressProgress

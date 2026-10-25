@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -75,15 +76,12 @@ fun AdaptiveSheet(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val existingBackdrop = LocalLayerBackdrop.current
-    val sheetBg = if (isDark) Color(0xFF1C1C20).copy(alpha = 0.72f) else Color(0xFFF5F5FA).copy(alpha = 0.76f)
+    val sheetBg = if (isDark) Color(0x3316161A) else Color(0x33F2F2F6)
     val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
         val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
     }
-    val childSurfaceBackdrop = rememberCanvasBackdrop {
-        val baseColor = if (isDark) Color(0xFF25252A) else Color(0xFFF2F2F7)
-        drawRect(baseColor)
-    }
+    val sheetExportedBackdrop = rememberLayerBackdrop()
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -112,12 +110,12 @@ fun AdaptiveSheet(
                 .padding(vertical = 16.dp)
                 .liquidGlassSurface(
                     shape = tabletShape,
-                    blurRadius = 14.dp,
-                    refractionHeight = 14.dp,
-                    refractionAmount = 20.dp,
-                    surfaceColor = sheetBg,
+                    blurRadius = 30.dp,
+                    refractionHeight = 24.dp,
+                    refractionAmount = 32.dp,
+                    tintColor = sheetBg,
                     backdrop = sheetBackdrop,
-                    depthEffect = false,
+                    exportedBackdrop = sheetExportedBackdrop,
                 )
                 .then(modifier)
         } else {
@@ -151,7 +149,7 @@ fun AdaptiveSheet(
                 color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
                 content = {
                     CompositionLocalProvider(
-                        LocalLayerBackdrop provides if (isGlass) childSurfaceBackdrop else sheetBackdrop,
+                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
                     ) {
                         BackHandler(
                             enabled = remember { derivedStateOf { alpha > 0f } }.value,
@@ -270,12 +268,12 @@ fun AdaptiveSheet(
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier.liquidGlassSurface(
                     shape = bottomSheetShape,
-                    blurRadius = 14.dp,
-                    refractionHeight = 12.dp,
-                    refractionAmount = 18.dp,
-                    surfaceColor = sheetBg,
+                    blurRadius = 30.dp,
+                    refractionHeight = 24.dp,
+                    refractionAmount = 32.dp,
+                    tintColor = sheetBg,
                     backdrop = sheetBackdrop,
-                    depthEffect = false,
+                    exportedBackdrop = sheetExportedBackdrop,
                 )
             } else {
                 phoneBaseModifier
@@ -287,7 +285,7 @@ fun AdaptiveSheet(
                 color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
                 content = {
                     CompositionLocalProvider(
-                        LocalLayerBackdrop provides if (isGlass) childSurfaceBackdrop else sheetBackdrop,
+                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
                     ) {
                         BackHandler(
                             enabled = anchoredDraggableState.targetValue == 0,

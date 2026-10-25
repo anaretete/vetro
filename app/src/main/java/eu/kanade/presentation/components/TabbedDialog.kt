@@ -3,7 +3,8 @@ package eu.kanade.presentation.components
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -44,7 +45,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,6 +58,7 @@ import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.MoreHoriz
 import tachiyomi.presentation.core.components.material.TabText
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 
 object TabbedDialogPaddings {
@@ -83,7 +84,6 @@ fun TabbedDialog(
 
         Column(modifier = Modifier.fillMaxWidth()) {
             if (isGlass) {
-                // iOS Segmented Control Header with circular 'X' close button (NO liquid glass)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -91,17 +91,22 @@ fun TabbedDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val isDark = isSystemInDarkTheme()
-                    val trackBg = if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)
-                    val pillBg = if (isDark) Color(0xFF58585C) else Color.White
-                    val closeBg = if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)
+                    val trackBg = if (isDark) Color(0x332C2C2E) else Color(0x44E5E5EA)
+                    val pillBg = if (isDark) Color(0xBB636366) else Color(0xD0FFFFFF)
+                    val closeBg = if (isDark) Color(0x442C2C2E) else Color(0x55E5E5EA)
 
-                    // Clean Segmented Control Stadium Track (NO liquid glass)
+                    // Segmented Control Stadium Track with Liquid Glass
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(1f)
                             .height(36.dp)
-                            .clip(Capsule())
-                            .background(trackBg)
+                            .liquidGlassSurface(
+                                shape = Capsule(),
+                                blurRadius = 14.dp,
+                                refractionHeight = 14.dp,
+                                refractionAmount = 18.dp,
+                                tintColor = trackBg,
+                            )
                             .padding(2.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
@@ -116,15 +121,26 @@ fun TabbedDialog(
                             label = "SegmentPillOffset",
                         )
 
-                        // Sliding Apple Segmented Pill Indicator (NO liquid glass)
+                        // Sliding Apple Segmented Pill Indicator with Liquid Glass lens
                         Box(
                             modifier = Modifier
                                 .offset(x = indicatorOffset)
                                 .width(segmentWidth)
                                 .fillMaxHeight()
-                                .shadow(elevation = 2.dp, shape = Capsule())
-                                .clip(Capsule())
-                                .background(pillBg),
+                                .liquidGlassSurface(
+                                    shape = Capsule(),
+                                    blurRadius = 8.dp,
+                                    refractionHeight = 10.dp,
+                                    refractionAmount = 14.dp,
+                                    tintColor = pillBg,
+                                )
+                                .border(
+                                    BorderStroke(
+                                        0.5.dp,
+                                        if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
+                                    ),
+                                    shape = Capsule(),
+                                ),
                         )
 
                         // Segment Text Buttons
@@ -161,13 +177,25 @@ fun TabbedDialog(
                         }
                     }
 
-                    // iOS circular close button "X" (NO liquid glass)
+                    // iOS circular close button "X" with Liquid Glass
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .clip(CircleShape)
-                            .background(closeBg)
+                            .liquidGlassSurface(
+                                shape = CircleShape,
+                                blurRadius = 10.dp,
+                                refractionHeight = 12.dp,
+                                refractionAmount = 16.dp,
+                                tintColor = closeBg,
+                            )
+                            .border(
+                                BorderStroke(
+                                    0.5.dp,
+                                    if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.4f) else Color(0xFFD1D1D6),
+                                ),
+                                shape = CircleShape,
+                            )
                             .clickable(onClick = onDismissRequest),
                         contentAlignment = Alignment.Center,
                     ) {

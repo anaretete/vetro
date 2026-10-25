@@ -672,17 +672,31 @@ fun CupertinoSegmentedControl(
     tabs: List<Pair<String, Int?>>,
     modifier: Modifier = Modifier,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val trackBg = if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)
-    val thumbBg = if (isDark) Color(0xFF636366) else Color.White
+    val trackBg = if (isDark) Color(0x332C2C2E) else Color(0x44E5E5EA)
+    val thumbBg = if (isDark) Color(0xBB636366) else Color(0xD0FFFFFF)
     val textSelected = if (isDark) Color.White else Color(0xFF000000)
     val textUnselected = if (isDark) Color.White.copy(alpha = 0.78f) else Color.Black.copy(alpha = 0.68f)
 
     BoxWithConstraints(
         modifier = modifier
             .height(36.dp)
-            .clip(Capsule())
-            .background(trackBg)
+            .then(
+                if (isGlass) {
+                    Modifier.liquidGlassSurface(
+                        shape = Capsule(),
+                        blurRadius = 14.dp,
+                        refractionHeight = 14.dp,
+                        refractionAmount = 18.dp,
+                        tintColor = trackBg,
+                    )
+                } else {
+                    Modifier
+                        .clip(Capsule())
+                        .background(trackBg)
+                },
+            )
             .padding(2.dp),
     ) {
         val tabCount = tabs.size.coerceAtLeast(1)
@@ -702,8 +716,21 @@ fun CupertinoSegmentedControl(
                 .width(tabWidth)
                 .fillMaxHeight()
                 .offset(x = indicatorOffset)
-                .clip(Capsule())
-                .background(thumbBg),
+                .then(
+                    if (isGlass) {
+                        Modifier.liquidGlassSurface(
+                            shape = Capsule(),
+                            blurRadius = 8.dp,
+                            refractionHeight = 10.dp,
+                            refractionAmount = 14.dp,
+                            tintColor = thumbBg,
+                        )
+                    } else {
+                        Modifier
+                            .clip(Capsule())
+                            .background(thumbBg)
+                    },
+                ),
         )
 
         // Tab titles
@@ -787,25 +814,29 @@ fun <T> CupertinoGroupedSelectionCard(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val shape = RoundedRectangle(16.dp, RoundedCornerStyle.Continuous)
+    val shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.05f)
+        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
-    val borderColor = if (isDark) Color.White.copy(alpha = 0.10f) else Color.Black.copy(alpha = 0.06f)
 
-    val cardModifier = Modifier
-        .fillMaxWidth()
-        .clip(shape)
-        .background(cardBg)
-        .then(
-            if (isGlass) {
-                Modifier.border(width = 0.5.dp, color = borderColor, shape = shape)
-            } else {
-                Modifier
-            },
-        )
+    val cardModifier = if (isGlass) {
+        Modifier
+            .fillMaxWidth()
+            .liquidGlassSurface(
+                shape = shape,
+                blurRadius = 16.dp,
+                refractionHeight = 16.dp,
+                refractionAmount = 24.dp,
+                tintColor = cardBg,
+            )
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(cardBg)
+    }
 
     Column(
         modifier = modifier
@@ -882,25 +913,29 @@ fun CupertinoGroupedCard(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val shape = RoundedRectangle(16.dp, RoundedCornerStyle.Continuous)
+    val shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.05f)
+        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
-    val borderColor = if (isDark) Color.White.copy(alpha = 0.10f) else Color.Black.copy(alpha = 0.06f)
 
-    val cardModifier = Modifier
-        .fillMaxWidth()
-        .clip(shape)
-        .background(cardBg)
-        .then(
-            if (isGlass) {
-                Modifier.border(width = 0.5.dp, color = borderColor, shape = shape)
-            } else {
-                Modifier
-            },
-        )
+    val cardModifier = if (isGlass) {
+        Modifier
+            .fillMaxWidth()
+            .liquidGlassSurface(
+                shape = shape,
+                blurRadius = 16.dp,
+                refractionHeight = 16.dp,
+                refractionAmount = 24.dp,
+                tintColor = cardBg,
+            )
+    } else {
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(cardBg)
+    }
 
     Column(
         modifier = modifier

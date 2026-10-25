@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -357,7 +358,7 @@ class ReaderActivity : BaseActivity() {
                     val w = container.width
                     val h = container.height
                     if (w > 0 && h > 0) {
-                        val scale = 0.2f
+                        val scale = 0.4f
                         val targetW = (w * scale).toInt().coerceAtLeast(1)
                         val targetH = (h * scale).toInt().coerceAtLeast(1)
                         val bmp = android.graphics.Bitmap.createBitmap(
@@ -385,17 +386,28 @@ class ReaderActivity : BaseActivity() {
             val readerBackdrop = rememberLayerBackdrop {
                 @Suppress("UNUSED_VARIABLE")
                 val tick = backdropTick
+                val containerW = currentBinding.viewerContainer.width
+                val containerH = currentBinding.viewerContainer.height
                 val baseColor = if (isDark) ComposeColor(0xFF16161A) else ComposeColor(0xFFF2F2F6)
-                drawRect(baseColor)
-                val snap = viewerSnapshot
-                if (snap != null) {
-                    drawImage(
-                        image = snap,
-                        dstSize = IntSize(
-                            size.width.toInt().coerceAtLeast(1),
-                            size.height.toInt().coerceAtLeast(1),
-                        ),
+                if (containerW > 0 && containerH > 0) {
+                    drawRect(
+                        color = baseColor,
+                        size = androidx.compose.ui.geometry.Size(containerW.toFloat(), containerH.toFloat()),
                     )
+                    val snap = viewerSnapshot
+                    if (snap != null) {
+                        drawImage(
+                            image = snap,
+                            dstSize = IntSize(containerW, containerH),
+                        )
+                    } else {
+                        try {
+                            currentBinding.viewerContainer.draw(drawContext.canvas.nativeCanvas)
+                        } catch (_: Throwable) {
+                        }
+                    }
+                } else {
+                    drawRect(baseColor)
                 }
                 drawContent()
             }
