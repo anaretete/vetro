@@ -758,6 +758,10 @@ class ReaderActivity : BaseActivity() {
                 isScrollingThroughPages = true
                 moveToPageIndex(it)
             },
+            onPageFloatChange = {
+                isScrollingThroughPages = true
+                moveToPageFloat(it)
+            },
 
             readingMode = ReadingMode.fromPreference(
                 viewModel.getMangaReadingMode(resolveDefault = false),
@@ -1172,6 +1176,30 @@ class ReaderActivity : BaseActivity() {
         val currentChapter = viewModel.state.value.currentChapter ?: return
         val page = currentChapter.pages?.getOrNull(index) ?: return
         viewer.moveToPage(page)
+    }
+
+    /**
+     * Smoothly scrolls continuous viewers (WebtoonViewer) using a fractional page index [pageFloat],
+     * or falls back to discrete page selection for paged viewers.
+     */
+    private fun moveToPageFloat(pageFloat: Float) {
+        val viewer = viewModel.state.value.viewer ?: return
+        val currentChapter = viewModel.state.value.currentChapter ?: return
+        val pages = currentChapter.pages ?: return
+        if (pages.isEmpty()) return
+        val clamped = pageFloat.coerceIn(0f, (pages.size - 1).toFloat())
+        if (viewer is WebtoonViewer) {
+            val baseIndex = clamped.toInt().coerceIn(0, pages.lastIndex)
+            val fraction = (clamped - baseIndex).coerceIn(0f, 0.999f)
+            val page = pages.getOrNull(baseIndex) ?: return
+            viewer.moveToPageOffset(page, fraction)
+        } else {
+            val index = kotlin.math.round(clamped).toInt().coerceIn(0, pages.lastIndex)
+            if (index != viewModel.state.value.currentPage) {
+                val page = pages.getOrNull(index) ?: return
+                viewer.moveToPage(page)
+            }
+        }
     }
 
     /**

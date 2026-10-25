@@ -78,6 +78,7 @@ fun ChapterNavigator(
     // SY <--
     totalPages: Int,
     onPageIndexChange: (Int) -> Unit,
+    onPageFloatChange: ((Float) -> Unit)? = null,
 ) {
     // SY -->
     if (isVerticalSlider) {
@@ -90,6 +91,7 @@ fun ChapterNavigator(
             currentPageText = currentPageText,
             totalPages = totalPages,
             onPageIndexChange = onPageIndexChange,
+            onPageFloatChange = onPageFloatChange,
         )
         return
     }
@@ -223,7 +225,7 @@ fun ChapterNavigator(
                             }
                         }
                         val safeTotalPages = maxOf(1, totalPages)
-                        val safeCurrentPage = (currentPage + 1).coerceIn(1, safeTotalPages)
+                        val safeCurrentPageFloat = (currentPage + 1).toFloat().coerceIn(1f, safeTotalPages.toFloat())
                         CompositionLocalProvider(
                             LocalLayerBackdrop provides if (isGlass) sliderPillBackdrop else parentBackdrop,
                         ) {
@@ -231,12 +233,18 @@ fun ChapterNavigator(
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(horizontal = 8.dp),
-                                value = safeCurrentPage,
-                                valueRange = 1..safeTotalPages,
-                                onValueChange = f@{
-                                    val newPageIndex = (it - 1).coerceIn(0, safeTotalPages - 1)
-                                    if (newPageIndex == currentPage) return@f
-                                    onPageIndexChange(newPageIndex)
+                                value = safeCurrentPageFloat,
+                                valueRange = 1f..safeTotalPages.toFloat(),
+                                steps = 0,
+                                onValueChange = f@{ nextVal ->
+                                    val floatIdx = (nextVal - 1f).coerceIn(0f, (safeTotalPages - 1).toFloat())
+                                    if (onPageFloatChange != null) {
+                                        onPageFloatChange(floatIdx)
+                                    } else {
+                                        val newPageIndex = floatIdx.roundToInt().coerceIn(0, safeTotalPages - 1)
+                                        if (newPageIndex == currentPage) return@f
+                                        onPageIndexChange(newPageIndex)
+                                    }
                                 },
                                 interactionSource = interactionSource,
                             )
@@ -313,6 +321,7 @@ fun ChapterNavigatorVert(
     // SY <--
     totalPages: Int,
     onPageIndexChange: (Int) -> Unit,
+    onPageFloatChange: ((Float) -> Unit)? = null,
 ) {
     val isTabletUi = isTabletUi()
     val isGlass = LocalLiquidGlassConfig.current.enabled
@@ -429,9 +438,14 @@ fun ChapterNavigatorVert(
                     CupertinoVerticalSlider(
                         value = safeCurrentPageFloat,
                         onValueChange = { nextVal ->
-                            val nextInt = nextVal.roundToInt()
-                            val newPageIndex = (nextInt - 1).coerceIn(0, safeTotalPages - 1)
-                            if (newPageIndex != currentPage) {
+                            val floatIdx = (nextVal - 1f).coerceIn(0f, (safeTotalPages - 1).toFloat())
+                            val newPageIndex = floatIdx.roundToInt().coerceIn(0, safeTotalPages - 1)
+                            if (onPageFloatChange != null) {
+                                onPageFloatChange(floatIdx)
+                                if (newPageIndex != currentPage) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                }
+                            } else if (newPageIndex != currentPage) {
                                 onPageIndexChange(newPageIndex)
                                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             }

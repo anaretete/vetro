@@ -98,7 +98,7 @@ fun CupertinoSlider(
             if (currentStep != incomingStep) {
                 internalValue = value
             }
-        } else if (kotlin.math.abs(internalValue - value) > threshold * 10f) {
+        } else if (kotlin.math.abs(internalValue - value) > maxOf(threshold * 10f, if (rangeSpan >= 1f) 0.6f else 0f)) {
             internalValue = value
         }
     }
@@ -291,7 +291,7 @@ fun Slider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: IntProgression = 0..1,
-    @IntRange(from = 0) steps: Int = with(valueRange) { (last - first) - 1 },
+    @IntRange(from = 0) steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
     colors: SliderColors = SliderDefaults.colors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -307,14 +307,30 @@ fun Slider(
         SliderDefaults.Track(colors = colors, enabled = enabled, sliderState = sliderState)
     },
 ) {
+    var floatValue by remember { mutableFloatStateOf(value.toFloat()) }
+    var isDragging by remember { mutableStateOf(false) }
+    LaunchedEffect(value) {
+        if (!isDragging && floatValue.roundToInt() != value) {
+            floatValue = value.toFloat()
+        }
+    }
     Slider(
-        value = value.toFloat(),
-        onValueChange = { onValueChange(it.roundToInt()) },
+        value = floatValue,
+        onValueChange = { newFloat ->
+            isDragging = true
+            floatValue = newFloat
+            val newInt = newFloat.roundToInt().coerceIn(valueRange.first, valueRange.last)
+            onValueChange(newInt)
+        },
         modifier = modifier,
         enabled = enabled,
         valueRange = with(valueRange) { first.toFloat()..last.toFloat() },
         steps = steps,
-        onValueChangeFinished = onValueChangeFinished,
+        onValueChangeFinished = {
+            isDragging = false
+            floatValue = value.toFloat()
+            onValueChangeFinished?.invoke()
+        },
         colors = colors,
         interactionSource = interactionSource,
         backdrop = backdrop,

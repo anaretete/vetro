@@ -320,6 +320,24 @@ class WebtoonViewer(
         }
     }
 
+    /**
+     * Smoothly positions the webtoon viewer at [page] plus a fractional sub-page offset [fractionOffset] in [0f, 1f).
+     */
+    fun moveToPageOffset(page: ReaderPage, fractionOffset: Float) {
+        val position = adapter.items.indexOf(page)
+        if (position != -1) {
+            val childView = layoutManager.findViewByPosition(position)
+            val itemHeight = (childView?.height?.takeIf { it > 0 } ?: recycler.height.takeIf { it > 0 } ?: scrollDistance)
+            val pixelOffset = -(itemHeight * fractionOffset.coerceIn(0f, 0.999f)).toInt()
+            layoutManager.scrollToPositionWithOffset(position, pixelOffset)
+            if (layoutManager.findLastEndVisibleItemPosition() == -1) {
+                onScrolled(pos = position)
+            }
+        } else {
+            logcat { "Page $page not found in adapter" }
+        }
+    }
+
     fun onScrolled(pos: Int? = null) {
         val position = pos ?: layoutManager.findLastEndVisibleItemPosition()
         val item = adapter.items.getOrNull(position)

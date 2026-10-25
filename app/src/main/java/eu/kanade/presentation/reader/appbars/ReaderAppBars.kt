@@ -79,6 +79,7 @@ fun ReaderAppBars(
     currentPage: Int,
     totalPages: Int,
     onPageIndexChange: (Int) -> Unit,
+    onPageFloatChange: ((Float) -> Unit)? = null,
 
     readingMode: ReadingMode,
     onClickReadingMode: () -> Unit,
@@ -181,6 +182,7 @@ fun ReaderAppBars(
                         currentPage = currentPage,
                         totalPages = totalPages,
                         onPageIndexChange = onPageIndexChange,
+                        onPageFloatChange = onPageFloatChange,
                         // SY -->
                         isVerticalSlider = true,
                         currentPageText = currentPageText,
@@ -213,6 +215,7 @@ fun ReaderAppBars(
                         currentPage = currentPage,
                         totalPages = totalPages,
                         onPageIndexChange = onPageIndexChange,
+                        onPageFloatChange = onPageFloatChange,
                         // SY -->
                         isVerticalSlider = true,
                         currentPageText = currentPageText,
@@ -245,6 +248,7 @@ fun ReaderAppBars(
                         currentPage = currentPage,
                         totalPages = totalPages,
                         onPageIndexChange = onPageIndexChange,
+                        onPageFloatChange = onPageFloatChange,
                         // SY -->
                         isVerticalSlider = false,
                         currentPageText = currentPageText,

@@ -124,7 +124,7 @@ fun CupertinoVerticalSlider(
         }
 
         LaunchedEffect(value) {
-            if (!didDrag) {
+            if (!didDrag && kotlin.math.abs(currentDragValue - value) > 0.6f) {
                 currentDragValue = value
                 if (dampedDragAnimation.targetValue != value) {
                     dampedDragAnimation.updateValue(value)
