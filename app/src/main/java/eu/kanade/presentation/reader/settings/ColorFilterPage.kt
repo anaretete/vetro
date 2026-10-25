@@ -34,7 +34,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
     val invertedColors by screenModel.preferences.invertedColors().collectAsState()
 
     if (isGlass) {
-        CupertinoGroupedCard(title = stringResource(MR.strings.pref_custom_brightness)) {
+        CupertinoGroupedCard {
             CupertinoGroupedToggleRow(
                 label = stringResource(MR.strings.pref_custom_brightness),
                 checked = customBrightness,
@@ -54,7 +54,7 @@ internal fun ColorFilterPage(screenModel: ReaderSettingsScreenModel) {
             }
         }
 
-        CupertinoGroupedCard(title = stringResource(MR.strings.pref_custom_color_filter)) {
+        CupertinoGroupedCard {
             CupertinoGroupedToggleRow(
                 label = stringResource(MR.strings.pref_custom_color_filter),
                 checked = colorFilter,

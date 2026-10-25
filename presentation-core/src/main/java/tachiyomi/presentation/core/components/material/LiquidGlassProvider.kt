@@ -88,6 +88,8 @@ fun Modifier.liquidGlassSurface(
     backdrop: Backdrop? = null,
     exportedBackdrop: LayerBackdrop? = null,
     isInteractive: Boolean = false,
+    depthEffect: Boolean? = null,
+    hasShadow: Boolean = true,
 ): Modifier = composed {
     val config = LocalLiquidGlassConfig.current
     if (!config.enabled) return@composed this
@@ -130,17 +132,19 @@ fun Modifier.liquidGlassSurface(
         }
     }
 
-    val defaultAlpha = if (isDark) 0.22f else 0.28f
-    val effectiveTintAlpha = (defaultAlpha * config.tintAlphaMultiplier).coerceIn(0f, 1f)
-    val baseTint = if (tintColor.isSpecified && tintColor != Color.Transparent) {
-        tintColor.copy(alpha = effectiveTintAlpha)
-    } else {
-        if (isDark) {
-            Color.White.copy(alpha = (0.12f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
-        } else {
-            Color.White.copy(alpha = (0.35f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
-        }
+    val isChromaticTint = tintColor.isSpecified && tintColor != Color.Transparent && run {
+        val maxC = maxOf(tintColor.red, tintColor.green, tintColor.blue)
+        val minC = minOf(tintColor.red, tintColor.green, tintColor.blue)
+        (maxC - minC) > 0.15f
     }
+
+    val defaultFallbackColor = if (isDark) {
+        Color(0xFF18181C).copy(alpha = (0.45f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+    } else {
+        Color.White.copy(alpha = (0.50f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+    }
+
+    val effectiveDepthEffect = depthEffect ?: config.depthEffect
 
     val backdropModifier = Modifier.drawBackdrop(
         backdrop = activeBackdrop,
@@ -156,22 +160,35 @@ fun Modifier.liquidGlassSurface(
                 lens(
                     refractionHeight = (refractionHeight.toPx() * config.refractionMultiplier * config.lensHeightMultiplier).coerceAtLeast(0.1f),
                     refractionAmount = (dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier).coerceAtLeast(0.1f),
-                    depthEffect = config.depthEffect,
+                    depthEffect = effectiveDepthEffect,
                     chromaticAberration = config.chromaticAberration,
                 )
             } catch (_: Throwable) {
             }
         },
         highlight = { Highlight.Default },
-        shadow = { Shadow.Default },
+        shadow = if (hasShadow) ({ Shadow.Default }) else null,
         onDrawSurface = {
-            if (tintColor.isSpecified && tintColor != Color.Transparent) {
-                drawRect(tintColor, blendMode = BlendMode.Hue)
-                drawRect(baseTint)
-            } else if (surfaceColor.isSpecified) {
-                drawRect(surfaceColor)
+            if (surfaceColor.isSpecified && surfaceColor != Color.Transparent) {
+                val alpha = (surfaceColor.alpha * config.tintAlphaMultiplier).coerceIn(0f, 1f)
+                drawRect(surfaceColor.copy(alpha = alpha))
+            } else if (tintColor.isSpecified && tintColor != Color.Transparent) {
+                if (isChromaticTint) {
+                    val baseAlpha = if (tintColor.alpha < 0.99f) tintColor.alpha else 0.65f
+                    val alpha = (baseAlpha * config.tintAlphaMultiplier).coerceIn(0f, 1f)
+                    drawRect(tintColor.copy(alpha = 1f), blendMode = BlendMode.Hue)
+                    drawRect(tintColor.copy(alpha = alpha))
+                } else {
+                    val baseAlpha = if (tintColor.alpha < 0.99f) {
+                        tintColor.alpha
+                    } else {
+                        if (isDark) 0.55f else 0.60f
+                    }
+                    val alpha = (baseAlpha * config.tintAlphaMultiplier).coerceIn(0f, 1f)
+                    drawRect(tintColor.copy(alpha = alpha))
+                }
             } else {
-                drawRect(baseTint)
+                drawRect(defaultFallbackColor)
             }
         },
     )

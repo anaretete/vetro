@@ -80,7 +80,7 @@ fun CupertinoAlertDialog(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val dialogBg = if (isGlass) {
-        if (isDark) Color(0xFF252528).copy(alpha = 0.70f) else Color(0xFFFFFFFF).copy(alpha = 0.85f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.76f) else Color(0xFFF6F6FA).copy(alpha = 0.82f)
     } else {
         if (isDark) Color(0xFF252528) else Color(0xFFFFFFFF)
     }
@@ -90,10 +90,11 @@ fun CupertinoAlertDialog(
             .widthIn(min = 270.dp, max = 320.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 24.dp,
-                refractionHeight = 24.dp,
-                refractionAmount = 32.dp,
-                tintColor = dialogBg,
+                blurRadius = 14.dp,
+                refractionHeight = 14.dp,
+                refractionAmount = 20.dp,
+                surfaceColor = dialogBg,
+                depthEffect = false,
             )
     } else {
         modifier
@@ -281,7 +282,7 @@ fun CupertinoActionSheetCard(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val cardBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.75f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.76f) else Color(0xFFF6F6FA).copy(alpha = 0.82f)
     } else {
         if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9)
     }
@@ -291,10 +292,11 @@ fun CupertinoActionSheetCard(
             .fillMaxWidth()
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 22.dp,
-                refractionHeight = 22.dp,
-                refractionAmount = 30.dp,
-                tintColor = cardBg,
+                blurRadius = 14.dp,
+                refractionHeight = 14.dp,
+                refractionAmount = 20.dp,
+                surfaceColor = cardBg,
+                depthEffect = false,
             )
     } else {
         modifier
@@ -322,7 +324,7 @@ fun CupertinoCancelPill(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val pillBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFF6F6FA).copy(alpha = 0.86f)
     } else {
         if (isDark) Color(0xFF222226) else Color(0xFFFFFFFF)
     }
@@ -333,10 +335,11 @@ fun CupertinoCancelPill(
             .height(54.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 20.dp,
-                refractionHeight = 20.dp,
-                refractionAmount = 28.dp,
-                tintColor = pillBg,
+                blurRadius = 14.dp,
+                refractionHeight = 14.dp,
+                refractionAmount = 20.dp,
+                surfaceColor = pillBg,
+                depthEffect = false,
             )
     } else {
         modifier
@@ -412,10 +415,10 @@ fun CupertinoSegmentedControl(
     modifier: Modifier = Modifier,
 ) {
     val isDark = isSystemInDarkTheme()
-    val trackBg = if (isDark) Color(0x33767680) else Color(0x1F767680)
+    val trackBg = if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)
     val thumbBg = if (isDark) Color(0xFF636366) else Color.White
     val textSelected = if (isDark) Color.White else Color(0xFF000000)
-    val textUnselected = if (isDark) Color(0xFF8E8E93) else Color(0xFF636366)
+    val textUnselected = if (isDark) Color.White.copy(alpha = 0.78f) else Color.Black.copy(alpha = 0.68f)
 
     BoxWithConstraints(
         modifier = modifier
@@ -526,28 +529,25 @@ fun <T> CupertinoGroupedSelectionCard(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
+    val shape = RoundedRectangle(16.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
+        if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.05f)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
+    val borderColor = if (isDark) Color.White.copy(alpha = 0.10f) else Color.Black.copy(alpha = 0.06f)
 
-    val cardModifier = if (isGlass) {
-        Modifier
-            .fillMaxWidth()
-            .liquidGlassSurface(
-                shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous),
-                blurRadius = 16.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 24.dp,
-                tintColor = cardBg,
-            )
-    } else {
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
-            .background(cardBg)
-    }
+    val cardModifier = Modifier
+        .fillMaxWidth()
+        .clip(shape)
+        .background(cardBg)
+        .then(
+            if (isGlass) {
+                Modifier.border(width = 0.5.dp, color = borderColor, shape = shape)
+            } else {
+                Modifier
+            },
+        )
 
     Column(
         modifier = modifier
@@ -560,7 +560,7 @@ fun <T> CupertinoGroupedSelectionCard(
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                    color = if (isDark) Color.White.copy(alpha = 0.72f) else Color.Black.copy(alpha = 0.62f),
                 ),
                 modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
             )
@@ -573,7 +573,7 @@ fun <T> CupertinoGroupedSelectionCard(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp)
+                        .height(50.dp)
                         .clickable { onSelect(option) }
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -624,28 +624,25 @@ fun CupertinoGroupedCard(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
+    val shape = RoundedRectangle(16.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
+        if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.05f)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
+    val borderColor = if (isDark) Color.White.copy(alpha = 0.10f) else Color.Black.copy(alpha = 0.06f)
 
-    val cardModifier = if (isGlass) {
-        Modifier
-            .fillMaxWidth()
-            .liquidGlassSurface(
-                shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous),
-                blurRadius = 16.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 24.dp,
-                tintColor = cardBg,
-            )
-    } else {
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedRectangle(18.dp, RoundedCornerStyle.Continuous))
-            .background(cardBg)
-    }
+    val cardModifier = Modifier
+        .fillMaxWidth()
+        .clip(shape)
+        .background(cardBg)
+        .then(
+            if (isGlass) {
+                Modifier.border(width = 0.5.dp, color = borderColor, shape = shape)
+            } else {
+                Modifier
+            },
+        )
 
     Column(
         modifier = modifier
@@ -658,7 +655,7 @@ fun CupertinoGroupedCard(
                 style = MaterialTheme.typography.titleSmall.copy(
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                    color = if (isDark) Color.White.copy(alpha = 0.72f) else Color.Black.copy(alpha = 0.62f),
                 ),
                 modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
             )
@@ -715,7 +712,7 @@ fun CupertinoGroupedRow(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontSize = 13.sp,
-                        color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                        color = if (isDark) Color.White.copy(alpha = 0.68f) else Color.Black.copy(alpha = 0.60f),
                     ),
                 )
             }
@@ -792,7 +789,7 @@ fun CupertinoGroupedSegmentedControl(
             style = MaterialTheme.typography.titleSmall.copy(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = if (isDark) Color(0xFF8E8E93) else Color(0xFF6C6C70),
+                color = if (isDark) Color.White.copy(alpha = 0.72f) else Color.Black.copy(alpha = 0.62f),
             ),
             modifier = Modifier.padding(start = 8.dp, bottom = 6.dp),
         )

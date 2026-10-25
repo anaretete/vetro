@@ -96,9 +96,9 @@ fun TabbedDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val isDark = isSystemInDarkTheme()
-                    val trackBg = if (isDark) Color(0x33767680) else Color(0x1F767680)
-                    val pillBg = if (isDark) Color(0xFF636366) else Color.White
-                    val closeBg = if (isDark) Color(0x33767680) else Color(0x1F767680)
+                    val trackBg = if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)
+                    val pillBg = if (isDark) Color(0xFF58585C) else Color.White
+                    val closeBg = if (isDark) Color.White.copy(alpha = 0.12f) else Color.Black.copy(alpha = 0.08f)
 
                     // Clean Segmented Control Stadium Track (NO liquid glass)
                     BoxWithConstraints(
@@ -151,12 +151,12 @@ fun TabbedDialog(
                                         text = title,
                                         style = MaterialTheme.typography.labelMedium.copy(
                                             fontSize = 13.sp,
-                                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                                         ),
                                         color = if (isSelected) {
                                             if (isDark) Color.White else Color.Black
                                         } else {
-                                            if (isDark) Color(0xFF8E8E93) else Color(0xFF636366)
+                                            if (isDark) Color.White.copy(alpha = 0.78f) else Color.Black.copy(alpha = 0.68f)
                                         },
                                         maxLines = 1,
                                     )
@@ -178,7 +178,7 @@ fun TabbedDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(MR.strings.action_close),
-                            tint = if (isDark) Color(0xFF8E8E93) else Color(0xFF636366),
+                            tint = if (isDark) Color.White.copy(alpha = 0.82f) else Color.Black.copy(alpha = 0.70f),
                             modifier = Modifier.size(16.dp),
                         )
                     }

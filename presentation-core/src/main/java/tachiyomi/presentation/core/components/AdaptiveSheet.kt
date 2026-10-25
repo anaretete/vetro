@@ -76,9 +76,9 @@ fun AdaptiveSheet(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val existingBackdrop = LocalLayerBackdrop.current
-    val sheetBg = if (isDark) Color(0x3316161A) else Color(0x33F2F2F6)
+    val sheetBg = if (isDark) Color(0xFF1C1C20).copy(alpha = 0.72f) else Color(0xFFF5F5FA).copy(alpha = 0.76f)
     val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
-        val baseColor = if (isDark) Color(0x33121214) else Color(0x33EBEBF0)
+        val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
     }
     val sheetExportedBackdrop = rememberLayerBackdrop()
@@ -110,12 +110,13 @@ fun AdaptiveSheet(
                 .padding(vertical = 16.dp)
                 .liquidGlassSurface(
                     shape = tabletShape,
-                    blurRadius = 30.dp,
-                    refractionHeight = 24.dp,
-                    refractionAmount = 32.dp,
-                    tintColor = sheetBg,
+                    blurRadius = 14.dp,
+                    refractionHeight = 14.dp,
+                    refractionAmount = 20.dp,
+                    surfaceColor = sheetBg,
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
+                    depthEffect = false,
                 )
                 .then(modifier)
         } else {
@@ -256,18 +257,19 @@ fun AdaptiveSheet(
                     enabled = enableSwipeDismiss,
                     flingBehavior = flingBehavior,
                 )
-                .navigationBarsPadding()
+                .then(if (isGlass) Modifier else Modifier.navigationBarsPadding())
                 .statusBarsPadding()
 
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier.liquidGlassSurface(
                     shape = bottomSheetShape,
-                    blurRadius = 30.dp,
-                    refractionHeight = 24.dp,
-                    refractionAmount = 32.dp,
-                    tintColor = sheetBg,
+                    blurRadius = 14.dp,
+                    refractionHeight = 12.dp,
+                    refractionAmount = 18.dp,
+                    surfaceColor = sheetBg,
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
+                    depthEffect = false,
                 )
             } else {
                 phoneBaseModifier
@@ -288,7 +290,9 @@ fun AdaptiveSheet(
                         if (isGlass) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .navigationBarsPadding(),
                             ) {
                                 CupertinoGrabber()
                                 content()
