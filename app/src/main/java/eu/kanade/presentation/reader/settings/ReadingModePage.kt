@@ -20,7 +20,10 @@ import tachiyomi.presentation.core.components.CheckboxItem
 import tachiyomi.presentation.core.components.HeadingItem
 import tachiyomi.presentation.core.components.SettingsChipRow
 import tachiyomi.presentation.core.components.SliderItem
+import tachiyomi.presentation.core.components.material.CupertinoGroupedCard
+import tachiyomi.presentation.core.components.material.CupertinoGroupedDivider
 import tachiyomi.presentation.core.components.material.FilterChip
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import java.text.NumberFormat
@@ -116,82 +119,104 @@ private fun PagerViewerSettings(screenModel: ReaderSettingsScreenModel) {
     }
     // SY <--
 
-    // KMK -->
-    CheckboxItem(
-        label = stringResource(KMR.strings.pref_viewer_nav_smaller_tap_zone),
-        pref = screenModel.preferences.smallerTapZone(),
-    )
-    // KMK <--
-
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_crop_borders),
-        pref = screenModel.preferences.cropBorders(),
-    )
-
-    // KMK -->
-    if (imageScaleType in ReaderPreferences.zoomWideImagesAllowedList) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val togglesContent: @Composable () -> Unit = {
+        // KMK -->
+        CheckboxItem(
+            label = stringResource(KMR.strings.pref_viewer_nav_smaller_tap_zone),
+            pref = screenModel.preferences.smallerTapZone(),
+        )
         // KMK <--
+        if (isGlass) CupertinoGroupedDivider()
+
         CheckboxItem(
-            label = stringResource(MR.strings.pref_landscape_zoom),
-            pref = screenModel.preferences.landscapeZoom(),
+            label = stringResource(MR.strings.pref_crop_borders),
+            pref = screenModel.preferences.cropBorders(),
         )
+
+        // KMK -->
+        if (imageScaleType in ReaderPreferences.zoomWideImagesAllowedList) {
+            // KMK <--
+            if (isGlass) CupertinoGroupedDivider()
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_landscape_zoom),
+                pref = screenModel.preferences.landscapeZoom(),
+            )
+        }
+
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_navigate_pan),
+            pref = screenModel.preferences.navigateToPan(),
+        )
+
+        val dualPageSplitPaged by screenModel.preferences.dualPageSplitPaged().collectAsState()
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_dual_page_split),
+            pref = screenModel.preferences.dualPageSplitPaged(),
+        )
+
+        if (dualPageSplitPaged) {
+            if (isGlass) CupertinoGroupedDivider()
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_dual_page_invert),
+                pref = screenModel.preferences.dualPageInvertPaged(),
+            )
+        }
+
+        val dualPageRotateToFit by screenModel.preferences.dualPageRotateToFit().collectAsState()
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_page_rotate),
+            pref = screenModel.preferences.dualPageRotateToFit(),
+        )
+
+        if (dualPageRotateToFit) {
+            if (isGlass) CupertinoGroupedDivider()
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_page_rotate_invert),
+                pref = screenModel.preferences.dualPageRotateToFitInvert(),
+            )
+        }
+
+        // SY -->
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_page_transitions),
+            pref = screenModel.preferences.pageTransitionsPager(),
+        )
+
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(SYMR.strings.invert_double_pages),
+            pref = screenModel.preferences.invertDoublePages(),
+        )
+
+        // KMK -->
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(KMR.strings.pref_paged_disable_zoom_in),
+            pref = screenModel.preferences.pagedDisableZoomIn(),
+        )
+        val pagedDisableZoomIn by screenModel.preferences.pagedDisableZoomIn().collectAsState()
+        if (!pagedDisableZoomIn) {
+            if (isGlass) CupertinoGroupedDivider()
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_double_tap_zoom),
+                pref = screenModel.preferences.pagedDoubleTapZoomEnabled(),
+            )
+        }
+        // KMK <--
     }
 
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_navigate_pan),
-        pref = screenModel.preferences.navigateToPan(),
-    )
-
-    val dualPageSplitPaged by screenModel.preferences.dualPageSplitPaged().collectAsState()
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_dual_page_split),
-        pref = screenModel.preferences.dualPageSplitPaged(),
-    )
-
-    if (dualPageSplitPaged) {
-        CheckboxItem(
-            label = stringResource(MR.strings.pref_dual_page_invert),
-            pref = screenModel.preferences.dualPageInvertPaged(),
-        )
+    if (isGlass) {
+        CupertinoGroupedCard {
+            togglesContent()
+        }
+    } else {
+        togglesContent()
     }
-
-    val dualPageRotateToFit by screenModel.preferences.dualPageRotateToFit().collectAsState()
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_page_rotate),
-        pref = screenModel.preferences.dualPageRotateToFit(),
-    )
-
-    if (dualPageRotateToFit) {
-        CheckboxItem(
-            label = stringResource(MR.strings.pref_page_rotate_invert),
-            pref = screenModel.preferences.dualPageRotateToFitInvert(),
-        )
-    }
-
-    // SY -->
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_page_transitions),
-        pref = screenModel.preferences.pageTransitionsPager(),
-    )
-
-    CheckboxItem(
-        label = stringResource(SYMR.strings.invert_double_pages),
-        pref = screenModel.preferences.invertDoublePages(),
-    )
-
-    // KMK -->
-    CheckboxItem(
-        label = stringResource(KMR.strings.pref_paged_disable_zoom_in),
-        pref = screenModel.preferences.pagedDisableZoomIn(),
-    )
-    val pagedDisableZoomIn by screenModel.preferences.pagedDisableZoomIn().collectAsState()
-    if (!pagedDisableZoomIn) {
-        CheckboxItem(
-            label = stringResource(MR.strings.pref_double_tap_zoom),
-            pref = screenModel.preferences.pagedDoubleTapZoomEnabled(),
-        )
-    }
-    // KMK <--
 
     val centerMarginType by screenModel.preferences.centerMarginType().collectAsState()
     SettingsChipRow(SYMR.strings.pref_center_margin) {
@@ -214,6 +239,7 @@ private fun WebtoonViewerSettings(
     // KMK <--
 ) {
     val numberFormat = remember { NumberFormat.getPercentInstance() }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
 
     HeadingItem(MR.strings.webtoon_viewer)
 
@@ -244,92 +270,123 @@ private fun WebtoonViewerSettings(
     // KMK <--
 
     val webtoonSidePadding by screenModel.preferences.webtoonSidePadding().collectAsState()
-    SliderItem(
-        value = webtoonSidePadding,
-        valueRange = ReaderPreferences.let { it.WEBTOON_PADDING_MIN..it.WEBTOON_PADDING_MAX },
-        label = stringResource(MR.strings.pref_webtoon_side_padding),
-        valueString = numberFormat.format(webtoonSidePadding / 100f),
-        onChange = {
-            screenModel.preferences.webtoonSidePadding().set(it)
-        },
-        pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-    )
+    val webtoonTogglesContent: @Composable () -> Unit = {
+        SliderItem(
+            value = webtoonSidePadding,
+            valueRange = ReaderPreferences.let { it.WEBTOON_PADDING_MIN..it.WEBTOON_PADDING_MAX },
+            label = stringResource(MR.strings.pref_webtoon_side_padding),
+            valueString = numberFormat.format(webtoonSidePadding / 100f),
+            onChange = {
+                screenModel.preferences.webtoonSidePadding().set(it)
+            },
+            pillColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        )
 
-    // KMK -->
-    CheckboxItem(
-        label = stringResource(KMR.strings.pref_viewer_nav_smaller_tap_zone),
-        pref = screenModel.preferences.smallerTapZone(),
-    )
-    // KMK <--
-
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_crop_borders),
-        pref = screenModel.preferences.cropBordersWebtoon(),
-    )
-
-    // SY -->
-    CheckboxItem(
-        label = stringResource(SYMR.strings.pref_smooth_scroll),
-        pref = screenModel.preferences.smoothAutoScroll(),
-    )
-
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_page_transitions),
-        pref = screenModel.preferences.pageTransitionsWebtoon(),
-    )
-    // SY <--
-
-    val dualPageSplitWebtoon by screenModel.preferences.dualPageSplitWebtoon().collectAsState()
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_dual_page_split),
-        pref = screenModel.preferences.dualPageSplitWebtoon(),
-    )
-
-    if (dualPageSplitWebtoon) {
+        // KMK -->
+        if (isGlass) CupertinoGroupedDivider()
         CheckboxItem(
-            label = stringResource(MR.strings.pref_dual_page_invert),
-            pref = screenModel.preferences.dualPageInvertWebtoon(),
+            label = stringResource(KMR.strings.pref_viewer_nav_smaller_tap_zone),
+            pref = screenModel.preferences.smallerTapZone(),
+        )
+        // KMK <--
+
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_crop_borders),
+            pref = screenModel.preferences.cropBordersWebtoon(),
+        )
+
+        // SY -->
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(SYMR.strings.pref_smooth_scroll),
+            pref = screenModel.preferences.smoothAutoScroll(),
+        )
+
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_page_transitions),
+            pref = screenModel.preferences.pageTransitionsWebtoon(),
+        )
+        // SY <--
+
+        val dualPageSplitWebtoon by screenModel.preferences.dualPageSplitWebtoon().collectAsState()
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_dual_page_split),
+            pref = screenModel.preferences.dualPageSplitWebtoon(),
+        )
+
+        if (dualPageSplitWebtoon) {
+            if (isGlass) CupertinoGroupedDivider()
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_dual_page_invert),
+                pref = screenModel.preferences.dualPageInvertWebtoon(),
+            )
+        }
+
+        val dualPageRotateToFitWebtoon by screenModel.preferences.dualPageRotateToFitWebtoon().collectAsState()
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_page_rotate),
+            pref = screenModel.preferences.dualPageRotateToFitWebtoon(),
+        )
+
+        if (dualPageRotateToFitWebtoon) {
+            if (isGlass) CupertinoGroupedDivider()
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_page_rotate_invert),
+                pref = screenModel.preferences.dualPageRotateToFitInvertWebtoon(),
+            )
+        }
+
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_double_tap_zoom),
+            pref = screenModel.preferences.webtoonDoubleTapZoomEnabled(),
+        )
+        // KMK -->
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(KMR.strings.pref_pinch_to_zoom),
+            pref = screenModel.preferences.webtoonPinchToZoomEnabled(),
+        )
+        // KMK <--
+        if (isGlass) CupertinoGroupedDivider()
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_webtoon_disable_zoom_out),
+            pref = screenModel.preferences.webtoonDisableZoomOut(),
         )
     }
 
-    val dualPageRotateToFitWebtoon by screenModel.preferences.dualPageRotateToFitWebtoon().collectAsState()
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_page_rotate),
-        pref = screenModel.preferences.dualPageRotateToFitWebtoon(),
-    )
-
-    if (dualPageRotateToFitWebtoon) {
-        CheckboxItem(
-            label = stringResource(MR.strings.pref_page_rotate_invert),
-            pref = screenModel.preferences.dualPageRotateToFitInvertWebtoon(),
-        )
+    if (isGlass) {
+        CupertinoGroupedCard {
+            webtoonTogglesContent()
+        }
+    } else {
+        webtoonTogglesContent()
     }
-
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_double_tap_zoom),
-        pref = screenModel.preferences.webtoonDoubleTapZoomEnabled(),
-    )
-    // KMK -->
-    CheckboxItem(
-        label = stringResource(KMR.strings.pref_pinch_to_zoom),
-        pref = screenModel.preferences.webtoonPinchToZoomEnabled(),
-    )
-    // KMK <--
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_webtoon_disable_zoom_out),
-        pref = screenModel.preferences.webtoonDisableZoomOut(),
-    )
 }
 
 // SY -->
 @Composable
 private fun WebtoonWithGapsViewerSettings(screenModel: ReaderSettingsScreenModel) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     HeadingItem(MR.strings.vertical_plus_viewer)
 
-    CheckboxItem(
-        label = stringResource(MR.strings.pref_crop_borders),
-        pref = screenModel.preferences.cropBordersContinuousVertical(),
-    )
+    if (isGlass) {
+        CupertinoGroupedCard {
+            CheckboxItem(
+                label = stringResource(MR.strings.pref_crop_borders),
+                pref = screenModel.preferences.cropBordersContinuousVertical(),
+            )
+        }
+    } else {
+        CheckboxItem(
+            label = stringResource(MR.strings.pref_crop_borders),
+            pref = screenModel.preferences.cropBordersContinuousVertical(),
+        )
+    }
 }
 // SY <--
 

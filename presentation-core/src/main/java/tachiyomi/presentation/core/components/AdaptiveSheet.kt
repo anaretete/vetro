@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -81,7 +80,10 @@ fun AdaptiveSheet(
         val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
     }
-    val sheetExportedBackdrop = rememberLayerBackdrop()
+    val childSurfaceBackdrop = rememberCanvasBackdrop {
+        val baseColor = if (isDark) Color(0xFF25252A) else Color(0xFFF2F2F7)
+        drawRect(baseColor)
+    }
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -115,7 +117,6 @@ fun AdaptiveSheet(
                     refractionAmount = 20.dp,
                     surfaceColor = sheetBg,
                     backdrop = sheetBackdrop,
-                    exportedBackdrop = sheetExportedBackdrop,
                     depthEffect = false,
                 )
                 .then(modifier)
@@ -150,7 +151,7 @@ fun AdaptiveSheet(
                 color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
                 content = {
                     CompositionLocalProvider(
-                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+                        LocalLayerBackdrop provides if (isGlass) childSurfaceBackdrop else sheetBackdrop,
                     ) {
                         BackHandler(
                             enabled = remember { derivedStateOf { alpha > 0f } }.value,
@@ -219,7 +220,7 @@ fun AdaptiveSheet(
                     onClick = {},
                 )
                 .then(
-                    if (enableSwipeDismiss) {
+                    if (enableSwipeDismiss && !isGlass) {
                         Modifier.nestedScroll(
                             remember(anchoredDraggableState) {
                                 anchoredDraggableState.preUpPostDownNestedScrollConnection {
@@ -251,11 +252,17 @@ fun AdaptiveSheet(
                             ?: 0,
                     )
                 }
-                .anchoredDraggable(
-                    state = anchoredDraggableState,
-                    orientation = Orientation.Vertical,
-                    enabled = enableSwipeDismiss,
-                    flingBehavior = flingBehavior,
+                .then(
+                    if (!isGlass) {
+                        Modifier.anchoredDraggable(
+                            state = anchoredDraggableState,
+                            orientation = Orientation.Vertical,
+                            enabled = enableSwipeDismiss,
+                            flingBehavior = flingBehavior,
+                        )
+                    } else {
+                        Modifier
+                    },
                 )
                 .then(if (isGlass) Modifier else Modifier.navigationBarsPadding())
                 .statusBarsPadding()
@@ -268,7 +275,6 @@ fun AdaptiveSheet(
                     refractionAmount = 18.dp,
                     surfaceColor = sheetBg,
                     backdrop = sheetBackdrop,
-                    exportedBackdrop = sheetExportedBackdrop,
                     depthEffect = false,
                 )
             } else {
@@ -281,7 +287,7 @@ fun AdaptiveSheet(
                 color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
                 content = {
                     CompositionLocalProvider(
-                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+                        LocalLayerBackdrop provides if (isGlass) childSurfaceBackdrop else sheetBackdrop,
                     ) {
                         BackHandler(
                             enabled = anchoredDraggableState.targetValue == 0,
@@ -294,7 +300,20 @@ fun AdaptiveSheet(
                                     .fillMaxWidth()
                                     .navigationBarsPadding(),
                             ) {
-                                CupertinoGrabber()
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .anchoredDraggable(
+                                            state = anchoredDraggableState,
+                                            orientation = Orientation.Vertical,
+                                            enabled = enableSwipeDismiss,
+                                            flingBehavior = flingBehavior,
+                                        )
+                                        .padding(top = 2.dp),
+                                ) {
+                                    CupertinoGrabber()
+                                }
                                 content()
                             }
                         } else {

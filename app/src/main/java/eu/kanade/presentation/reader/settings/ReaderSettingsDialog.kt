@@ -9,6 +9,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
@@ -32,6 +36,7 @@ fun ReaderSettingsDialog(
         stringResource(MR.strings.custom_filter),
     )
     val pagerState = rememberPagerState { tabTitles.size }
+    var menuHiddenByFilter by remember { mutableStateOf(false) }
 
     BoxWithConstraints {
         TabbedDialog(
@@ -45,13 +50,19 @@ fun ReaderSettingsDialog(
         ) { page ->
             val window = (LocalView.current.parent as? DialogWindowProvider)?.window
 
-            LaunchedEffect(pagerState.currentPage) {
-                if (pagerState.currentPage == 2) {
-                    window?.setDimAmount(0f)
-                    onHideMenus()
-                } else {
-                    window?.setDimAmount(0.5f)
-                    onShowMenus()
+            if (page == pagerState.currentPage) {
+                LaunchedEffect(pagerState.currentPage) {
+                    if (pagerState.currentPage == 2) {
+                        window?.setDimAmount(0f)
+                        menuHiddenByFilter = true
+                        onHideMenus()
+                    } else {
+                        window?.setDimAmount(0.5f)
+                        if (menuHiddenByFilter) {
+                            menuHiddenByFilter = false
+                            onShowMenus()
+                        }
+                    }
                 }
             }
 

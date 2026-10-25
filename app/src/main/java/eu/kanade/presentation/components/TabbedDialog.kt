@@ -1,12 +1,9 @@
 package eu.kanade.presentation.components
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -29,7 +26,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.DropdownMenu
@@ -62,7 +58,6 @@ import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.MoreHoriz
 import tachiyomi.presentation.core.components.material.TabText
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 
 object TabbedDialogPaddings {
@@ -110,9 +105,10 @@ fun TabbedDialog(
                             .padding(2.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
+                        val activePage = pagerState.targetPage
                         val segmentWidth = maxWidth / tabTitles.size.coerceAtLeast(1)
                         val indicatorOffset by animateDpAsState(
-                            targetValue = segmentWidth * pagerState.currentPage,
+                            targetValue = segmentWidth * activePage,
                             animationSpec = spring(
                                 dampingRatio = 0.85f,
                                 stiffness = Spring.StiffnessMediumLow,
@@ -134,7 +130,7 @@ fun TabbedDialog(
                         // Segment Text Buttons
                         Row(modifier = Modifier.fillMaxSize()) {
                             tabTitles.fastForEachIndexed { index, title ->
-                                val isSelected = pagerState.currentPage == index
+                                val isSelected = activePage == index
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
@@ -211,8 +207,7 @@ fun TabbedDialog(
             HorizontalPager(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
-                    .animateContentSize(),
+                    .weight(1f, fill = false),
                 state = pagerState,
                 userScrollEnabled = false,
                 verticalAlignment = Alignment.Top,

@@ -47,10 +47,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.getSystemService
@@ -347,28 +349,53 @@ class ReaderActivity : BaseActivity() {
 
             val isDark = isSystemInDarkTheme()
             val currentBinding = binding
+            var viewerSnapshot by remember { mutableStateOf<ImageBitmap?>(null) }
             var backdropTick by remember { mutableIntStateOf(0) }
-            LaunchedEffect(state.currentPage, state.currentPageText, state.viewerChapters, state.menuVisible, state.dialog) {
-                backdropTick++
-                delay(16)
-                backdropTick++
-                delay(48)
-                backdropTick++
+            fun captureViewerSnapshot() {
+                try {
+                    val container = currentBinding.viewerContainer
+                    val w = container.width
+                    val h = container.height
+                    if (w > 0 && h > 0) {
+                        val scale = 0.2f
+                        val targetW = (w * scale).toInt().coerceAtLeast(1)
+                        val targetH = (h * scale).toInt().coerceAtLeast(1)
+                        val bmp = android.graphics.Bitmap.createBitmap(
+                            targetW,
+                            targetH,
+                            android.graphics.Bitmap.Config.ARGB_8888,
+                        )
+                        val c = android.graphics.Canvas(bmp)
+                        c.scale(targetW.toFloat() / w.toFloat(), targetH.toFloat() / h.toFloat())
+                        container.draw(c)
+                        bmp.prepareToDraw()
+                        viewerSnapshot = bmp.asImageBitmap()
+                        backdropTick++
+                    }
+                } catch (_: Throwable) {
+                }
+            }
+            LaunchedEffect(state.currentPage, state.currentPageText, state.viewerChapters, state.menuVisible, state.dialog != null) {
+                if (state.menuVisible || state.dialog != null) {
+                    captureViewerSnapshot()
+                    delay(48)
+                    captureViewerSnapshot()
+                }
             }
             val readerBackdrop = rememberLayerBackdrop {
                 @Suppress("UNUSED_VARIABLE")
                 val tick = backdropTick
-
-                @Suppress("UNUSED_VARIABLE")
-                val page = state.currentPage
                 val baseColor = if (isDark) ComposeColor(0xFF16161A) else ComposeColor(0xFFF2F2F6)
                 drawRect(baseColor)
-                try {
-                    val nativeCanvas = drawContext.canvas.nativeCanvas
-                    if (currentBinding.viewerContainer.width > 0 && currentBinding.viewerContainer.height > 0) {
-                        currentBinding.viewerContainer.draw(nativeCanvas)
-                    }
-                } catch (_: Throwable) {
+                val snap = viewerSnapshot
+                if (snap != null) {
+                    drawImage(
+                        image = snap,
+                        dstSize = IntSize(
+                            size.width.toInt().coerceAtLeast(1),
+                            size.height.toInt().coerceAtLeast(1),
+                        ),
+                    )
                 }
                 drawContent()
             }
