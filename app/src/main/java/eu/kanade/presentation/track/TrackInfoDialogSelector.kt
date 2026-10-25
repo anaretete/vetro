@@ -56,8 +56,8 @@ fun TrackStatusSelector(
         title = stringResource(MR.strings.status),
         content = {
             val state = rememberLazyListState()
+            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
             ScrollbarLazyColumn(state = state) {
-                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                 selections.forEach { (key, value) ->
                     val isSelected = selection == key
                     item {
