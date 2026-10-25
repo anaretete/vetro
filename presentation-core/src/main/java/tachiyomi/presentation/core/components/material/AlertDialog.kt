@@ -127,18 +127,17 @@ fun AlertDialogContent(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = androidx.compose.foundation.isSystemInDarkTheme()
-    val dialogBg = if (isDark) androidx.compose.ui.graphics.Color(0xFF222226).copy(alpha = 0.76f) else androidx.compose.ui.graphics.Color(0xFFF6F6FA).copy(alpha = 0.82f)
+    val dialogBg = if (isDark) androidx.compose.ui.graphics.Color(0xFF222226).copy(alpha = 0.75f) else androidx.compose.ui.graphics.Color(0xFFF9F9F9).copy(alpha = 0.85f)
 
     val dialogModifier = if (isGlass) {
         modifier
             .sizeIn(minWidth = 280.dp, maxWidth = 320.dp)
             .liquidGlassSurface(
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
-                blurRadius = 14.dp,
-                refractionHeight = 14.dp,
-                refractionAmount = 20.dp,
-                surfaceColor = dialogBg,
-                depthEffect = false,
+                blurRadius = 22.dp,
+                refractionHeight = 22.dp,
+                refractionAmount = 30.dp,
+                tintColor = dialogBg,
             )
     } else {
         modifier

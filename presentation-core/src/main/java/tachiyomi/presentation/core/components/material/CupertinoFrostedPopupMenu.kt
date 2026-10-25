@@ -61,11 +61,10 @@ fun CupertinoFrostedPopup(
                 .widthIn(min = 190.dp, max = 280.dp)
                 .liquidGlassSurface(
                     shape = shape,
-                    blurRadius = 14.dp,
-                    refractionHeight = 12.dp,
-                    refractionAmount = 18.dp,
-                    surfaceColor = if (isDark) Color(0xFF222226).copy(alpha = 0.78f) else Color(0xFFF6F6FA).copy(alpha = 0.84f),
-                    depthEffect = false,
+                    blurRadius = 24.dp,
+                    refractionHeight = 16.dp,
+                    refractionAmount = 22.dp,
+                    tintColor = if (isDark) Color(0xFF252528).copy(alpha = 0.88f) else Color(0xFFF6F6F8).copy(alpha = 0.94f),
                 ),
             shape = shape,
             containerColor = Color.Transparent,

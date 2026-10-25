@@ -540,7 +540,7 @@ fun CupertinoActionSheetCard(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val cardBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.76f) else Color(0xFFF6F6FA).copy(alpha = 0.82f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.72f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
     } else {
         if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9)
     }
@@ -550,11 +550,10 @@ fun CupertinoActionSheetCard(
             .fillMaxWidth()
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 14.dp,
-                refractionHeight = 14.dp,
-                refractionAmount = 20.dp,
-                surfaceColor = cardBg,
-                depthEffect = false,
+                blurRadius = 20.dp,
+                refractionHeight = 20.dp,
+                refractionAmount = 28.dp,
+                tintColor = cardBg,
             )
     } else {
         modifier
@@ -582,7 +581,7 @@ fun CupertinoCancelPill(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val pillBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFF6F6FA).copy(alpha = 0.86f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
     } else {
         if (isDark) Color(0xFF222226) else Color(0xFFFFFFFF)
     }
@@ -593,11 +592,10 @@ fun CupertinoCancelPill(
             .height(54.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 14.dp,
-                refractionHeight = 14.dp,
-                refractionAmount = 20.dp,
-                surfaceColor = pillBg,
-                depthEffect = false,
+                blurRadius = 20.dp,
+                refractionHeight = 20.dp,
+                refractionAmount = 28.dp,
+                tintColor = pillBg,
             )
     } else {
         modifier

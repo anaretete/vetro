@@ -66,7 +66,7 @@ fun ReaderTopBar(
     val isDark = isSystemInDarkTheme()
 
     if (isGlass) {
-        val glassTintColor = if (isDark) Color(0xFF18181C).copy(alpha = 0.36f) else Color.White.copy(alpha = 0.44f)
+        val glassTintColor = if (isDark) Color(0x1418181A) else Color(0x14FFFFFF)
         val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
         var showOverflow by remember { mutableStateOf(false) }
         val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
@@ -82,10 +82,10 @@ fun ReaderTopBar(
                     .size(44.dp)
                     .liquidGlassSurface(
                         shape = CircleShape,
-                        blurRadius = 8.dp,
-                        refractionHeight = 14.dp,
+                        blurRadius = 14.dp,
+                        refractionHeight = 16.dp,
                         refractionAmount = 22.dp,
-                        surfaceColor = glassTintColor,
+                        tintColor = glassTintColor,
                     )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -112,10 +112,10 @@ fun ReaderTopBar(
                     modifier = Modifier
                         .liquidGlassSurface(
                             shape = Capsule(),
-                            blurRadius = 8.dp,
-                            refractionHeight = 14.dp,
+                            blurRadius = 16.dp,
+                            refractionHeight = 16.dp,
                             refractionAmount = 24.dp,
-                            surfaceColor = glassTintColor,
+                            tintColor = glassTintColor,
                         )
                         .padding(horizontal = 16.dp, vertical = 6.dp)
                         .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
@@ -157,10 +157,10 @@ fun ReaderTopBar(
                         .size(44.dp)
                         .liquidGlassSurface(
                             shape = CircleShape,
-                            blurRadius = 8.dp,
-                            refractionHeight = 14.dp,
+                            blurRadius = 14.dp,
+                            refractionHeight = 16.dp,
                             refractionAmount = 22.dp,
-                            surfaceColor = glassTintColor,
+                            tintColor = glassTintColor,
                         )
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -185,10 +185,10 @@ fun ReaderTopBar(
                                 .size(44.dp)
                                 .liquidGlassSurface(
                                     shape = CircleShape,
-                                    blurRadius = 8.dp,
-                                    refractionHeight = 14.dp,
+                                    blurRadius = 14.dp,
+                                    refractionHeight = 16.dp,
                                     refractionAmount = 22.dp,
-                                    surfaceColor = glassTintColor,
+                                    tintColor = glassTintColor,
                                 )
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
