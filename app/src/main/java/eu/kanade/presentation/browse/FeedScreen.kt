@@ -302,18 +302,26 @@ fun <T> RadioSelectorSearchable(
     selected: Int?,
     onSelectOption: (Int) -> Unit = {},
 ) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     Column(Modifier.verticalScroll(rememberScrollState())) {
         optionStrings.forEachIndexed { index, option ->
             Row(
                 Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { onSelectOption(index) },
+                    .clickable { onSelectOption(index) }
+                    .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RadioButton(selected == index, onClick = null)
-                Spacer(Modifier.width(MaterialTheme.padding.extraSmall))
-                Text(option, maxLines = 1)
+                if (isGlass) {
+                    Text(option, maxLines = 1, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(MaterialTheme.padding.small))
+                    tachiyomi.presentation.core.components.material.CupertinoCheckmark(checked = selected == index)
+                } else {
+                    RadioButton(selected == index, onClick = null)
+                    Spacer(Modifier.width(MaterialTheme.padding.extraSmall))
+                    Text(option, maxLines = 1)
+                }
             }
         }
     }
@@ -332,6 +340,7 @@ fun RadioSelectorSearchable(
         onChangeSearchQuery?.invoke("")
     }
 
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     Column(Modifier.verticalScroll(rememberScrollState())) {
         SourcesSearchBox(
             searchQuery = queryString,
@@ -345,12 +354,21 @@ fun RadioSelectorSearchable(
                 Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { onSelectOption(index) },
+                    .clickable { onSelectOption(index) }
+                    .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RadioButton(selected == index, onClick = null)
-                Spacer(Modifier.width(MaterialTheme.padding.extraSmall))
-                option()
+                if (isGlass) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        option()
+                    }
+                    Spacer(Modifier.width(MaterialTheme.padding.small))
+                    tachiyomi.presentation.core.components.material.CupertinoCheckmark(checked = selected == index)
+                } else {
+                    RadioButton(selected == index, onClick = null)
+                    Spacer(Modifier.width(MaterialTheme.padding.extraSmall))
+                    option()
+                }
             }
         }
     }

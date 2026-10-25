@@ -213,10 +213,17 @@ class ClearDatabaseScreen : Screen() {
                 )
                 Text(text = stringResource(MR.strings.clear_database_source_item_count, count))
             }
-            Checkbox(
-                checked = isSelected,
-                onCheckedChange = { onClickSelect() },
-            )
+            if (tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled) {
+                tachiyomi.presentation.core.components.material.CupertinoCheckmark(
+                    checked = isSelected,
+                    onCheckedChange = { onClickSelect() },
+                )
+            } else {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onClickSelect() },
+                )
+            }
         }
     }
 }

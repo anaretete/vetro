@@ -285,22 +285,11 @@ object SettingsSecurityScreen : SearchableSettings {
                                     false -> selected.remove(day)
                                 }
                             }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onSelectionChanged() },
-                            ) {
-                                Checkbox(
-                                    checked = isSelected,
-                                    onCheckedChange = { onSelectionChanged() },
-                                )
-                                Text(
-                                    text = stringResource(day.stringRes),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(start = 12.dp),
-                                )
-                            }
+                            tachiyomi.presentation.core.components.LabeledCheckbox(
+                                label = stringResource(day.stringRes),
+                                checked = isSelected,
+                                onCheckedChange = { onSelectionChanged() },
+                            )
                         }
                     }
                 }

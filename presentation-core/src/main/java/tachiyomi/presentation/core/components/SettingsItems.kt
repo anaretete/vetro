@@ -437,26 +437,15 @@ fun TriStateItem(
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
                 modifier = Modifier.weight(1f),
             )
-            when (state) {
-                TriState.ENABLED_IS -> CupertinoCheckmark(checked = true, tint = Color(0xFF0A84FF))
-                TriState.DISABLED -> CupertinoCheckmark(checked = false)
-                TriState.ENABLED_NOT -> {
-                    Box(
-                        modifier = Modifier
-                            .size(22.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFFF453A)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp),
-                        )
-                    }
-                }
-            }
+            tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
+                state = when (state) {
+                    TriState.ENABLED_IS -> androidx.compose.ui.state.ToggleableState.On
+                    TriState.DISABLED -> androidx.compose.ui.state.ToggleableState.Off
+                    TriState.ENABLED_NOT -> androidx.compose.ui.state.ToggleableState.Indeterminate
+                },
+                excludeIsCross = true,
+                enabled = enabled && onClick != null,
+            )
         } else {
             Icon(
                 imageVector = when (state) {

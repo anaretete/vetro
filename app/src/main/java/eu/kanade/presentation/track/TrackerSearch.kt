@@ -78,7 +78,9 @@ import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.components.material.Button
 import tachiyomi.presentation.core.components.material.IconButton
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.Scaffold
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
@@ -119,10 +121,32 @@ fun TrackerSearch(
                         }
                     },
                     title = {
+                        val isGlass = LocalLiquidGlassConfig.current.enabled
+                        val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+                        val searchModifier = if (isGlass) {
+                            val searchBg = if (isDark) {
+                                Color(0xFF2C2C2E).copy(alpha = 0.68f)
+                            } else {
+                                Color(0xFFE5E5EA).copy(alpha = 0.76f)
+                            }
+                            Modifier
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .liquidGlassSurface(
+                                    shape = com.kyant.shapes.Capsule(),
+                                    blurRadius = 10.dp,
+                                    refractionHeight = 8.dp,
+                                    refractionAmount = 14.dp,
+                                    surfaceColor = searchBg,
+                                    depthEffect = false,
+                                )
+                                .padding(horizontal = 14.dp)
+                        } else {
+                            Modifier.fillMaxWidth()
+                        }
                         BasicTextField(
                             state = state,
-                            modifier = Modifier
-                                .fillMaxWidth()
+                            modifier = searchModifier
                                 .focusRequester(focusRequester)
                                 .runOnEnterKeyPressed(action = dispatchQueryAndClearFocus),
                             textStyle = MaterialTheme.typography.bodyLarge
@@ -132,14 +156,18 @@ fun TrackerSearch(
                             onKeyboardAction = { dispatchQueryAndClearFocus() },
                             cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                             decorator = {
-                                if (state.text.isEmpty()) {
-                                    Text(
-                                        text = stringResource(MR.strings.action_search_hint),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                    )
+                                Box(contentAlignment = Alignment.CenterStart) {
+                                    if (state.text.isEmpty()) {
+                                        Text(
+                                            text = stringResource(MR.strings.action_search_hint),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
+                                    it()
                                 }
-                                it()
                             },
                         )
                     },

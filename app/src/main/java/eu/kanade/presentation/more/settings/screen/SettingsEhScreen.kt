@@ -531,17 +531,36 @@ object SettingsEhScreen : SearchableSettings {
         columnState: LanguageDialogState.ColumnState,
         onStateChange: (LanguageDialogState.ColumnState) -> Unit,
     ) {
+        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
         if (columnState != LanguageDialogState.ColumnState.Unavailable) {
-            Checkbox(
-                checked = columnState == LanguageDialogState.ColumnState.Enabled,
-                onCheckedChange = {
-                    if (it) {
-                        onStateChange(LanguageDialogState.ColumnState.Enabled)
-                    } else {
-                        onStateChange(LanguageDialogState.ColumnState.Disabled)
-                    }
-                },
-            )
+            if (isGlass) {
+                Box(
+                    modifier = Modifier.size(48.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    tachiyomi.presentation.core.components.material.CupertinoCheckmark(
+                        checked = columnState == LanguageDialogState.ColumnState.Enabled,
+                        onCheckedChange = {
+                            if (it) {
+                                onStateChange(LanguageDialogState.ColumnState.Enabled)
+                            } else {
+                                onStateChange(LanguageDialogState.ColumnState.Disabled)
+                            }
+                        },
+                    )
+                }
+            } else {
+                Checkbox(
+                    checked = columnState == LanguageDialogState.ColumnState.Enabled,
+                    onCheckedChange = {
+                        if (it) {
+                            onStateChange(LanguageDialogState.ColumnState.Enabled)
+                        } else {
+                            onStateChange(LanguageDialogState.ColumnState.Disabled)
+                        }
+                    },
+                )
+            }
         } else {
             Box(modifier = Modifier.size(48.dp))
         }

@@ -57,6 +57,7 @@ fun TrackStatusSelector(
         content = {
             val state = rememberLazyListState()
             ScrollbarLazyColumn(state = state) {
+                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                 selections.forEach { (key, value) ->
                     val isSelected = selection == key
                     item {
@@ -69,17 +70,31 @@ fun TrackStatusSelector(
                                     onClick = { onSelectionChange(key) },
                                 )
                                 .fillMaxWidth()
-                                .minimumInteractiveComponentSize(),
+                                .minimumInteractiveComponentSize()
+                                .padding(horizontal = 4.dp),
                         ) {
-                            RadioButton(
-                                selected = isSelected,
-                                onClick = null,
-                            )
-                            Text(
-                                text = value?.let { stringResource(it) } ?: "",
-                                style = MaterialTheme.typography.bodyLarge.merge(),
-                                modifier = Modifier.padding(start = 24.dp),
-                            )
+                            if (isGlass) {
+                                Text(
+                                    text = value?.let { stringResource(it) } ?: "",
+                                    style = MaterialTheme.typography.bodyLarge.merge(),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 16.dp),
+                                )
+                                tachiyomi.presentation.core.components.material.CupertinoCheckmark(
+                                    checked = isSelected,
+                                )
+                            } else {
+                                RadioButton(
+                                    selected = isSelected,
+                                    onClick = null,
+                                )
+                                Text(
+                                    text = value?.let { stringResource(it) } ?: "",
+                                    style = MaterialTheme.typography.bodyLarge.merge(),
+                                    modifier = Modifier.padding(start = 24.dp),
+                                )
+                            }
                         }
                     }
                 }

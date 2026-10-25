@@ -214,25 +214,12 @@ object SettingsMangadexScreen : SearchableSettings {
                         .verticalScroll(rememberScrollState()),
                 ) {
                     items.forEachIndexed { index, followOption ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    val checked = selection.getOrNull(index) ?: false
-                                    selection[index] = !checked
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Checkbox(
-                                checked = selection.getOrNull(index) ?: false,
-                                onCheckedChange = null,
-                            )
-
-                            Text(
-                                text = followOption,
-                                modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
-                            )
-                        }
+                        val checked = selection.getOrNull(index) ?: false
+                        tachiyomi.presentation.core.components.LabeledCheckbox(
+                            label = followOption,
+                            checked = checked,
+                            onCheckedChange = { selection[index] = it },
+                        )
                     }
                 }
             },

@@ -64,6 +64,7 @@ fun ScanlatorFilterDialog(
                     ) { scanlator ->
                         // KMK <--
                         val isExcluded = mutableExcludedScanlators.contains(scanlator)
+                        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
@@ -79,24 +80,42 @@ fun ScanlatorFilterDialog(
                                 .fillMaxWidth()
                                 .padding(horizontal = MaterialTheme.padding.small),
                         ) {
-                            Icon(
-                                imageVector = if (isExcluded) {
-                                    Icons.Rounded.DisabledByDefault
-                                } else {
-                                    Icons.Rounded.CheckBoxOutlineBlank
-                                },
-                                tint = if (isExcluded) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    LocalContentColor.current
-                                },
-                                contentDescription = null,
-                            )
-                            Text(
-                                text = scanlator,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(start = 24.dp),
-                            )
+                            if (isGlass) {
+                                Text(
+                                    text = scanlator,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 16.dp),
+                                )
+                                tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
+                                    state = if (isExcluded) {
+                                        androidx.compose.ui.state.ToggleableState.Indeterminate
+                                    } else {
+                                        androidx.compose.ui.state.ToggleableState.Off
+                                    },
+                                    excludeIsCross = true,
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = if (isExcluded) {
+                                        Icons.Rounded.DisabledByDefault
+                                    } else {
+                                        Icons.Rounded.CheckBoxOutlineBlank
+                                    },
+                                    tint = if (isExcluded) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        LocalContentColor.current
+                                    },
+                                    contentDescription = null,
+                                )
+                                Text(
+                                    text = scanlator,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 24.dp),
+                                )
+                            }
                         }
                     }
                 }

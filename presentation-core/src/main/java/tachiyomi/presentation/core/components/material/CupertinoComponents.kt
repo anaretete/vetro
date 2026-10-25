@@ -2,7 +2,9 @@ package tachiyomi.presentation.core.components.material
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -45,11 +47,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -234,40 +244,288 @@ fun CupertinoGrabber(
 }
 
 /**
- * iOS Circular Checkmark Indicator
+ * Authentic Apple iOS Circular Checkbox / Multi-Select Indicator (`UICellAccessory.multiselect`)
+ * Features smooth spring animation, specular rim lighting, and SF-Symbols rounded-cap stroke geometry.
  */
 @Composable
 fun CupertinoCheckmark(
     checked: Boolean,
     modifier: Modifier = Modifier,
-    tint: Color = Color(0xFF0A84FF),
+    tint: Color = if (isSystemInDarkTheme()) Color(0xFF0A84FF) else Color(0xFF007AFF),
+    enabled: Boolean = true,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
 ) {
-    if (checked) {
-        Box(
-            modifier = modifier
-                .size(22.dp)
-                .clip(CircleShape)
-                .background(tint),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(14.dp),
+    val isDark = isSystemInDarkTheme()
+    val progress by animateFloatAsState(
+        targetValue = if (checked) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = 0.72f,
+            stiffness = 520f,
+        ),
+        label = "cupertino_checkmark_progress",
+    )
+    val stateAlpha = if (enabled) 1f else 0.42f
+    val clickModifier = if (onCheckedChange != null) {
+        Modifier
+            .clickable(
+                enabled = enabled,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = { onCheckedChange(!checked) },
+            )
+            .padding(6.dp)
+    } else {
+        Modifier
+    }
+
+    Canvas(
+        modifier = modifier
+            .then(clickModifier)
+            .size(22.dp),
+    ) {
+        val w = size.width
+        val h = size.height
+        val radius = (minOf(w, h) / 2f) - 1.dp.toPx()
+        val center = Offset(w / 2f, h / 2f)
+
+        // 1. Unchecked circular ring + subtle inner glass fill
+        val uncheckedAlpha = (1f - progress).coerceIn(0f, 1f) * stateAlpha
+        if (uncheckedAlpha > 0.01f) {
+            drawCircle(
+                color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.05f * uncheckedAlpha),
+                radius = radius,
+                center = center,
+            )
+            drawCircle(
+                color = (if (isDark) Color(0xFF98989D) else Color(0xFF8E8E93)).copy(alpha = 0.62f * uncheckedAlpha),
+                radius = radius,
+                center = center,
+                style = Stroke(width = 1.6.dp.toPx()),
             )
         }
+
+        // 2. Checked Apple badge + SF Symbols rounded checkmark
+        val checkedAlpha = progress.coerceIn(0f, 1f) * stateAlpha
+        if (checkedAlpha > 0.01f) {
+            val badgeScale = 0.80f + 0.20f * progress
+            scale(scale = badgeScale, pivot = center) {
+                drawCircle(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            tint.copy(alpha = checkedAlpha),
+                            tint.copy(alpha = 0.90f * checkedAlpha),
+                        ),
+                    ),
+                    radius = radius + 0.5.dp.toPx(),
+                    center = center,
+                )
+                // Specular top rim
+                drawCircle(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.34f * checkedAlpha),
+                            Color.Transparent,
+                        ),
+                    ),
+                    radius = radius,
+                    center = center,
+                    style = Stroke(width = 0.8.dp.toPx()),
+                )
+
+                val checkPath = Path().apply {
+                    moveTo(w * 0.28f, h * 0.52f)
+                    lineTo(w * 0.44f, h * 0.68f)
+                    lineTo(w * 0.73f, h * 0.35f)
+                }
+                drawPath(
+                    path = checkPath,
+                    color = Color.White.copy(alpha = checkedAlpha),
+                    style = Stroke(
+                        width = 2.05.dp.toPx(),
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
+                    ),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Authentic Apple iOS 3-State Checkbox / Filter Indicator
+ * Supports Off (unchecked ring), On (Apple Blue checkmark), and Exclude/Indeterminate (Apple Red X or Blue Dash).
+ */
+@Composable
+fun CupertinoTriStateCheckmark(
+    state: ToggleableState,
+    modifier: Modifier = Modifier,
+    excludeIsCross: Boolean = true,
+    enabled: Boolean = true,
+    onClick: (() -> Unit)? = null,
+) {
+    val isDark = isSystemInDarkTheme()
+    val blueTint = if (isDark) Color(0xFF0A84FF) else Color(0xFF007AFF)
+    val redTint = if (isDark) Color(0xFFFF453A) else Color(0xFFFF3B30)
+    val isActive = state != ToggleableState.Off
+    val progress by animateFloatAsState(
+        targetValue = if (isActive) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = 0.72f,
+            stiffness = 520f,
+        ),
+        label = "cupertino_tristate_progress",
+    )
+    val stateAlpha = if (enabled) 1f else 0.42f
+    val clickModifier = if (onClick != null) {
+        Modifier
+            .clickable(
+                enabled = enabled,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onClick,
+            )
+            .padding(6.dp)
     } else {
-        Box(
-            modifier = modifier
-                .size(22.dp)
-                .clip(CircleShape)
-                .border(
-                    width = 1.5.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.40f),
-                    shape = CircleShape,
-                ),
-        )
+        Modifier
+    }
+
+    Canvas(
+        modifier = modifier
+            .then(clickModifier)
+            .size(22.dp),
+    ) {
+        val w = size.width
+        val h = size.height
+        val radius = (minOf(w, h) / 2f) - 1.dp.toPx()
+        val center = Offset(w / 2f, h / 2f)
+
+        val uncheckedAlpha = (1f - progress).coerceIn(0f, 1f) * stateAlpha
+        if (uncheckedAlpha > 0.01f) {
+            drawCircle(
+                color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.05f * uncheckedAlpha),
+                radius = radius,
+                center = center,
+            )
+            drawCircle(
+                color = (if (isDark) Color(0xFF98989D) else Color(0xFF8E8E93)).copy(alpha = 0.62f * uncheckedAlpha),
+                radius = radius,
+                center = center,
+                style = Stroke(width = 1.6.dp.toPx()),
+            )
+        }
+
+        val activeAlpha = progress.coerceIn(0f, 1f) * stateAlpha
+        if (activeAlpha > 0.01f) {
+            val badgeColor = if (state == ToggleableState.Indeterminate && excludeIsCross) redTint else blueTint
+            val badgeScale = 0.80f + 0.20f * progress
+            scale(scale = badgeScale, pivot = center) {
+                drawCircle(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            badgeColor.copy(alpha = activeAlpha),
+                            badgeColor.copy(alpha = 0.90f * activeAlpha),
+                        ),
+                    ),
+                    radius = radius + 0.5.dp.toPx(),
+                    center = center,
+                )
+                drawCircle(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.34f * activeAlpha),
+                            Color.Transparent,
+                        ),
+                    ),
+                    radius = radius,
+                    center = center,
+                    style = Stroke(width = 0.8.dp.toPx()),
+                )
+
+                val strokeStyle = Stroke(
+                    width = 2.05.dp.toPx(),
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                )
+                if (state == ToggleableState.On) {
+                    val checkPath = Path().apply {
+                        moveTo(w * 0.28f, h * 0.52f)
+                        lineTo(w * 0.44f, h * 0.68f)
+                        lineTo(w * 0.73f, h * 0.35f)
+                    }
+                    drawPath(
+                        path = checkPath,
+                        color = Color.White.copy(alpha = activeAlpha),
+                        style = strokeStyle,
+                    )
+                } else if (excludeIsCross) {
+                    val crossPath = Path().apply {
+                        moveTo(w * 0.33f, h * 0.33f)
+                        lineTo(w * 0.67f, h * 0.67f)
+                        moveTo(w * 0.67f, h * 0.33f)
+                        lineTo(w * 0.33f, h * 0.67f)
+                    }
+                    drawPath(
+                        path = crossPath,
+                        color = Color.White.copy(alpha = activeAlpha),
+                        style = strokeStyle,
+                    )
+                } else {
+                    drawLine(
+                        color = Color.White.copy(alpha = activeAlpha),
+                        start = Offset(w * 0.30f, h * 0.50f),
+                        end = Offset(w * 0.70f, h * 0.50f),
+                        strokeWidth = 2.2.dp.toPx(),
+                        cap = StrokeCap.Round,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Authentic Apple iOS Single-Selection List Checkmark (`UICellAccessory.checkmark`)
+ * Draws a crisp SF-Symbols rounded blue checkmark without an outer circle for single-choice lists.
+ */
+@Composable
+fun CupertinoListCheckmark(
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    tint: Color = if (isSystemInDarkTheme()) Color(0xFF0A84FF) else Color(0xFF007AFF),
+) {
+    val progress by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = spring(
+            dampingRatio = 0.75f,
+            stiffness = 550f,
+        ),
+        label = "cupertino_list_checkmark",
+    )
+    if (progress > 0.01f) {
+        Canvas(
+            modifier = modifier.size(20.dp),
+        ) {
+            val w = size.width
+            val h = size.height
+            scale(scale = 0.8f + 0.2f * progress) {
+                val checkPath = Path().apply {
+                    moveTo(w * 0.18f, h * 0.54f)
+                    lineTo(w * 0.42f, h * 0.78f)
+                    lineTo(w * 0.84f, h * 0.24f)
+                }
+                drawPath(
+                    path = checkPath,
+                    color = tint.copy(alpha = progress.coerceIn(0f, 1f)),
+                    style = Stroke(
+                        width = 2.2.dp.toPx(),
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round,
+                    ),
+                )
+            }
+        }
+    } else {
+        Spacer(modifier = modifier.size(20.dp))
     }
 }
 

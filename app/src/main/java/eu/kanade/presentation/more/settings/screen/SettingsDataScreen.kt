@@ -465,37 +465,29 @@ object SettingsDataScreen : SearchableSettings {
             },
             text = {
                 Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = titleSelected,
-                            onCheckedChange = { checked ->
-                                titleSelected = checked
-                                if (!checked) {
-                                    authorSelected = false
-                                    artistSelected = false
-                                }
-                            },
-                        )
-                        Text(text = stringResource(MR.strings.title))
-                    }
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = authorSelected,
-                            onCheckedChange = { authorSelected = it },
-                            enabled = titleSelected,
-                        )
-                        Text(text = stringResource(MR.strings.author))
-                    }
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = artistSelected,
-                            onCheckedChange = { artistSelected = it },
-                            enabled = titleSelected,
-                        )
-                        Text(text = stringResource(MR.strings.artist))
-                    }
+                    tachiyomi.presentation.core.components.LabeledCheckbox(
+                        label = stringResource(MR.strings.title),
+                        checked = titleSelected,
+                        onCheckedChange = { checked ->
+                            titleSelected = checked
+                            if (!checked) {
+                                authorSelected = false
+                                artistSelected = false
+                            }
+                        },
+                    )
+                    tachiyomi.presentation.core.components.LabeledCheckbox(
+                        label = stringResource(MR.strings.author),
+                        checked = authorSelected,
+                        onCheckedChange = { authorSelected = it },
+                        enabled = titleSelected,
+                    )
+                    tachiyomi.presentation.core.components.LabeledCheckbox(
+                        label = stringResource(MR.strings.artist),
+                        checked = artistSelected,
+                        onCheckedChange = { artistSelected = it },
+                        enabled = titleSelected,
+                    )
                 }
             },
             confirmButton = {

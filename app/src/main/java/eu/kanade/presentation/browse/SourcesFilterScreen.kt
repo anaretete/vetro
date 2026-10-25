@@ -208,7 +208,11 @@ private fun SourcesFilterItem(
         // KMK <--
         onClickItem = { onClickItem(source) },
         action = {
-            Checkbox(checked = enabled, onCheckedChange = null)
+            if (tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled) {
+                tachiyomi.presentation.core.components.material.CupertinoCheckmark(checked = enabled)
+            } else {
+                Checkbox(checked = enabled, onCheckedChange = null)
+            }
         },
     )
 }

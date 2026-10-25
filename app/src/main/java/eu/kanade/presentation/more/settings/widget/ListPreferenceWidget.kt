@@ -181,6 +181,7 @@ private fun DialogRow(
     isSelected: Boolean,
     onSelected: () -> Unit,
 ) {
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -190,16 +191,30 @@ private fun DialogRow(
                 onClick = { if (!isSelected) onSelected() },
             )
             .fillMaxWidth()
-            .minimumInteractiveComponentSize(),
+            .minimumInteractiveComponentSize()
+            .padding(horizontal = 4.dp),
     ) {
-        RadioButton(
-            selected = isSelected,
-            onClick = null,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge.merge(),
-            modifier = Modifier.padding(start = 24.dp),
-        )
+        if (isGlass) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.merge(),
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp),
+            )
+            tachiyomi.presentation.core.components.material.CupertinoCheckmark(
+                checked = isSelected,
+            )
+        } else {
+            RadioButton(
+                selected = isSelected,
+                onClick = null,
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge.merge(),
+                modifier = Modifier.padding(start = 24.dp),
+            )
+        }
     }
 }

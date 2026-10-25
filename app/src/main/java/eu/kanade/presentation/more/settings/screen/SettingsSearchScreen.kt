@@ -2,10 +2,13 @@ package eu.kanade.presentation.more.settings.screen
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -46,12 +50,15 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.kyant.shapes.Capsule
 import eu.kanade.presentation.components.UpIcon
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.util.Screen
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.IconButton
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.Scaffold
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.util.runOnEnterKeyPressed
@@ -100,10 +107,32 @@ class SettingsSearchScreen : Screen() {
                             }
                         },
                         title = {
+                            val isGlass = LocalLiquidGlassConfig.current.enabled
+                            val isDark = isSystemInDarkTheme()
+                            val searchModifier = if (isGlass) {
+                                val searchBg = if (isDark) {
+                                    Color(0xFF2C2C2E).copy(alpha = 0.68f)
+                                } else {
+                                    Color(0xFFE5E5EA).copy(alpha = 0.76f)
+                                }
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(40.dp)
+                                    .liquidGlassSurface(
+                                        shape = Capsule(),
+                                        blurRadius = 10.dp,
+                                        refractionHeight = 8.dp,
+                                        refractionAmount = 14.dp,
+                                        surfaceColor = searchBg,
+                                        depthEffect = false,
+                                    )
+                                    .padding(horizontal = 14.dp)
+                            } else {
+                                Modifier.fillMaxWidth()
+                            }
                             BasicTextField(
                                 state = textFieldState,
-                                modifier = Modifier
-                                    .fillMaxWidth()
+                                modifier = searchModifier
                                     .focusRequester(focusRequester)
                                     .runOnEnterKeyPressed(action = focusManager::clearFocus),
                                 textStyle = MaterialTheme.typography.bodyLarge
@@ -113,14 +142,18 @@ class SettingsSearchScreen : Screen() {
                                 onKeyboardAction = { focusManager.clearFocus() },
                                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                                 decorator = {
-                                    if (textFieldState.text.isEmpty()) {
-                                        Text(
-                                            text = stringResource(MR.strings.action_search_settings),
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            style = MaterialTheme.typography.bodyLarge,
-                                        )
+                                    Box(contentAlignment = Alignment.CenterStart) {
+                                        if (textFieldState.text.isEmpty()) {
+                                            Text(
+                                                text = stringResource(MR.strings.action_search_settings),
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        }
+                                        it()
                                     }
-                                    it()
                                 },
                             )
                         },

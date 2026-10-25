@@ -76,6 +76,7 @@ fun <T> TriStateListDialog(
                     LazyColumn(state = listState) {
                         itemsIndexed(items = items) { index, item ->
                             val state = selected[index]
+                            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                             Row(
                                 modifier = Modifier
                                     .clip(MaterialTheme.shapes.small)
@@ -87,30 +88,48 @@ fun <T> TriStateListDialog(
                                         }
                                     }
                                     .defaultMinSize(minHeight = 48.dp)
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    modifier = Modifier.padding(end = 20.dp),
-                                    imageVector = when (state) {
-                                        State.UNCHECKED -> Icons.Rounded.CheckBoxOutlineBlank
-                                        State.CHECKED -> Icons.Rounded.CheckBox
-                                        State.INVERSED -> Icons.Rounded.DisabledByDefault
-                                    },
-                                    tint = if (state == State.UNCHECKED) {
-                                        LocalContentColor.current
-                                    } else {
-                                        MaterialTheme.colorScheme.primary
-                                    },
-                                    contentDescription = stringResource(
-                                        when (state) {
-                                            State.UNCHECKED -> MR.strings.not_selected
-                                            State.CHECKED -> MR.strings.selected
-                                            State.INVERSED -> MR.strings.disabled
+                                if (isGlass) {
+                                    Text(
+                                        text = itemLabel(item),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(end = 16.dp),
+                                    )
+                                    tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
+                                        state = when (state) {
+                                            State.UNCHECKED -> androidx.compose.ui.state.ToggleableState.Off
+                                            State.CHECKED -> androidx.compose.ui.state.ToggleableState.On
+                                            State.INVERSED -> androidx.compose.ui.state.ToggleableState.Indeterminate
                                         },
-                                    ),
-                                )
-                                Text(text = itemLabel(item))
+                                        excludeIsCross = true,
+                                    )
+                                } else {
+                                    Icon(
+                                        modifier = Modifier.padding(end = 20.dp),
+                                        imageVector = when (state) {
+                                            State.UNCHECKED -> Icons.Rounded.CheckBoxOutlineBlank
+                                            State.CHECKED -> Icons.Rounded.CheckBox
+                                            State.INVERSED -> Icons.Rounded.DisabledByDefault
+                                        },
+                                        tint = if (state == State.UNCHECKED) {
+                                            LocalContentColor.current
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        },
+                                        contentDescription = stringResource(
+                                            when (state) {
+                                                State.UNCHECKED -> MR.strings.not_selected
+                                                State.CHECKED -> MR.strings.selected
+                                                State.INVERSED -> MR.strings.disabled
+                                            },
+                                        ),
+                                    )
+                                    Text(text = itemLabel(item))
+                                }
                             }
                         }
                     }

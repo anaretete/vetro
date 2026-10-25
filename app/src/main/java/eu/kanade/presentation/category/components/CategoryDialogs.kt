@@ -296,31 +296,57 @@ fun ChangeCategoryDialog(
                             selection = mutableList.toList().toImmutableList()
                         }
                     }
+                    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onChange(checkbox) },
+                            .clickable { onChange(checkbox) }
+                            .padding(vertical = 10.dp, horizontal = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        when (checkbox) {
-                            is CheckboxState.TriState -> {
-                                TriStateCheckbox(
-                                    state = checkbox.asToggleableState(),
-                                    onClick = { onChange(checkbox) },
-                                )
+                        if (isGlass) {
+                            Text(
+                                text = checkbox.value.visualName,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = MaterialTheme.padding.medium),
+                            )
+                            when (checkbox) {
+                                is CheckboxState.TriState -> {
+                                    tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
+                                        state = checkbox.asToggleableState(),
+                                        excludeIsCross = false,
+                                        onClick = { onChange(checkbox) },
+                                    )
+                                }
+                                is CheckboxState.State -> {
+                                    tachiyomi.presentation.core.components.material.CupertinoCheckmark(
+                                        checked = checkbox.isChecked,
+                                        onCheckedChange = { onChange(checkbox) },
+                                    )
+                                }
                             }
-                            is CheckboxState.State -> {
-                                Checkbox(
-                                    checked = checkbox.isChecked,
-                                    onCheckedChange = { onChange(checkbox) },
-                                )
+                        } else {
+                            when (checkbox) {
+                                is CheckboxState.TriState -> {
+                                    TriStateCheckbox(
+                                        state = checkbox.asToggleableState(),
+                                        onClick = { onChange(checkbox) },
+                                    )
+                                }
+                                is CheckboxState.State -> {
+                                    Checkbox(
+                                        checked = checkbox.isChecked,
+                                        onCheckedChange = { onChange(checkbox) },
+                                    )
+                                }
                             }
-                        }
 
-                        Text(
-                            text = checkbox.value.visualName,
-                            modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
-                        )
+                            Text(
+                                text = checkbox.value.visualName,
+                                modifier = Modifier.padding(horizontal = MaterialTheme.padding.medium),
+                            )
+                        }
                     }
                 }
             }

@@ -489,18 +489,27 @@ fun SearchToolbar(
             }
 
             val searchFieldModifier = if (isGlass) {
+                val searchBg = if (isSystemInDarkTheme()) {
+                    Color(0xFF2C2C2E).copy(alpha = 0.68f)
+                } else {
+                    Color(0xFFE5E5EA).copy(alpha = 0.76f)
+                }
                 Modifier
                     .fillMaxWidth()
-                    .height(38.dp)
+                    .height(40.dp)
                     .liquidGlassSurface(
                         shape = Capsule(),
-                        blurRadius = 8.dp,
-                        refractionHeight = 10.dp,
-                        tintColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.40f),
+                        blurRadius = 10.dp,
+                        refractionHeight = 8.dp,
+                        refractionAmount = 14.dp,
+                        surfaceColor = searchBg,
+                        depthEffect = false,
                     )
-                    .padding(horizontal = 12.dp)
+                    .padding(horizontal = 14.dp)
             } else {
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
             }
 
             BasicTextField(
@@ -511,39 +520,39 @@ fun SearchToolbar(
                     .runOnEnterKeyPressed(action = searchAndClearFocus)
                     .showSoftKeyboard(remember { searchQuery.isEmpty() })
                     .clearFocusOnSoftKeyboardHide(),
-                textStyle = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Normal,
                     fontSize = 16.sp,
+                    lineHeight = 20.sp,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { searchAndClearFocus() }),
                 singleLine = true,
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 visualTransformation = visualTransformation,
                 interactionSource = interactionSource,
                 decorationBox = { innerTextField ->
-                    TextFieldDefaults.DecorationBox(
-                        value = searchQuery,
-                        innerTextField = innerTextField,
-                        enabled = true,
-                        singleLine = true,
-                        visualTransformation = visualTransformation,
-                        interactionSource = interactionSource,
-                        placeholder = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart,
+                    ) {
+                        if (searchQuery.isEmpty()) {
                             Text(
                                 modifier = Modifier.secondaryItemAlpha(),
                                 text = (placeholderText ?: stringResource(MR.strings.action_search_hint)),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontSize = 18.sp,
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 16.sp,
+                                    lineHeight = 20.sp,
                                     fontWeight = FontWeight.Normal,
                                 ),
                             )
-                        },
-                        container = {},
-                    )
+                        }
+                        innerTextField()
+                    }
                 },
             )
         },

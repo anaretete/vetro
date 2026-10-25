@@ -56,6 +56,7 @@ fun LabeledCheckbox(
             )
             CupertinoCheckmark(
                 checked = checked,
+                enabled = enabled,
             )
         } else {
             Checkbox(
