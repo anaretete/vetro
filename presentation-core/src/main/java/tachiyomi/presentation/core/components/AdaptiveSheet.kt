@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -80,6 +81,7 @@ fun AdaptiveSheet(
         val baseColor = if (isDark) Color(0x33121214) else Color(0x33EBEBF0)
         drawRect(baseColor)
     }
+    val sheetExportedBackdrop = rememberLayerBackdrop()
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -112,6 +114,7 @@ fun AdaptiveSheet(
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
+                    exportedBackdrop = sheetExportedBackdrop,
                 )
                 .then(modifier)
         } else {
@@ -139,7 +142,9 @@ fun AdaptiveSheet(
                 .alpha(alpha),
             contentAlignment = Alignment.Center,
         ) {
-            CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
+            CompositionLocalProvider(
+                LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+            ) {
                 Surface(
                     modifier = tabletModifier,
                     shape = tabletShape,
@@ -260,12 +265,15 @@ fun AdaptiveSheet(
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
+                    exportedBackdrop = sheetExportedBackdrop,
                 )
             } else {
                 phoneBaseModifier
             }
 
-            CompositionLocalProvider(LocalLayerBackdrop provides sheetBackdrop) {
+            CompositionLocalProvider(
+                LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+            ) {
                 Surface(
                     modifier = phoneModifier,
                     shape = bottomSheetShape,

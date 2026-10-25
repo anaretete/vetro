@@ -38,8 +38,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -64,6 +66,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.transition.platform.MaterialContainerTransform
 import com.hippo.unifile.UniFile
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import eu.kanade.core.util.ifSourcesLoaded
@@ -344,7 +347,20 @@ class ReaderActivity : BaseActivity() {
 
             val isDark = isSystemInDarkTheme()
             val currentBinding = binding
-            val readerBackdrop = rememberCanvasBackdrop {
+            var backdropTick by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.currentPage, state.currentPageText, state.viewerChapters, state.menuVisible, state.dialog) {
+                backdropTick++
+                delay(16)
+                backdropTick++
+                delay(48)
+                backdropTick++
+            }
+            val readerBackdrop = rememberLayerBackdrop {
+                @Suppress("UNUSED_VARIABLE")
+                val tick = backdropTick
+
+                @Suppress("UNUSED_VARIABLE")
+                val page = state.currentPage
                 val baseColor = if (isDark) ComposeColor(0xFF16161A) else ComposeColor(0xFFF2F2F6)
                 drawRect(baseColor)
                 try {
@@ -354,12 +370,19 @@ class ReaderActivity : BaseActivity() {
                     }
                 } catch (_: Throwable) {
                 }
+                drawContent()
             }
 
             Box(
                 modifier = Modifier.fillMaxSize(),
             ) {
-                ContentOverlay(state = state)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .layerBackdrop(readerBackdrop),
+                ) {
+                    ContentOverlay(state = state)
+                }
 
                 if (!state.menuVisible && showPageNumber) {
                     ReaderPageIndicator(

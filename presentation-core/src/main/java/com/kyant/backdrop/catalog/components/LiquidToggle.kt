@@ -32,6 +32,7 @@ import androidx.compose.ui.util.lerp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberBackdrop
+import com.kyant.backdrop.backdrops.rememberCanvasBackdrop
 import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.utils.DampedDragAnimation
@@ -63,6 +64,12 @@ fun LiquidToggle(
             Color(0xFF787878).copy(0.2f)
         } else {
             Color(0xFF787880).copy(0.36f)
+        }
+    val surfaceColor =
+        if (isLightTheme) {
+            Color(0xFFFFFFFF)
+        } else {
+            Color(0xFF1C1C1E)
         }
 
     val density = LocalDensity.current
@@ -156,6 +163,7 @@ fun LiquidToggle(
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
+                        rememberCanvasBackdrop { drawRect(surfaceColor) },
                         backdrop,
                         rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress

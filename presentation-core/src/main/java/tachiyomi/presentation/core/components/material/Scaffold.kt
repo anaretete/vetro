@@ -129,8 +129,14 @@ fun Scaffold(
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val contentBackdrop = rememberLayerBackdrop()
-    val backgroundCanvasBackdrop = rememberLayerBackdrop()
+    val contentBackdrop = rememberLayerBackdrop {
+        drawRect(containerColor)
+        drawContent()
+    }
+    val backgroundCanvasBackdrop = rememberLayerBackdrop {
+        drawRect(containerColor)
+        drawContent()
+    }
     val remainingWindowInsets = remember { MutableWindowInsets() }
     androidx.compose.material3.Surface(
         modifier = Modifier
@@ -172,8 +178,8 @@ fun Scaffold(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(containerColor)
-                            .layerBackdrop(backgroundCanvasBackdrop),
+                            .layerBackdrop(backgroundCanvasBackdrop)
+                            .background(containerColor),
                     )
 
                     // Sibling 2: Foreground Content! Every button/slider/toggle inside content() now has a REAL
