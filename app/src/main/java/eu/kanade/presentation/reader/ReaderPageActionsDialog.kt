@@ -296,7 +296,7 @@ private fun CupertinoActionItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = if (isDestructive) Color(0xFFFF3B30) else Color(0xFF0A84FF),
+            tint = if (isDestructive) Color(0xFFFF3B30) else MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(22.dp),
         )
     }
@@ -324,7 +324,7 @@ private fun SetCoverDialog(
             ) {
                 Text(
                     text = stringResource(MR.strings.action_ok),
-                    color = Color(0xFF0A84FF),
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -338,7 +338,7 @@ private fun SetCoverDialog(
             ) {
                 Text(
                     text = stringResource(MR.strings.action_cancel),
-                    color = Color(0xFF0A84FF),
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Normal,
                 )
             }

@@ -66,12 +66,12 @@ fun AlertDialogContent(
                         contentAlignment = Alignment.Center,
                     ) {
                         CompositionLocalProvider(
-                            LocalContentColor provides androidx.compose.ui.graphics.Color(0xFF0A84FF),
+                            LocalContentColor provides MaterialTheme.colorScheme.primary,
                         ) {
                             val textStyle = MaterialTheme.typography.labelLarge.copy(
                                 fontSize = 17.sp,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                                color = androidx.compose.ui.graphics.Color(0xFF0A84FF),
+                                color = MaterialTheme.colorScheme.primary,
                             )
                             ProvideTextStyle(value = textStyle, content = buttons)
                         }

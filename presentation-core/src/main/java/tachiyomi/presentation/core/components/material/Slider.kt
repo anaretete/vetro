@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.SliderState
@@ -72,7 +73,7 @@ fun CupertinoSlider(
             valueRange = valueRange,
             steps = steps,
             onValueChangeFinished = onValueChangeFinished,
-            accentColor = accentColor ?: (if (!isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF0A84FF)),
+            accentColor = accentColor ?: MaterialTheme.colorScheme.primary,
         )
         return
     }

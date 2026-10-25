@@ -181,13 +181,13 @@ fun CupertinoAlertDialog(
                         contentAlignment = Alignment.Center,
                     ) {
                         CompositionLocalProvider(
-                            LocalContentColor provides Color(0xFF0A84FF),
+                            LocalContentColor provides MaterialTheme.colorScheme.primary,
                         ) {
                             ProvideTextStyle(
                                 value = MaterialTheme.typography.labelLarge.copy(
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Normal,
-                                    color = Color(0xFF0A84FF),
+                                    color = MaterialTheme.colorScheme.primary,
                                 ),
                             ) {
                                 dismissButton()
@@ -208,13 +208,13 @@ fun CupertinoAlertDialog(
                     contentAlignment = Alignment.Center,
                 ) {
                     CompositionLocalProvider(
-                        LocalContentColor provides Color(0xFF0A84FF),
+                        LocalContentColor provides MaterialTheme.colorScheme.primary,
                     ) {
                         ProvideTextStyle(
                             value = MaterialTheme.typography.labelLarge.copy(
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF0A84FF),
+                                color = MaterialTheme.colorScheme.primary,
                             ),
                         ) {
                             confirmButton()
@@ -251,7 +251,7 @@ fun CupertinoGrabber(
 fun CupertinoCheckmark(
     checked: Boolean,
     modifier: Modifier = Modifier,
-    tint: Color = if (isSystemInDarkTheme()) Color(0xFF0A84FF) else Color(0xFF007AFF),
+    tint: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
 ) {
@@ -364,7 +364,7 @@ fun CupertinoTriStateCheckmark(
     onClick: (() -> Unit)? = null,
 ) {
     val isDark = isSystemInDarkTheme()
-    val blueTint = if (isDark) Color(0xFF0A84FF) else Color(0xFF007AFF)
+    val blueTint = MaterialTheme.colorScheme.primary
     val redTint = if (isDark) Color(0xFFFF453A) else Color(0xFFFF3B30)
     val isActive = state != ToggleableState.Off
     val progress by animateFloatAsState(
@@ -491,7 +491,7 @@ fun CupertinoTriStateCheckmark(
 fun CupertinoListCheckmark(
     selected: Boolean,
     modifier: Modifier = Modifier,
-    tint: Color = if (isSystemInDarkTheme()) Color(0xFF0A84FF) else Color(0xFF007AFF),
+    tint: Color = MaterialTheme.colorScheme.primary,
 ) {
     val progress by animateFloatAsState(
         targetValue = if (selected) 1f else 0f,
@@ -540,7 +540,7 @@ fun CupertinoActionSheetCard(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val cardBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.72f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.40f) else Color(0xFFF9F9F9).copy(alpha = 0.50f)
     } else {
         if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9)
     }
@@ -550,7 +550,7 @@ fun CupertinoActionSheetCard(
             .fillMaxWidth()
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 20.dp,
+                blurRadius = 6.dp,
                 refractionHeight = 20.dp,
                 refractionAmount = 28.dp,
                 tintColor = cardBg,
@@ -581,7 +581,7 @@ fun CupertinoCancelPill(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val pillBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.80f) else Color(0xFFFFFFFF).copy(alpha = 0.90f)
+        if (isDark) Color(0xFF222226).copy(alpha = 0.45f) else Color(0xFFFFFFFF).copy(alpha = 0.55f)
     } else {
         if (isDark) Color(0xFF222226) else Color(0xFFFFFFFF)
     }
@@ -592,7 +592,7 @@ fun CupertinoCancelPill(
             .height(54.dp)
             .liquidGlassSurface(
                 shape = RoundedCornerShape(20.dp),
-                blurRadius = 20.dp,
+                blurRadius = 6.dp,
                 refractionHeight = 20.dp,
                 refractionAmount = 28.dp,
                 tintColor = pillBg,
@@ -612,7 +612,7 @@ fun CupertinoCancelPill(
     ) {
         Text(
             text = text,
-            color = Color(0xFF0A84FF),
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
         )
@@ -684,7 +684,7 @@ fun CupertinoSegmentedControl(
                 if (isGlass) {
                     Modifier.liquidGlassSurface(
                         shape = Capsule(),
-                        blurRadius = 14.dp,
+                        blurRadius = 4.dp,
                         refractionHeight = 14.dp,
                         refractionAmount = 18.dp,
                         tintColor = trackBg,
@@ -718,7 +718,7 @@ fun CupertinoSegmentedControl(
                     if (isGlass) {
                         Modifier.liquidGlassSurface(
                             shape = Capsule(),
-                            blurRadius = 8.dp,
+                            blurRadius = 3.dp,
                             refractionHeight = 10.dp,
                             refractionAmount = 14.dp,
                             tintColor = thumbBg,
@@ -774,7 +774,7 @@ fun CupertinoSegmentedControl(
                                     .clip(Capsule())
                                     .background(
                                         if (selected) {
-                                            Color(0xFFFF3B30)
+                                            MaterialTheme.colorScheme.primary
                                         } else {
                                             (if (isDark) Color.White else Color.Black).copy(alpha = 0.15f)
                                         },
@@ -814,7 +814,7 @@ fun <T> CupertinoGroupedSelectionCard(
     val isDark = isSystemInDarkTheme()
     val shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
+        if (isDark) Color(0x331C1C1E) else Color(0x44FFFFFF)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
@@ -824,7 +824,7 @@ fun <T> CupertinoGroupedSelectionCard(
             .fillMaxWidth()
             .liquidGlassSurface(
                 shape = shape,
-                blurRadius = 16.dp,
+                blurRadius = 6.dp,
                 refractionHeight = 16.dp,
                 refractionAmount = 24.dp,
                 tintColor = cardBg,
@@ -885,7 +885,7 @@ fun <T> CupertinoGroupedSelectionCard(
                         modifier = Modifier.weight(1f),
                     )
                     if (isSelected) {
-                        CupertinoCheckmark(checked = true, tint = Color(0xFF0A84FF))
+                        CupertinoCheckmark(checked = true, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
                 if (index < options.lastIndex) {
@@ -913,7 +913,7 @@ fun CupertinoGroupedCard(
     val isDark = isSystemInDarkTheme()
     val shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color(0x661C1C1E) else Color(0x77FFFFFF)
+        if (isDark) Color(0x331C1C1E) else Color(0x44FFFFFF)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
@@ -923,7 +923,7 @@ fun CupertinoGroupedCard(
             .fillMaxWidth()
             .liquidGlassSurface(
                 shape = shape,
-                blurRadius = 16.dp,
+                blurRadius = 6.dp,
                 refractionHeight = 16.dp,
                 refractionAmount = 24.dp,
                 tintColor = cardBg,

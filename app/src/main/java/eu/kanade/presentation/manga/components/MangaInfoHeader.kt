@@ -391,7 +391,7 @@ fun MangaActionRow(
             MangaActionButton(
                 title = stringResource(MR.strings.action_web_view),
                 icon = Icons.Outlined.Public,
-                color = if (isGlass) Color(0xFF0A84FF) else MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
+                color = MaterialTheme.colorScheme.primary, // KMK: defaultActionButtonColor
                 onClick = onWebViewClicked,
                 onLongClick = onWebViewLongClicked,
             )

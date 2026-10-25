@@ -137,7 +137,7 @@ fun MangaChapterListItem(
                             modifier = Modifier
                                 .height(8.dp)
                                 .padding(end = 4.dp),
-                            tint = if (isGlass) Color(0xFF0A84FF) else MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
                     if (bookmark) {
@@ -146,7 +146,7 @@ fun MangaChapterListItem(
                             contentDescription = stringResource(MR.strings.action_filter_bookmarked),
                             modifier = Modifier
                                 .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
-                            tint = if (isGlass) Color(0xFFFF9500) else MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
                     Text(
@@ -232,7 +232,7 @@ internal fun getSwipeAction(
     return when (action) {
         LibraryPreferences.ChapterSwipeAction.ToggleRead -> swipeAction(
             icon = if (!read) Icons.Outlined.Done else Icons.Outlined.RemoveDone,
-            background = if (isGlass) Color(0xFF007AFF) else background,
+            background = background,
             iconTint = if (isGlass) Color.White else null,
             isUndo = read,
             onSwipe = onSwipe,

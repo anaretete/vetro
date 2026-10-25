@@ -1,8 +1,8 @@
 package tachiyomi.presentation.core.components.material
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -67,12 +69,7 @@ fun CupertinoVerticalSlider(
         val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
     }
-    val accentColor =
-        if (isLightTheme) {
-            Color(0xFF0088FF)
-        } else {
-            Color(0xFF0091FF)
-        }
+    val accentColor = MaterialTheme.colorScheme.primary
     val trackColor =
         if (isLightTheme) {
             Color(0xFF787878).copy(alpha = 0.2f)
@@ -148,49 +145,38 @@ fun CupertinoVerticalSlider(
             onValueChange(targetValue)
         }
 
-        // Gesture handler over the 44dp wide column
+        // Unified gesture handler over the 44dp wide column so moving the hand never cancels press()
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .pointerInput(trackHeight, valueRange, invertDirection) {
-                    detectTapGestures(
-                        onPress = {
-                            dampedDragAnimation.press()
-                            tryAwaitRelease()
+                .pointerInput(trackHeight, valueRange, invertDirection, enabled) {
+                    if (!enabled) return@pointerInput
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        down.consume()
+                        didDrag = true
+                        dampedDragAnimation.press()
+                        updateFromY(down.position.y)
+                        try {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull { it.id == down.id }
+                                    ?: event.changes.firstOrNull()
+                                if (change == null || !change.pressed) {
+                                    break
+                                }
+                                if (change.positionChanged()) {
+                                    change.consume()
+                                    updateFromY(change.position.y)
+                                }
+                            }
+                        } finally {
                             dampedDragAnimation.release()
-                        },
-                        onTap = { position ->
-                            updateFromY(position.y)
                             onValueChange(currentDragValue)
                             onValueChangeFinished?.invoke()
-                        },
-                    )
-                }
-                .pointerInput(trackHeight, valueRange, invertDirection) {
-                    detectDragGestures(
-                        onDragStart = { offset ->
-                            didDrag = true
-                            dampedDragAnimation.press()
-                            updateFromY(offset.y)
-                        },
-                        onDrag = { change, _ ->
-                            change.consume()
-                            updateFromY(change.position.y)
-                        },
-                        onDragEnd = {
-                            dampedDragAnimation.release()
-                            if (didDrag) {
-                                onValueChange(currentDragValue)
-                                onValueChangeFinished?.invoke()
-                            }
                             didDrag = false
-                        },
-                        onDragCancel = {
-                            dampedDragAnimation.release()
-                            onValueChangeFinished?.invoke()
-                            didDrag = false
-                        },
-                    )
+                        }
+                    }
                 },
         )
 

@@ -120,7 +120,7 @@ fun ChapterNavigator(
     }
     val textColor = MaterialTheme.colorScheme.onSurface
 
-    val pillBgColor = if (isDark) Color(0x1418181A) else Color(0x14FFFFFF)
+    val pillBgColor = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
     val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
 
     // We explicitly handle direction based on the reader viewer rather than the system direction
@@ -139,9 +139,9 @@ fun ChapterNavigator(
                         .size(44.dp)
                         .liquidGlassSurface(
                             shape = CircleShape,
-                            blurRadius = 14.dp,
+                            blurRadius = 3.dp,
                             refractionHeight = 16.dp,
-                            refractionAmount = 22.dp,
+                            refractionAmount = 24.dp,
                             tintColor = pillBgColor,
                         )
                         .clickable(
@@ -184,9 +184,9 @@ fun ChapterNavigator(
                         .padding(horizontal = 8.dp)
                         .liquidGlassSurface(
                             shape = Capsule(),
-                            blurRadius = 16.dp,
+                            blurRadius = 3.dp,
                             refractionHeight = 16.dp,
-                            refractionAmount = 24.dp,
+                            refractionAmount = 26.dp,
                             tintColor = pillBgColor,
                             backdrop = parentBackdrop,
                             exportedBackdrop = sliderPillBackdrop,
@@ -270,9 +270,9 @@ fun ChapterNavigator(
                         .size(44.dp)
                         .liquidGlassSurface(
                             shape = CircleShape,
-                            blurRadius = 14.dp,
+                            blurRadius = 3.dp,
                             refractionHeight = 16.dp,
-                            refractionAmount = 22.dp,
+                            refractionAmount = 24.dp,
                             tintColor = pillBgColor,
                         )
                         .clickable(
@@ -350,7 +350,7 @@ fun ChapterNavigatorVert(
         )
         val textColor = MaterialTheme.colorScheme.onSurface
 
-        val pillBgColor = if (isDark) Color(0x1418181A) else Color(0x14FFFFFF)
+        val pillBgColor = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
         val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
 
         if (isGlass) {
@@ -359,9 +359,9 @@ fun ChapterNavigatorVert(
                     .size(44.dp)
                     .liquidGlassSurface(
                         shape = CircleShape,
-                        blurRadius = 14.dp,
+                        blurRadius = 3.dp,
                         refractionHeight = 16.dp,
-                        refractionAmount = 22.dp,
+                        refractionAmount = 24.dp,
                         tintColor = pillBgColor,
                     )
                     .clickable(
@@ -402,9 +402,9 @@ fun ChapterNavigatorVert(
                     .padding(vertical = 8.dp)
                     .liquidGlassSurface(
                         shape = Capsule(),
-                        blurRadius = 16.dp,
+                        blurRadius = 3.dp,
                         refractionHeight = 16.dp,
-                        refractionAmount = 24.dp,
+                        refractionAmount = 26.dp,
                         tintColor = pillBgColor,
                         backdrop = parentBackdrop,
                         exportedBackdrop = sliderPillBackdrop,
@@ -474,9 +474,9 @@ fun ChapterNavigatorVert(
                     .size(44.dp)
                     .liquidGlassSurface(
                         shape = CircleShape,
-                        blurRadius = 14.dp,
+                        blurRadius = 3.dp,
                         refractionHeight = 16.dp,
-                        refractionAmount = 22.dp,
+                        refractionAmount = 24.dp,
                         tintColor = pillBgColor,
                     )
                     .clickable(

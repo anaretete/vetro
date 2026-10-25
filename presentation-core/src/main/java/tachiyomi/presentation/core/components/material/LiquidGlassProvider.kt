@@ -132,15 +132,14 @@ fun Modifier.liquidGlassSurface(
         }
     }
 
-    val defaultAlpha = if (isDark) 0.22f else 0.28f
-    val effectiveTintAlpha = (defaultAlpha * config.tintAlphaMultiplier).coerceIn(0f, 1f)
+    val defaultAlpha = if (isDark) 0.16f else 0.22f
     val baseTint = if (tintColor.isSpecified && tintColor != Color.Transparent) {
-        tintColor.copy(alpha = effectiveTintAlpha)
+        tintColor.copy(alpha = (tintColor.alpha * config.tintAlphaMultiplier).coerceIn(0f, 1f))
     } else {
         if (isDark) {
-            Color.White.copy(alpha = (0.12f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.10f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         } else {
-            Color.White.copy(alpha = (0.35f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.24f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         }
     }
 
@@ -169,10 +168,7 @@ fun Modifier.liquidGlassSurface(
         highlight = { Highlight.Default },
         shadow = if (hasShadow) ({ Shadow.Default }) else null,
         onDrawSurface = {
-            if (tintColor.isSpecified && tintColor != Color.Transparent) {
-                drawRect(tintColor, blendMode = BlendMode.Hue)
-                drawRect(baseTint)
-            } else if (surfaceColor.isSpecified) {
+            if (surfaceColor.isSpecified) {
                 drawRect(surfaceColor)
             } else {
                 drawRect(baseTint)

@@ -576,7 +576,7 @@ private fun MangaScreenSmallImpl(
                                     blurRadius = 14.dp,
                                     refractionHeight = 18.dp,
                                     refractionAmount = 28.dp,
-                                    tintColor = Color(0xFF007AFF),
+                                    tintColor = MaterialTheme.colorScheme.primary,
                                 )
                             } else {
                                 Modifier
@@ -606,7 +606,7 @@ private fun MangaScreenSmallImpl(
                                 }
                             }
                         },
-                    containerColor = if (isGlass) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.primary,
                     // KMK <--
                 )
             }
@@ -718,7 +718,7 @@ private fun MangaScreenSmallImpl(
                                             .fillMaxWidth()
                                             .padding(horizontal = 16.dp, vertical = 6.dp)
                                             .height(48.dp),
-                                        tint = Color(0xFF007AFF),
+                                        tint = MaterialTheme.colorScheme.primary,
                                         contentColor = Color.White,
                                     ) {
                                         Icon(
@@ -1128,7 +1128,7 @@ private fun MangaScreenLargeImpl(
                                 blurRadius = 14.dp,
                                 refractionHeight = 18.dp,
                                 refractionAmount = 28.dp,
-                                tintColor = Color(0xFF007AFF),
+                                tintColor = MaterialTheme.colorScheme.primary,
                             )
                         } else {
                             Modifier
@@ -1158,7 +1158,7 @@ private fun MangaScreenLargeImpl(
                             }
                         }
                     },
-                containerColor = if (tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled) Color(0xFF007AFF) else MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.primary,
                 // KMK <--
             )
         },

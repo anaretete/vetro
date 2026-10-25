@@ -523,12 +523,12 @@ private fun CategoriesFilter(
         )
         Spacer(Modifier.weight(1f))
         TextButton(onClick = { showCategoriesDialog = true }) {
-            Text(stringResource(MR.strings.action_edit), color = Color(0xFF0A84FF))
+            Text(stringResource(MR.strings.action_edit), color = MaterialTheme.colorScheme.primary)
         }
         if (isGlass) {
             CupertinoCheckmark(
                 checked = filterCategories,
-                tint = Color(0xFF0A84FF),
+                tint = MaterialTheme.colorScheme.primary,
             )
         } else {
             Checkbox(

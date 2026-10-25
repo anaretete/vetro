@@ -195,7 +195,7 @@ private fun ExtensionContent(
                                         if (isGlass) {
                                             LiquidButton(
                                                 onClick = { onClickUpdateAll() },
-                                                tint = Color(0xFF007AFF),
+                                                tint = MaterialTheme.colorScheme.primary,
                                                 shape = Capsule(),
                                                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                                             ) {
@@ -223,7 +223,7 @@ private fun ExtensionContent(
                                         if (isGlass) {
                                             LiquidButton(
                                                 onClick = { navigator?.push(ExtensionStoresScreen()) },
-                                                tint = Color(0xFF007AFF),
+                                                tint = MaterialTheme.colorScheme.primary,
                                                 shape = Capsule(),
                                                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                                             ) {

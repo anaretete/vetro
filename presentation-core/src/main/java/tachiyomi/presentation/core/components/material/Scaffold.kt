@@ -127,6 +127,7 @@ fun Scaffold(
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    captureContentBackdrop: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val contentBackdrop = rememberLayerBackdrop {
@@ -137,6 +138,7 @@ fun Scaffold(
         drawRect(containerColor)
         drawContent()
     }
+    val effectiveBarBackdrop = if (captureContentBackdrop) contentBackdrop else backgroundCanvasBackdrop
     val remainingWindowInsets = remember { MutableWindowInsets() }
     androidx.compose.material3.Surface(
         modifier = Modifier
@@ -153,17 +155,17 @@ fun Scaffold(
         ScaffoldLayout(
             fabPosition = floatingActionButtonPosition,
             topBar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides effectiveBarBackdrop) {
                     topBar(topBarScrollBehavior)
                 }
             },
             startBar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides effectiveBarBackdrop) {
                     startBar()
                 }
             },
             bottomBar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides effectiveBarBackdrop) {
                     bottomBar()
                 }
             },
@@ -172,7 +174,13 @@ fun Scaffold(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .layerBackdrop(contentBackdrop),
+                        .then(
+                            if (captureContentBackdrop) {
+                                Modifier.layerBackdrop(contentBackdrop)
+                            } else {
+                                Modifier
+                            },
+                        ),
                 ) {
                     // Sibling 1: Ambient iOS Backdrop Canvas recorded into backgroundCanvasBackdrop
                     Box(
@@ -190,13 +198,13 @@ fun Scaffold(
                 }
             },
             snackbar = {
-                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides effectiveBarBackdrop) {
                     snackbarHost()
                 }
             },
             contentWindowInsets = remainingWindowInsets,
             fab = {
-                CompositionLocalProvider(LocalLayerBackdrop provides contentBackdrop) {
+                CompositionLocalProvider(LocalLayerBackdrop provides effectiveBarBackdrop) {
                     floatingActionButton()
                 }
             },

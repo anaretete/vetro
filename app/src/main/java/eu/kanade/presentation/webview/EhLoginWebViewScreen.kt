@@ -65,6 +65,7 @@ fun EhLoginWebViewScreen(
     }
 
     Scaffold(
+        captureContentBackdrop = false,
         topBar = {
             Box {
                 AppBar(

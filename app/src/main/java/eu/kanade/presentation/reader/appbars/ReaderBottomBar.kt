@@ -69,14 +69,14 @@ fun ReaderBottomBar(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val containerBg = if (isDark) Color(0x1418181A) else Color(0x14FFFFFF)
+    val containerBg = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
     val containerBorder = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
 
     val effectiveModifier = if (isGlass) {
         modifier
             .liquidGlassSurface(
                 shape = Capsule(),
-                blurRadius = 18.dp,
+                blurRadius = 3.dp,
                 refractionHeight = 20.dp,
                 refractionAmount = 28.dp,
                 tintColor = containerBg,
@@ -137,7 +137,7 @@ fun ReaderBottomBar(
                 contentDescription = stringResource(MR.strings.viewer),
                 icon = painterResource(readingMode.iconRes),
                 isActive = readingMode != ReadingMode.DEFAULT,
-                activeColor = Color(0xFF0A84FF),
+                activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
             )
@@ -149,7 +149,7 @@ fun ReaderBottomBar(
                 contentDescription = stringResource(MR.strings.pref_rotation_type),
                 icon = orientation.icon,
                 isActive = orientation != ReaderOrientation.DEFAULT,
-                activeColor = Color(0xFFFF9F0A),
+                activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
             )
@@ -168,7 +168,7 @@ fun ReaderBottomBar(
                     if (cropEnabled) R.drawable.ic_crop_24dp else R.drawable.ic_crop_off_24dp,
                 ),
                 isActive = cropEnabled,
-                activeColor = Color(0xFF0A84FF),
+                activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
             )
@@ -194,7 +194,7 @@ fun ReaderBottomBar(
                 contentDescription = stringResource(SYMR.strings.shift_double_pages),
                 icon = painterResource(R.drawable.ic_page_next_outline_24dp),
                 isActive = true,
-                activeColor = Color(0xFF0A84FF),
+                activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
             )
@@ -218,7 +218,7 @@ private fun ReaderBottomBarItem(
     icon: Any,
     modifier: Modifier = Modifier,
     isActive: Boolean = false,
-    activeColor: Color = Color(0xFF0A84FF),
+    activeColor: Color = MaterialTheme.colorScheme.primary,
     isDark: Boolean = isSystemInDarkTheme(),
     isGlass: Boolean = true,
 ) {

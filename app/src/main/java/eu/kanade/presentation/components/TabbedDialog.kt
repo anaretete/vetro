@@ -102,7 +102,7 @@ fun TabbedDialog(
                             .height(36.dp)
                             .liquidGlassSurface(
                                 shape = Capsule(),
-                                blurRadius = 14.dp,
+                                blurRadius = 4.dp,
                                 refractionHeight = 14.dp,
                                 refractionAmount = 18.dp,
                                 tintColor = trackBg,
@@ -129,7 +129,7 @@ fun TabbedDialog(
                                 .fillMaxHeight()
                                 .liquidGlassSurface(
                                     shape = Capsule(),
-                                    blurRadius = 8.dp,
+                                    blurRadius = 3.dp,
                                     refractionHeight = 10.dp,
                                     refractionAmount = 14.dp,
                                     tintColor = pillBg,

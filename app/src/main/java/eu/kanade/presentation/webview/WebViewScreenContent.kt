@@ -135,9 +135,9 @@ fun WebViewScreenContent(
                 // Ignore intents urls
                 if (url.startsWith("intent://")) return true
 
-                // Only open valid web urls
-                if (url.startsWith("http") || url.startsWith("https")) {
-                    if (url != view?.url) {
+                // Only open valid web urls in main frame with custom headers
+                if (request.isForMainFrame && (url.startsWith("http") || url.startsWith("https"))) {
+                    if (url != view?.url && headers.isNotEmpty()) {
                         view?.loadUrl(url, headers)
                         return true
                     }
@@ -186,6 +186,7 @@ fun WebViewScreenContent(
     BackHandler(windowStack.size > 1, popState)
 
     Scaffold(
+        captureContentBackdrop = false,
         topBar = {
             Box {
                 Column {

@@ -347,8 +347,32 @@ class ReaderActivity : BaseActivity() {
 
             val isDark = isSystemInDarkTheme()
             val currentBinding = binding
+            val colorOverlayEnabled by readerPreferences.colorFilter().collectAsState()
+            val colorOverlay by readerPreferences.colorFilterValue().collectAsState()
+            val colorOverlayMode by readerPreferences.colorFilterMode().collectAsState()
+            val colorOverlayBlendMode = remember(colorOverlayMode) {
+                ReaderPreferences.ColorFilterMode.getOrNull(colorOverlayMode)?.second
+            }
+            val grayscale by readerPreferences.grayscale().collectAsState()
+            val invertedColors by readerPreferences.invertedColors().collectAsState()
+            val layerPaint = remember(grayscale, invertedColors) {
+                if (grayscale || invertedColors) config?.getCombinedPaint(grayscale, invertedColors) else null
+            }
+
             var backdropTick by remember { mutableIntStateOf(0) }
-            LaunchedEffect(state.currentPage, state.currentPageText, state.viewerChapters, state.menuVisible, state.dialog) {
+            LaunchedEffect(
+                state.currentPage,
+                state.currentPageText,
+                state.viewerChapters,
+                state.menuVisible,
+                state.dialog,
+                state.brightnessOverlayValue,
+                colorOverlayEnabled,
+                colorOverlay,
+                colorOverlayMode,
+                grayscale,
+                invertedColors,
+            ) {
                 backdropTick++
                 delay(16)
                 backdropTick++
@@ -361,14 +385,36 @@ class ReaderActivity : BaseActivity() {
 
                 @Suppress("UNUSED_VARIABLE")
                 val page = state.currentPage
+                val brightness = state.brightnessOverlayValue
+                val filterEnabled = colorOverlayEnabled
+                val filterColor = colorOverlay
+                val filterBlend = colorOverlayBlendMode
+                val activePaint = layerPaint
+
                 val baseColor = if (isDark) ComposeColor(0xFF16161A) else ComposeColor(0xFFF2F2F6)
                 drawRect(baseColor)
                 try {
                     val nativeCanvas = drawContext.canvas.nativeCanvas
                     if (currentBinding.viewerContainer.width > 0 && currentBinding.viewerContainer.height > 0) {
-                        currentBinding.viewerContainer.draw(nativeCanvas)
+                        if (activePaint != null) {
+                            val saveCount = nativeCanvas.saveLayer(null, activePaint)
+                            currentBinding.viewerContainer.draw(nativeCanvas)
+                            nativeCanvas.restoreToCount(saveCount)
+                        } else {
+                            currentBinding.viewerContainer.draw(nativeCanvas)
+                        }
                     }
                 } catch (_: Throwable) {
+                }
+                if (brightness < 0) {
+                    val brightnessAlpha = (kotlin.math.abs(brightness) / 100f).coerceIn(0f, 1f)
+                    drawRect(ComposeColor.Black.copy(alpha = brightnessAlpha))
+                }
+                if (filterEnabled) {
+                    drawRect(
+                        color = ComposeColor(filterColor),
+                        blendMode = filterBlend ?: androidx.compose.ui.graphics.BlendMode.SrcOver,
+                    )
                 }
                 drawContent()
             }
@@ -380,9 +426,9 @@ class ReaderActivity : BaseActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .layerBackdrop(readerBackdrop),
-                ) {
-                    ContentOverlay(state = state)
-                }
+                )
+
+                ContentOverlay(state = state)
 
                 if (!state.menuVisible && showPageNumber) {
                     ReaderPageIndicator(
@@ -1399,7 +1445,7 @@ class ReaderActivity : BaseActivity() {
      */
     private inner class ReaderConfig {
 
-        private fun getCombinedPaint(grayscale: Boolean, invertedColors: Boolean): Paint {
+        internal fun getCombinedPaint(grayscale: Boolean, invertedColors: Boolean): Paint {
             return Paint().apply {
                 colorFilter = ColorMatrixColorFilter(
                     ColorMatrix().apply {

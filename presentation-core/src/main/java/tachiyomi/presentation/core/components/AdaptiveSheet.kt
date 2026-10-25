@@ -76,7 +76,7 @@ fun AdaptiveSheet(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val existingBackdrop = LocalLayerBackdrop.current
-    val sheetBg = if (isDark) Color(0x3316161A) else Color(0x33F2F2F6)
+    val sheetBg = if (isDark) Color(0x2416161A) else Color(0x24F2F2F6)
     val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
         val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
@@ -110,7 +110,7 @@ fun AdaptiveSheet(
                 .padding(vertical = 16.dp)
                 .liquidGlassSurface(
                     shape = tabletShape,
-                    blurRadius = 30.dp,
+                    blurRadius = 8.dp,
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,
@@ -268,7 +268,7 @@ fun AdaptiveSheet(
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier.liquidGlassSurface(
                     shape = bottomSheetShape,
-                    blurRadius = 30.dp,
+                    blurRadius = 8.dp,
                     refractionHeight = 24.dp,
                     refractionAmount = 32.dp,
                     tintColor = sheetBg,

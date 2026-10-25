@@ -100,10 +100,10 @@ fun ModeSelectionDialog(
                             .height(44.dp)
                             .liquidGlassSurface(
                                 shape = Capsule(),
-                                blurRadius = 14.dp,
+                                blurRadius = 6.dp,
                                 refractionHeight = 16.dp,
                                 refractionAmount = 24.dp,
-                                tintColor = Color(0xFF0A84FF),
+                                tintColor = MaterialTheme.colorScheme.primary,
                             ),
                     ) {
                         Row(

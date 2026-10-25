@@ -148,9 +148,9 @@ fun ReaderAppBars(
                 bookmarked = bookmarked,
                 onToggleBookmarked = onToggleBookmarked,
                 // SY -->
-                onOpenInWebView = null, // onOpenInWebView,
-                onOpenInBrowser = null, // onOpenInBrowser,
-                onShare = null, // onShare,
+                onOpenInWebView = onOpenInWebView,
+                onOpenInBrowser = onOpenInBrowser,
+                onShare = onShare,
                 // SY <--
                 onClickTopAppBar = onClickTopAppBar,
             )
