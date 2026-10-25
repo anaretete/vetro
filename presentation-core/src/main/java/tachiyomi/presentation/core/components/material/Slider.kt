@@ -87,11 +87,20 @@ fun CupertinoSlider(
     val currentOnValueChange by rememberUpdatedState(onValueChange)
     val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
     val rangeSpan = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
-    val threshold = if (steps > 0) rangeSpan / (steps + 1) else 0.001f
+    val threshold = (rangeSpan * 0.0001f).coerceAtLeast(0.0001f)
 
     var internalValue by remember { mutableFloatStateOf(value) }
     LaunchedEffect(value) {
-        internalValue = value
+        if (steps > 0) {
+            val stepCount = steps + 1
+            val currentStep = (((internalValue - valueRange.start) / rangeSpan).coerceIn(0f, 1f) * stepCount).roundToInt()
+            val incomingStep = (((value - valueRange.start) / rangeSpan).coerceIn(0f, 1f) * stepCount).roundToInt()
+            if (currentStep != incomingStep) {
+                internalValue = value
+            }
+        } else if (kotlin.math.abs(internalValue - value) > threshold * 10f) {
+            internalValue = value
+        }
     }
 
     LiquidSlider(
@@ -115,12 +124,13 @@ fun CupertinoSlider(
         visibilityThreshold = threshold,
         backdrop = activeBackdrop,
         modifier = modifier.alpha(if (enabled) 1f else 0.5f),
+        customAccentColor = accentColor,
     )
 }
 
 /**
  * Authentic Apple iOS Solid UISlider (used when Liquid Glass is disabled).
- * Features standard 6dp track, 28dp solid white thumb with shadow, 1:1 touch tracking.
+ * Features standard 6dp track, 40x24dp solid white capsule thumb with shadow, 1:1 touch tracking.
  */
 @Composable
 fun SolidCupertinoSlider(
@@ -131,13 +141,14 @@ fun SolidCupertinoSlider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
-    accentColor: Color = if (!isSystemInDarkTheme()) Color(0xFF007AFF) else Color(0xFF0A84FF),
+    accentColor: Color = if (!isSystemInDarkTheme()) Color(0xFF0088FF) else Color(0xFF0091FF),
 ) {
     val isLightTheme = !isSystemInDarkTheme()
     val trackColor = if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f) else Color(0xFF787880).copy(alpha = 0.36f)
     val density = LocalDensity.current
-    val thumbSize = 28.dp
-    val thumbWidthPx = with(density) { thumbSize.toPx() }
+    val thumbWidth = 40.dp
+    val thumbHeight = 24.dp
+    val thumbWidthPx = with(density) { thumbWidth.toPx() }
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val rangeSpan = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
 
@@ -221,13 +232,13 @@ fun SolidCupertinoSlider(
             )
         }
 
-        // Circular Thumb (28dp)
+        // Capsule Thumb (40x24dp)
         Box(
             Modifier
                 .offset(x = with(density) { (maxTravel * (if (isLtr) progress else 1f - progress)).toDp() })
-                .size(thumbSize)
-                .shadow(elevation = 3.dp, shape = CircleShape)
-                .clip(CircleShape)
+                .size(thumbWidth, thumbHeight)
+                .shadow(elevation = 3.dp, shape = Capsule())
+                .clip(Capsule())
                 .background(Color.White),
         )
     }

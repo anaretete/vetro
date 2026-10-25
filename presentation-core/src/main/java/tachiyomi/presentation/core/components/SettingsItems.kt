@@ -259,7 +259,12 @@ fun BaseSliderItem(
     accentColor: Color? = null,
 ) {
     val haptic = LocalHapticFeedback.current
-    var localPosition by remember(value) { mutableFloatStateOf(value.toFloat()) }
+    var localPosition by remember { mutableFloatStateOf(value.toFloat()) }
+    androidx.compose.runtime.LaunchedEffect(value) {
+        if (localPosition.roundToInt() != value) {
+            localPosition = value.toFloat()
+        }
+    }
 
     Column(
         modifier = Modifier

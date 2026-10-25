@@ -53,10 +53,11 @@ fun LiquidSlider(
     visibilityThreshold: Float,
     backdrop: Backdrop,
     modifier: Modifier = Modifier,
+    customAccentColor: Color? = null,
 ) {
     val isLightTheme = !isSystemInDarkTheme()
     val accentColor =
-        if (isLightTheme) {
+        customAccentColor ?: if (isLightTheme) {
             Color(0xFF0088FF)
         } else {
             Color(0xFF0091FF)
@@ -211,9 +212,6 @@ fun LiquidSlider(
                     layerBlock = {
                         scaleX = dampedDragAnimation.scaleX
                         scaleY = dampedDragAnimation.scaleY
-                        val velocity = dampedDragAnimation.velocity / 10f
-                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
-                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
                     },
                     onDrawSurface = {
                         val progress = dampedDragAnimation.pressProgress

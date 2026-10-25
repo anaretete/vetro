@@ -34,14 +34,14 @@ class DampedDragAnimation(
     private val pressProgressAnimationSpec =
         spring(1f, 1000f, 0.001f)
     private val scaleXAnimationSpec =
-        spring(0.6f, 250f, 0.001f)
+        spring(0.7f, 250f, 0.001f)
     private val scaleYAnimationSpec =
         spring(0.7f, 250f, 0.001f)
 
     private val valueAnimation =
         Animatable(initialValue, visibilityThreshold)
     private val velocityAnimation =
-        Animatable(0f, 5f)
+        Animatable(0f, 0.001f)
     private val pressProgressAnimation =
         Animatable(0f, 0.001f)
     private val scaleXAnimation =
@@ -109,13 +109,17 @@ class DampedDragAnimation(
             launch { pressProgressAnimation.animateTo(0f, pressProgressAnimationSpec) }
             launch { scaleXAnimation.animateTo(initialScale, scaleXAnimationSpec) }
             launch { scaleYAnimation.animateTo(initialScale, scaleYAnimationSpec) }
+            launch { velocityAnimation.animateTo(0f, velocityAnimationSpec) }
         }
     }
 
     fun updateValue(value: Float) {
         val targetValue = value.coerceIn(valueRange)
         animationScope.launch {
-            launch { valueAnimation.animateTo(targetValue, valueAnimationSpec) { updateVelocity() } }
+            launch {
+                valueAnimation.animateTo(targetValue, valueAnimationSpec) { updateVelocity() }
+                velocityAnimation.animateTo(0f, velocityAnimationSpec)
+            }
         }
     }
 
