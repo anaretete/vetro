@@ -672,10 +672,10 @@ fun CupertinoSegmentedControl(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val trackBg = if (isDark) Color(0x332C2C2E) else Color(0x44E5E5EA)
-    val thumbBg = if (isDark) Color(0xBB636366) else Color(0xD0FFFFFF)
-    val textSelected = if (isDark) Color.White else Color(0xFF000000)
-    val textUnselected = if (isDark) Color.White.copy(alpha = 0.78f) else Color.Black.copy(alpha = 0.68f)
+    val trackBg = if (isDark) Color(0x282C2C2E) else Color(0x38E5E5EA)
+    val thumbBg = MaterialTheme.colorScheme.primary
+    val textSelected = MaterialTheme.colorScheme.onPrimary
+    val textUnselected = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
 
     BoxWithConstraints(
         modifier = modifier
@@ -684,7 +684,7 @@ fun CupertinoSegmentedControl(
                 if (isGlass) {
                     Modifier.liquidGlassSurface(
                         shape = Capsule(),
-                        blurRadius = 4.dp,
+                        blurRadius = 6.dp,
                         refractionHeight = 14.dp,
                         refractionAmount = 18.dp,
                         tintColor = trackBg,
@@ -708,27 +708,14 @@ fun CupertinoSegmentedControl(
             label = "tab_indicator",
         )
 
-        // Sliding thumb pill
+        // Sliding thumb pill matching theme
         Box(
             modifier = Modifier
                 .width(tabWidth)
                 .fillMaxHeight()
                 .offset(x = indicatorOffset)
-                .then(
-                    if (isGlass) {
-                        Modifier.liquidGlassSurface(
-                            shape = Capsule(),
-                            blurRadius = 3.dp,
-                            refractionHeight = 10.dp,
-                            refractionAmount = 14.dp,
-                            tintColor = thumbBg,
-                        )
-                    } else {
-                        Modifier
-                            .clip(Capsule())
-                            .background(thumbBg)
-                    },
-                ),
+                .clip(Capsule())
+                .background(thumbBg),
         )
 
         // Tab titles
@@ -774,16 +761,16 @@ fun CupertinoSegmentedControl(
                                     .clip(Capsule())
                                     .background(
                                         if (selected) {
-                                            MaterialTheme.colorScheme.primary
+                                            MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.24f)
                                         } else {
-                                            (if (isDark) Color.White else Color.Black).copy(alpha = 0.15f)
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                                         },
                                     )
                                     .padding(horizontal = 4.dp, vertical = 1.dp),
                             ) {
                                 Text(
                                     text = "$badgeCount",
-                                    color = if (selected) Color.White else textUnselected,
+                                    color = if (selected) textSelected else textUnselected,
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold,
                                 )

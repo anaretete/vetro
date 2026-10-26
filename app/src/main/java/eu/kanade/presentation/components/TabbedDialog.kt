@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -91,8 +92,8 @@ fun TabbedDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val isDark = isSystemInDarkTheme()
-                    val trackBg = if (isDark) Color(0x332C2C2E) else Color(0x44E5E5EA)
-                    val pillBg = if (isDark) Color(0xBB636366) else Color(0xD0FFFFFF)
+                    val trackBg = if (isDark) Color(0x282C2C2E) else Color(0x38E5E5EA)
+                    val pillBg = MaterialTheme.colorScheme.primary
                     val closeBg = if (isDark) Color(0x442C2C2E) else Color(0x55E5E5EA)
 
                     // Segmented Control Stadium Track with Liquid Glass
@@ -102,7 +103,7 @@ fun TabbedDialog(
                             .height(36.dp)
                             .liquidGlassSurface(
                                 shape = Capsule(),
-                                blurRadius = 4.dp,
+                                blurRadius = 6.dp,
                                 refractionHeight = 14.dp,
                                 refractionAmount = 18.dp,
                                 tintColor = trackBg,
@@ -121,26 +122,14 @@ fun TabbedDialog(
                             label = "SegmentPillOffset",
                         )
 
-                        // Sliding Apple Segmented Pill Indicator with Liquid Glass lens
+                        // Sliding Apple Segmented Pill Indicator matching theme
                         Box(
                             modifier = Modifier
                                 .offset(x = indicatorOffset)
                                 .width(segmentWidth)
                                 .fillMaxHeight()
-                                .liquidGlassSurface(
-                                    shape = Capsule(),
-                                    blurRadius = 3.dp,
-                                    refractionHeight = 10.dp,
-                                    refractionAmount = 14.dp,
-                                    tintColor = pillBg,
-                                )
-                                .border(
-                                    BorderStroke(
-                                        0.5.dp,
-                                        if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.5f) else Color(0xFFD1D1D6),
-                                    ),
-                                    shape = Capsule(),
-                                ),
+                                .clip(Capsule())
+                                .background(pillBg),
                         )
 
                         // Segment Text Buttons
@@ -166,9 +155,9 @@ fun TabbedDialog(
                                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                                         ),
                                         color = if (isSelected) {
-                                            if (isDark) Color.White else Color.Black
+                                            MaterialTheme.colorScheme.onPrimary
                                         } else {
-                                            if (isDark) Color.White.copy(alpha = 0.78f) else Color.Black.copy(alpha = 0.68f)
+                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                                         },
                                         maxLines = 1,
                                     )
