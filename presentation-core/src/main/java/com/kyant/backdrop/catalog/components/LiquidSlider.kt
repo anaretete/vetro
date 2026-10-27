@@ -58,6 +58,7 @@ fun LiquidSlider(
     modifier: Modifier = Modifier,
     customAccentColor: Color? = null,
 ) {
+    val glassConfig = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current
     val isLightTheme = !isSystemInDarkTheme()
     val accentColor = customAccentColor ?: MaterialTheme.colorScheme.primary
     val trackColor =
@@ -192,12 +193,16 @@ fun LiquidSlider(
                     ),
                     shape = { Capsule() },
                     effects = {
+                        val sliderParams = glassConfig.sliders
                         val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
+                        val effectiveBlur = 8f.dp.toPx() * (1f - progress) * glassConfig.blurMultiplier * sliderParams.blurMultiplier
+                        if (effectiveBlur > 0.5f) {
+                            blur(effectiveBlur)
+                        }
                         lens(
-                            10f.dp.toPx() * progress,
-                            14f.dp.toPx() * progress,
-                            chromaticAberration = true,
+                            (10f.dp.toPx() * progress * glassConfig.refractionMultiplier * sliderParams.refractionMultiplier).coerceAtLeast(0.1f),
+                            (14f.dp.toPx() * progress * glassConfig.refractionMultiplier * sliderParams.refractionMultiplier).coerceAtLeast(0.1f),
+                            chromaticAberration = glassConfig.chromaticAberration,
                         )
                     },
                     highlight = {

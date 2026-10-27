@@ -151,7 +151,7 @@ fun MoreScreen(
                                 subtitle = stringResource(MR.strings.downloaded_only_summary),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.CloudOff,
+                                        icon = painterResource(R.drawable.ic_lucide_cloud_off),
                                         backgroundColor = Color(0xFFFF9F0A),
                                     )
                                 },
@@ -189,7 +189,7 @@ fun MoreScreen(
                                     title = stringResource(MR.strings.label_recent_updates),
                                     iconContent = {
                                         CupertinoIconBadge(
-                                            icon = Icons.Outlined.NewReleases,
+                                            icon = painterResource(R.drawable.ic_lucide_sparkles),
                                             backgroundColor = Color(0xFF0A84FF),
                                         )
                                     },
@@ -206,7 +206,7 @@ fun MoreScreen(
                                     title = stringResource(MR.strings.label_recent_manga),
                                     iconContent = {
                                         CupertinoIconBadge(
-                                            icon = Icons.Outlined.History,
+                                            icon = painterResource(R.drawable.ic_lucide_history),
                                             backgroundColor = Color(0xFFFF9F0A),
                                         )
                                     },
@@ -245,7 +245,7 @@ fun MoreScreen(
                                 subtitle = downloadQueueStateText,
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.GetApp,
+                                        icon = painterResource(R.drawable.ic_lucide_download),
                                         backgroundColor = Color(0xFF30D158),
                                     )
                                 },
@@ -271,7 +271,7 @@ fun MoreScreen(
                                 title = stringResource(MR.strings.categories),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.AutoMirrored.Outlined.Label,
+                                        icon = painterResource(R.drawable.ic_lucide_tag),
                                         backgroundColor = Color(0xFFBF5AF2),
                                     )
                                 },
@@ -286,7 +286,7 @@ fun MoreScreen(
                                 title = stringResource(MR.strings.label_stats),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.QueryStats,
+                                        icon = painterResource(R.drawable.ic_lucide_chart),
                                         backgroundColor = Color(0xFFFF375F),
                                     )
                                 },
@@ -302,7 +302,7 @@ fun MoreScreen(
                                 title = stringResource(KMR.strings.option_label_library_update_errors),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.NewReleases,
+                                        icon = painterResource(R.drawable.ic_lucide_sparkles),
                                         backgroundColor = Color(0xFFFF453A),
                                     )
                                 },
@@ -318,7 +318,7 @@ fun MoreScreen(
                                 title = stringResource(MR.strings.label_data_storage),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.Storage,
+                                        icon = painterResource(R.drawable.ic_lucide_database),
                                         backgroundColor = Color(0xFF64D2FF),
                                     )
                                 },
@@ -363,7 +363,7 @@ fun MoreScreen(
                                 title = stringResource(MR.strings.label_settings),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.Settings,
+                                        icon = painterResource(R.drawable.ic_lucide_settings),
                                         backgroundColor = Color(0xFF8E8E93),
                                     )
                                 },
@@ -378,7 +378,7 @@ fun MoreScreen(
                                 title = stringResource(MR.strings.pref_category_about),
                                 iconContent = {
                                     CupertinoIconBadge(
-                                        icon = Icons.Outlined.Info,
+                                        icon = painterResource(R.drawable.ic_lucide_info),
                                         backgroundColor = Color(0xFF8E8E93),
                                     )
                                 },

@@ -171,6 +171,12 @@ object SettingsAppearanceScreen : SearchableSettings {
                     subtitle = "Viscoelastic squish and stretch velocity deformation",
                     enabled = isLiquidGlassEnabled,
                 ),
+                Preference.PreferenceItem.TextPreference(
+                    title = "Liquid Glass Studio",
+                    subtitle = "Customize refraction, frost blur, and tint for each UI element",
+                    enabled = isLiquidGlassEnabled,
+                    onClick = { navigator.push(SettingsLiquidGlassStudioScreen) },
+                ),
             ),
         )
     }

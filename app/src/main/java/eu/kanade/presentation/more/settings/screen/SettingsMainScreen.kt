@@ -40,8 +40,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
+import eu.kanade.tachiyomi.R
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -181,7 +183,7 @@ object SettingsMainScreen : Screen() {
                                                 subtitle = item.formatSubtitle(),
                                                 iconContent = {
                                                     CupertinoIconBadge(
-                                                        icon = item.icon,
+                                                        icon = if (item.iconRes != null) painterResource(item.iconRes) else (item.icon ?: Icons.Outlined.Info),
                                                         backgroundColor = item.badgeColor,
                                                     )
                                                 },
@@ -230,7 +232,7 @@ object SettingsMainScreen : Screen() {
                                     modifier = modifier,
                                     title = item.formatTitle(),
                                     subtitle = item.formatSubtitle(),
-                                    icon = item.icon,
+                                    icon = item.icon ?: Icons.Outlined.Info,
                                     onPreferenceClick = { navigator.navigate(item.screen, twoPane) },
                                 )
                             }
@@ -252,7 +254,8 @@ object SettingsMainScreen : Screen() {
         val customSubtitle: String? = null,
         val formatTitle: @Composable () -> String = { customTitle ?: titleRes?.let { stringResource(it) } ?: "" },
         val formatSubtitle: @Composable () -> String = { customSubtitle ?: subtitleRes?.let { stringResource(it) } ?: "" },
-        val icon: ImageVector,
+        val iconRes: Int? = null,
+        val icon: ImageVector? = null,
         val badgeColor: Color,
         val screen: VoyagerScreen,
     )
@@ -261,13 +264,23 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.pref_category_appearance,
             subtitleRes = MR.strings.pref_appearance_summary,
+            iconRes = R.drawable.ic_lucide_palette,
             icon = Icons.Outlined.Palette,
             badgeColor = Color(0xFF0A84FF),
             screen = SettingsAppearanceScreen,
         ),
         Item(
+            customTitle = "Liquid Glass Studio",
+            customSubtitle = "Fine-tune optical refraction, frost blur, and caustics",
+            iconRes = R.drawable.ic_lucide_sparkles,
+            icon = Icons.Outlined.AutoAwesome,
+            badgeColor = Color(0xFF00C7BE),
+            screen = SettingsLiquidGlassStudioScreen,
+        ),
+        Item(
             titleRes = MR.strings.pref_category_library,
             subtitleRes = MR.strings.pref_library_summary,
+            iconRes = R.drawable.ic_lucide_library,
             icon = Icons.Outlined.CollectionsBookmark,
             badgeColor = Color(0xFF5E5CE6),
             screen = SettingsLibraryScreen,
@@ -275,6 +288,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.pref_category_reader,
             subtitleRes = MR.strings.pref_reader_summary,
+            iconRes = R.drawable.ic_lucide_book_open,
             icon = Icons.AutoMirrored.Outlined.ChromeReaderMode,
             badgeColor = Color(0xFFFF9F0A),
             screen = SettingsReaderScreen,
@@ -282,6 +296,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.pref_category_downloads,
             subtitleRes = MR.strings.pref_downloads_summary,
+            iconRes = R.drawable.ic_lucide_download,
             icon = Icons.Outlined.GetApp,
             badgeColor = Color(0xFF30D158),
             screen = SettingsDownloadScreen,
@@ -292,6 +307,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.pref_category_tracking,
             subtitleRes = MR.strings.pref_tracking_summary,
+            iconRes = R.drawable.ic_lucide_refresh,
             icon = Icons.Outlined.Sync,
             badgeColor = Color(0xFFFF375F),
             screen = SettingsTrackingScreen,
@@ -300,6 +316,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = KMR.strings.pref_category_connections,
             subtitleRes = KMR.strings.pref_connections_summary,
+            iconRes = R.drawable.ic_lucide_link,
             icon = Icons.Outlined.Link,
             badgeColor = Color(0xFF64D2FF),
             screen = SettingsConnectionScreen,
@@ -308,6 +325,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.browse,
             subtitleRes = MR.strings.pref_browse_summary,
+            iconRes = R.drawable.ic_lucide_compass,
             icon = Icons.Outlined.Explore,
             badgeColor = Color(0xFFBF5AF2),
             screen = SettingsBrowseScreen,
@@ -334,6 +352,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.label_data_storage,
             subtitleRes = MR.strings.pref_backup_summary,
+            iconRes = R.drawable.ic_lucide_database,
             icon = Icons.Outlined.Storage,
             badgeColor = Color(0xFF64D2FF),
             screen = SettingsDataScreen,
@@ -341,6 +360,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.pref_category_security,
             subtitleRes = MR.strings.pref_security_summary,
+            iconRes = R.drawable.ic_lucide_shield,
             icon = Icons.Outlined.Security,
             badgeColor = Color(0xFFFF453A),
             screen = SettingsSecurityScreen,
@@ -351,6 +371,7 @@ object SettingsMainScreen : Screen() {
         Item(
             titleRes = MR.strings.pref_category_advanced,
             subtitleRes = MR.strings.pref_advanced_summary,
+            iconRes = R.drawable.ic_lucide_code,
             icon = Icons.Outlined.Code,
             badgeColor = Color(0xFF8E8E93),
             screen = SettingsAdvancedScreen,
@@ -361,6 +382,7 @@ object SettingsMainScreen : Screen() {
             formatSubtitle = {
                 "${stringResource(MR.strings.app_name)} ${AboutScreen.getVersionName(withBuildDate = false)}"
             },
+            iconRes = R.drawable.ic_lucide_info,
             icon = Icons.Outlined.Info,
             badgeColor = Color(0xFF8E8E93),
             screen = AboutScreen(),

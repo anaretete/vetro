@@ -53,6 +53,7 @@ fun NavigationBar(
                     refractionHeight = 24.dp,
                     refractionAmount = 36.dp,
                     exportedBackdrop = navBarExportedBackdrop,
+                    elementType = LiquidGlassElementType.BARS,
                 )
                 .padding(horizontal = 8.dp),
             contentAlignment = Alignment.Center,

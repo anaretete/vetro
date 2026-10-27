@@ -33,6 +33,23 @@ class UiPreferences(
     fun liquidGlassSpringPhysics() = preferenceStore.getBoolean("pref_liquid_glass_spring", true)
     fun liquidGlassDepthEffect() = preferenceStore.getBoolean("pref_liquid_glass_depth", true)
 
+    // Element-specific Liquid Glass preferences
+    fun liquidGlassButtonRefraction() = preferenceStore.getFloat("pref_lg_button_refraction", 1.0f)
+    fun liquidGlassButtonBlur() = preferenceStore.getFloat("pref_lg_button_blur", 1.0f)
+    fun liquidGlassButtonTintAlpha() = preferenceStore.getFloat("pref_lg_button_tint_alpha", 1.0f)
+
+    fun liquidGlassPopoutRefraction() = preferenceStore.getFloat("pref_lg_popout_refraction", 1.0f)
+    fun liquidGlassPopoutBlur() = preferenceStore.getFloat("pref_lg_popout_blur", 1.0f)
+    fun liquidGlassPopoutTintAlpha() = preferenceStore.getFloat("pref_lg_popout_tint_alpha", 1.0f)
+
+    fun liquidGlassSliderRefraction() = preferenceStore.getFloat("pref_lg_slider_refraction", 1.0f)
+    fun liquidGlassSliderBlur() = preferenceStore.getFloat("pref_lg_slider_blur", 1.0f)
+    fun liquidGlassSliderTintAlpha() = preferenceStore.getFloat("pref_lg_slider_tint_alpha", 1.0f)
+
+    fun liquidGlassBarRefraction() = preferenceStore.getFloat("pref_lg_bar_refraction", 1.0f)
+    fun liquidGlassBarBlur() = preferenceStore.getFloat("pref_lg_bar_blur", 1.0f)
+    fun liquidGlassBarTintAlpha() = preferenceStore.getFloat("pref_lg_bar_tint_alpha", 1.0f)
+
     // KMK -->
     fun colorTheme() = preferenceStore.getInt("pref_color_theme", 0xFFDF0090.toInt())
 

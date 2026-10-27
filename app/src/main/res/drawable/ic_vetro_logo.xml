@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <!-- Outer glass faceted shield / diamond -->
+    <path
+        android:pathData="M32,4L56,18V46L32,60L8,46V18Z"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <!-- Internal refractive facets -->
+    <path
+        android:pathData="M32,4L32,60M8,18L56,18M8,46L56,46M8,18L32,32L56,18M8,46L32,32L56,46"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+</vector>

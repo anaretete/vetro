@@ -26,10 +26,10 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "app.komikku"
+        applicationId = "app.vetro"
 
-        versionCode = 122
-        versionName = "1.14.52"
+        versionCode = 123
+        versionName = "1.14.53"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")

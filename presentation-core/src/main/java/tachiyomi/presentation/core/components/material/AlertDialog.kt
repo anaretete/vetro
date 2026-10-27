@@ -138,6 +138,7 @@ fun AlertDialogContent(
                 refractionHeight = 22.dp,
                 refractionAmount = 30.dp,
                 tintColor = dialogBg,
+                elementType = LiquidGlassElementType.POPOUTS,
             )
     } else {
         modifier

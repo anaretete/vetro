@@ -116,6 +116,7 @@ fun AdaptiveSheet(
                     tintColor = sheetBg,
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
+                    elementType = LiquidGlassElementType.POPOUTS,
                 )
                 .then(modifier)
         } else {
@@ -274,6 +275,7 @@ fun AdaptiveSheet(
                     tintColor = sheetBg,
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
+                    elementType = LiquidGlassElementType.POPOUTS,
                 )
             } else {
                 phoneBaseModifier
