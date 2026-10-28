@@ -28,8 +28,8 @@ android {
     defaultConfig {
         applicationId = "app.vetro"
 
-        versionCode = 128
-        versionName = "1.14.58"
+        versionCode = 129
+        versionName = "1.14.59"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")

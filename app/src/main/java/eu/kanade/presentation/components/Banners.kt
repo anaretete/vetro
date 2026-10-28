@@ -4,17 +4,26 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,11 +31,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
@@ -37,11 +51,11 @@ import java.math.RoundingMode
 import java.text.NumberFormat
 
 val DownloadedOnlyBannerBackgroundColor
-    @Composable get() = MaterialTheme.colorScheme.tertiary
+    @Composable get() = Color(0xFFFF9F0A)
 val IncognitoModeBannerBackgroundColor
-    @Composable get() = MaterialTheme.colorScheme.primary
+    @Composable get() = Color(0xFF5E5CE6)
 val IndexingBannerBackgroundColor
-    @Composable get() = MaterialTheme.colorScheme.secondary
+    @Composable get() = Color(0xFF0A84FF)
 
 // KMK -->
 val RestoringBannerBackgroundColor
@@ -171,32 +185,102 @@ fun AppStateBanners(
 
 @Composable
 private fun DownloadedOnlyModeBanner(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(MR.strings.label_downloaded_only),
+    Box(
         modifier = Modifier
-            .background(DownloadedOnlyBannerBackgroundColor)
             .fillMaxWidth()
-            .padding(4.dp)
-            .then(modifier),
-        color = MaterialTheme.colorScheme.onTertiary,
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.labelMedium,
-    )
+            .then(modifier)
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        val isDark = isSystemInDarkTheme()
+        val pillBg = if (isDark) Color(0xD92C2010) else Color(0xF2FFF8E1)
+        val accentColor = Color(0xFFFF9F0A)
+        val borderColor = accentColor.copy(alpha = if (isDark) 0.35f else 0.45f)
+        val textColor = if (isDark) Color(0xFFFFD6A5) else Color(0xFF8A4B00)
+
+        Row(
+            modifier = Modifier
+                .shadow(elevation = 4.dp, shape = CircleShape)
+                .border(width = 1.dp, color = borderColor, shape = CircleShape)
+                .background(color = pillBg, shape = CircleShape)
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .background(color = accentColor, shape = CircleShape),
+            )
+            Spacer(modifier = Modifier.width(7.dp))
+            Icon(
+                imageVector = Icons.Outlined.CloudOff,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(15.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(MR.strings.label_downloaded_only),
+                color = textColor,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.3.sp,
+                ),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
 }
 
 @Composable
 private fun IncognitoModeBanner(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(MR.strings.pref_incognito_mode),
+    Box(
         modifier = Modifier
-            .background(IncognitoModeBannerBackgroundColor)
             .fillMaxWidth()
-            .padding(4.dp)
-            .then(modifier),
-        color = MaterialTheme.colorScheme.onPrimary,
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.labelMedium,
-    )
+            .then(modifier)
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        val isDark = isSystemInDarkTheme()
+        val pillBg = if (isDark) Color(0xD91E1A33) else Color(0xF2F0EFFF)
+        val accentColor = Color(0xFF5E5CE6)
+        val borderColor = accentColor.copy(alpha = if (isDark) 0.35f else 0.45f)
+        val textColor = if (isDark) Color(0xFFD6D4FF) else Color(0xFF383594)
+
+        Row(
+            modifier = Modifier
+                .shadow(elevation = 4.dp, shape = CircleShape)
+                .border(width = 1.dp, color = borderColor, shape = CircleShape)
+                .background(color = pillBg, shape = CircleShape)
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .background(color = accentColor, shape = CircleShape),
+            )
+            Spacer(modifier = Modifier.width(7.dp))
+            Icon(
+                imageVector = Icons.Default.VisibilityOff,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(15.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(MR.strings.pref_incognito_mode),
+                color = textColor,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.3.sp,
+                ),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
 }
 
 @Composable
@@ -206,34 +290,45 @@ private fun IndexingDownloadBanner(
     text: String = stringResource(MR.strings.download_notifier_cache_renewal),
     // KMK <--
 ) {
-    val density = LocalDensity.current
-    Row(
+    Box(
         modifier = Modifier
-            .background(color = IndexingBannerBackgroundColor)
             .fillMaxWidth()
-            .padding(8.dp)
-            .then(modifier),
-        horizontalArrangement = Arrangement.Center,
+            .then(modifier)
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        var textHeight by remember { mutableStateOf(0.dp) }
-        CircularProgressIndicator(
-            modifier = Modifier.requiredSize(textHeight),
-            color = MaterialTheme.colorScheme.onSecondary,
-            strokeWidth = textHeight / 8,
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            // KMK -->
-            text = text,
-            // KMK <--
-            color = MaterialTheme.colorScheme.onSecondary,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.labelMedium,
-            onTextLayout = {
-                with(density) {
-                    textHeight = it.size.height.toDp()
-                }
-            },
-        )
+        val isDark = isSystemInDarkTheme()
+        val pillBg = if (isDark) Color(0xD91C2533) else Color(0xF2EBF5FF)
+        val accentColor = Color(0xFF0A84FF)
+        val borderColor = accentColor.copy(alpha = if (isDark) 0.35f else 0.45f)
+        val textColor = if (isDark) Color(0xFFBCE0FF) else Color(0xFF004F99)
+
+        Row(
+            modifier = Modifier
+                .shadow(elevation = 4.dp, shape = CircleShape)
+                .border(width = 1.dp, color = borderColor, shape = CircleShape)
+                .background(color = pillBg, shape = CircleShape)
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(13.dp),
+                color = accentColor,
+                strokeWidth = 2.dp,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                // KMK -->
+                text = text,
+                // KMK <--
+                color = textColor,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.3.sp,
+                ),
+            )
+        }
     }
 }
