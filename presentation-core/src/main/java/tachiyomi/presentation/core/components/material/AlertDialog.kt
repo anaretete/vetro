@@ -1,5 +1,7 @@
 package tachiyomi.presentation.core.components.material
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -7,6 +9,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -14,6 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.shapes.RoundedRectangle
@@ -87,9 +96,9 @@ fun AlertDialogContent(
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
-    val dialogBg = if (isDark) androidx.compose.ui.graphics.Color(0xFF222226).copy(alpha = 0.75f) else androidx.compose.ui.graphics.Color(0xFFF9F9F9).copy(alpha = 0.85f)
-    val dialogShape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+    val isDark = isSystemInDarkTheme()
+    val dialogBg = if (isDark) Color(0xFF222226).copy(alpha = 0.75f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
+    val dialogShape = RoundedCornerShape(20.dp)
 
     val dialogModifier = if (isGlass) {
         modifier
@@ -104,9 +113,9 @@ fun AlertDialogContent(
     } else {
         modifier
             .sizeIn(minWidth = 280.dp, maxWidth = 320.dp)
-            .androidx.compose.ui.draw.shadow(elevation = 16.dp, shape = dialogShape)
-            .androidx.compose.ui.draw.clip(dialogShape)
-            .androidx.compose.foundation.background(if (isDark) androidx.compose.ui.graphics.Color(0xFF222226) else androidx.compose.ui.graphics.Color(0xFFF9F9F9))
+            .shadow(elevation = 16.dp, shape = dialogShape)
+            .clip(dialogShape)
+            .background(if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9))
     }
     Column(
         modifier = dialogModifier,
