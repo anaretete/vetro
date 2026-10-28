@@ -1290,6 +1290,9 @@ class ReaderActivity : BaseActivity() {
         }
         // SY <--
         viewModel.onPageSelected(page, /* SY --> */ currentPageText, hasExtraPage /* SY <-- */)
+        if (readerPreferences.pageTurnHaptics().get()) {
+            binding.root.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+        }
     }
 
     /**

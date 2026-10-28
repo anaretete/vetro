@@ -58,8 +58,20 @@ fun LiquidSlider(
     modifier: Modifier = Modifier,
     customAccentColor: Color? = null,
 ) {
-    val isLightTheme = !isSystemInDarkTheme()
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
     val accentColor = customAccentColor ?: MaterialTheme.colorScheme.primary
+    if (!isGlass) {
+        tachiyomi.presentation.core.components.material.SolidCupertinoSlider(
+            value = value(),
+            onValueChange = onValueChange,
+            modifier = modifier,
+            valueRange = valueRange,
+            accentColor = accentColor,
+        )
+        return
+    }
+
+    val isLightTheme = !isSystemInDarkTheme()
     val trackColor =
         if (isLightTheme) {
             Color(0xFF787878).copy(0.2f)

@@ -93,6 +93,11 @@ object SettingsReaderScreen : SearchableSettings {
                 subtitle = stringResource(SYMR.strings.pref_left_handed_vertical_seekbar_summary),
                 enabled = !forceHorizontalSeekbar,
             ),
+            Preference.PreferenceItem.SwitchPreference(
+                preference = readerPref.pageTurnHaptics(),
+                title = "Page Turn Haptic Feedback",
+                subtitle = "Subtle tactile tap on page flip in reader",
+            ),
             // SY <--
             /* SY -->
             Preference.PreferenceItem.SwitchPreference(

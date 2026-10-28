@@ -3,12 +3,13 @@ package tachiyomi.presentation.core.components.material
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -65,6 +66,21 @@ fun CupertinoVerticalSlider(
     backdrop: Backdrop? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val accentColor = MaterialTheme.colorScheme.primary
+    if (!isGlass) {
+        SolidCupertinoVerticalSlider(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier,
+            enabled = enabled,
+            valueRange = valueRange,
+            invertDirection = invertDirection,
+            onValueChangeFinished = onValueChangeFinished,
+            accentColor = accentColor,
+        )
+        return
+    }
+
     val haptics = rememberCupertinoHaptics()
     val isLightTheme = !isSystemInDarkTheme()
     val isDark = !isLightTheme
@@ -72,7 +88,6 @@ fun CupertinoVerticalSlider(
         val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
         drawRect(baseColor)
     }
-    val accentColor = MaterialTheme.colorScheme.primary
     val trackColor =
         if (isLightTheme) {
             Color(0xFF787878).copy(alpha = 0.2f)
@@ -220,83 +235,189 @@ fun CupertinoVerticalSlider(
         }
 
         // 24x40dp Capsule Thumb (vertical equivalent of LiquidSlider's 40x24dp thumb)
-        if (isGlass) {
-            Box(
-                Modifier
-                    .graphicsLayer {
-                        val progress = dampedDragAnimation.progress.coerceIn(0f, 1f)
-                        translationY = maxTravel * progress
-                    }
-                    .drawBackdrop(
-                        backdrop = rememberCombinedBackdrop(
-                            activeBackdrop,
-                            rememberBackdrop(trackBackdrop) { drawBackdrop ->
-                                val progress = dampedDragAnimation.pressProgress
-                                val scaleX = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
-                                val scaleY = lerp(2f / 3f, 1f, progress).coerceAtLeast(0.001f)
-                                scale(scaleX, scaleY) {
-                                    drawBackdrop()
-                                }
-                            },
-                        ),
-                        shape = { Capsule() },
-                        effects = {
+        Box(
+            Modifier
+                .graphicsLayer {
+                    val progress = dampedDragAnimation.progress.coerceIn(0f, 1f)
+                    translationY = maxTravel * progress
+                }
+                .drawBackdrop(
+                    backdrop = rememberCombinedBackdrop(
+                        activeBackdrop,
+                        rememberBackdrop(trackBackdrop) { drawBackdrop ->
                             val progress = dampedDragAnimation.pressProgress
-                            blur(8f.dp.toPx() * (1f - progress))
-                            if (progress > 0.001f) {
-                                lens(
-                                    (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
-                                    (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
-                                    chromaticAberration = true,
-                                )
+                            val scaleX = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
+                            val scaleY = lerp(2f / 3f, 1f, progress).coerceAtLeast(0.001f)
+                            scale(scaleX, scaleY) {
+                                drawBackdrop()
                             }
                         },
-                        highlight = {
-                            val progress = dampedDragAnimation.pressProgress
-                            Highlight.Ambient.copy(
-                                width = Highlight.Ambient.width / 1.5f,
-                                blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                                alpha = progress,
+                    ),
+                    shape = { Capsule() },
+                    effects = {
+                        val progress = dampedDragAnimation.pressProgress
+                        blur(8f.dp.toPx() * (1f - progress))
+                        if (progress > 0.001f) {
+                            lens(
+                                (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                chromaticAberration = true,
                             )
-                        },
-                        shadow = {
-                            Shadow(
-                                radius = 4f.dp,
-                                color = Color.Black.copy(alpha = 0.05f),
-                            )
-                        },
-                        innerShadow = {
-                            val progress = dampedDragAnimation.pressProgress
-                            InnerShadow(
-                                radius = 4f.dp * progress,
-                                alpha = progress,
-                            )
-                        },
-                        layerBlock = {
-                            scaleX = dampedDragAnimation.scaleX
-                            scaleY = dampedDragAnimation.scaleY
-                        },
-                        onDrawSurface = {
-                            val progress = dampedDragAnimation.pressProgress
-                            drawRect(Color.White.copy(alpha = 1f - progress))
-                        },
-                    )
-                    .size(thumbWidth, thumbHeight),
-            )
-        } else {
-            Box(
-                Modifier
-                    .graphicsLayer {
-                        val progress = dampedDragAnimation.progress.coerceIn(0f, 1f)
-                        translationY = maxTravel * progress
+                        }
+                    },
+                    highlight = {
+                        val progress = dampedDragAnimation.pressProgress
+                        Highlight.Ambient.copy(
+                            width = Highlight.Ambient.width / 1.5f,
+                            blurRadius = Highlight.Ambient.blurRadius / 1.5f,
+                            alpha = progress,
+                        )
+                    },
+                    shadow = {
+                        Shadow(
+                            radius = 4f.dp,
+                            color = Color.Black.copy(alpha = 0.05f),
+                        )
+                    },
+                    innerShadow = {
+                        val progress = dampedDragAnimation.pressProgress
+                        InnerShadow(
+                            radius = 4f.dp * progress,
+                            alpha = progress,
+                        )
+                    },
+                    layerBlock = {
                         scaleX = dampedDragAnimation.scaleX
                         scaleY = dampedDragAnimation.scaleY
+                    },
+                    onDrawSurface = {
+                        val progress = dampedDragAnimation.pressProgress
+                        drawRect(Color.White.copy(alpha = 1f - progress))
+                    },
+                )
+                .size(thumbWidth, thumbHeight),
+        )
+    }
+}
+
+/**
+ * Authentic Apple iOS Solid Vertical Slider (used when Liquid Glass is disabled).
+ * Features standard 6dp vertical track, 24x40dp solid white capsule thumb with shadow, 1:1 touch tracking.
+ * Allocates ZERO backdrops, ZERO canvas backdrops, and ZERO layer backdrops.
+ */
+@Composable
+fun SolidCupertinoVerticalSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    invertDirection: Boolean = false,
+    onValueChangeFinished: (() -> Unit)? = null,
+    accentColor: Color = MaterialTheme.colorScheme.primary,
+) {
+    val isLightTheme = !isSystemInDarkTheme()
+    val trackColor = if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f) else Color(0xFF787880).copy(alpha = 0.36f)
+    val density = LocalDensity.current
+    val haptics = rememberCupertinoHaptics()
+    val thumbWidth = 24.dp
+    val thumbHeight = 40.dp
+    val thumbHeightPx = with(density) { thumbHeight.toPx() }
+    val rangeSpan = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
+
+    BoxWithConstraints(
+        modifier = modifier
+            .defaultMinSize(minWidth = 44.dp)
+            .fillMaxHeight(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        val trackHeight = if (constraints.hasBoundedHeight) constraints.maxHeight.toFloat() else with(density) { 300.dp.toPx() }
+        val maxTravel = (trackHeight - thumbHeightPx).coerceAtLeast(0f)
+        val progress = ((value - valueRange.start) / rangeSpan).coerceIn(0f, 1f)
+        val effectiveProgress = if (!invertDirection) progress else 1f - progress
+
+        val updateFromPosition: (Float) -> Unit = { posY ->
+            val fraction = if (maxTravel > 0f) {
+                ((posY - thumbHeightPx / 2f) / maxTravel).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
+            val targetValue = if (!invertDirection) {
+                valueRange.start + fraction * rangeSpan
+            } else {
+                valueRange.endInclusive - fraction * rangeSpan
+            }.coerceIn(valueRange)
+
+            val oldVal = value.fastRoundToInt()
+            val newVal = targetValue.fastRoundToInt()
+            if (oldVal != newVal) {
+                haptics.tick()
+            }
+            onValueChange(targetValue)
+        }
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .pointerInput(enabled, trackHeight, invertDirection, valueRange) {
+                    if (!enabled) return@pointerInput
+                    detectTapGestures { position ->
+                        updateFromPosition(position.y)
+                        onValueChangeFinished?.invoke()
                     }
-                    .size(thumbWidth, thumbHeight)
-                    .shadow(elevation = 3.dp, shape = Capsule())
+                }
+                .pointerInput(enabled, trackHeight, invertDirection, valueRange) {
+                    if (!enabled) return@pointerInput
+                    detectDragGestures(
+                        onDrag = { change, _ ->
+                            change.consume()
+                            updateFromPosition(change.position.y)
+                        },
+                        onDragEnd = { onValueChangeFinished?.invoke() },
+                        onDragCancel = { onValueChangeFinished?.invoke() },
+                    )
+                },
+        )
+
+        // Vertical Track (solid without backdrop)
+        Box(
+            modifier = Modifier
+                .fillMaxHeight(),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Box(
+                Modifier
                     .clip(Capsule())
-                    .background(Color.White),
+                    .background(trackColor)
+                    .width(6.dp)
+                    .fillMaxHeight(),
+            )
+
+            Box(
+                Modifier
+                    .clip(Capsule())
+                    .background(accentColor)
+                    .width(6.dp)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val height = (thumbHeightPx / 2f + maxTravel * effectiveProgress).fastRoundToInt().coerceIn(0, constraints.maxHeight)
+                        layout(placeable.width, height) {
+                            placeable.place(0, 0)
+                        }
+                    },
             )
         }
+
+        // Standard Apple iOS Capsule Thumb (24x40dp) with shadow (solid, no backdrop)
+        Box(
+            Modifier
+                .graphicsLayer {
+                    translationY = maxTravel * effectiveProgress
+                }
+                .size(thumbWidth, thumbHeight)
+                .shadow(elevation = 3.dp, shape = Capsule())
+                .clip(Capsule())
+                .background(Color.White),
+        )
     }
 }

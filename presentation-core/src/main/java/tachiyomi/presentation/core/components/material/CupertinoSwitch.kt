@@ -53,11 +53,17 @@ fun CupertinoSwitch(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     backdrop: Backdrop? = null,
+    customActiveColor: Color? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val currentChecked by rememberUpdatedState(checked)
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
     val haptics = rememberCupertinoHaptics()
+
+    val isDark = isSystemInDarkTheme()
+    val cupertinoGreen = if (isDark) Color(0xFF30D158) else Color(0xFF34C759)
+    val isCupertinoTheme = MaterialTheme.colorScheme.primary == Color(0xFF007AFF) || MaterialTheme.colorScheme.primary == Color(0xFF0A84FF)
+    val activeColor = customActiveColor ?: if (isCupertinoTheme) cupertinoGreen else MaterialTheme.colorScheme.primary
 
     if (isGlass) {
         val fallbackBackdrop = rememberLayerBackdrop()
@@ -73,6 +79,7 @@ fun CupertinoSwitch(
             },
             backdrop = effectiveBackdrop,
             modifier = modifier.alpha(if (enabled) 1f else 0.38f),
+            customAccentColor = activeColor,
         )
     } else {
         SolidCupertinoSwitch(
@@ -85,6 +92,7 @@ fun CupertinoSwitch(
             },
             modifier = modifier,
             enabled = enabled,
+            customActiveColor = activeColor,
         )
     }
 }
@@ -99,9 +107,12 @@ fun SolidCupertinoSwitch(
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    customActiveColor: Color? = null,
 ) {
     val isDark = isSystemInDarkTheme()
-    val activeColor = MaterialTheme.colorScheme.primary
+    val cupertinoGreen = if (isDark) Color(0xFF30D158) else Color(0xFF34C759)
+    val isCupertinoTheme = MaterialTheme.colorScheme.primary == Color(0xFF007AFF) || MaterialTheme.colorScheme.primary == Color(0xFF0A84FF)
+    val activeColor = customActiveColor ?: if (isCupertinoTheme) cupertinoGreen else MaterialTheme.colorScheme.primary
     val inactiveColor = if (isDark) Color(0xFF39393D) else Color(0xFFE9E9EA)
 
     val trackColor by animateColorAsState(

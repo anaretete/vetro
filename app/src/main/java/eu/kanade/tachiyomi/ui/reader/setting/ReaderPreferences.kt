@@ -23,6 +23,8 @@ class ReaderPreferences(
     fun pageTransitionsWebtoon() = preferenceStore.getBoolean("pref_enable_transitions_webtoon_key", true)
     // SY <--
 
+    fun pageTurnHaptics() = preferenceStore.getBoolean("pref_reader_page_turn_haptics", false)
+
     fun flashOnPageChange() = preferenceStore.getBoolean("pref_reader_flash", false)
 
     fun flashDurationMillis() = preferenceStore.getInt("pref_reader_flash_duration", MILLI_CONVERSION)

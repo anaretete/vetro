@@ -14,10 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.materialkolor.DynamicMaterialExpressiveTheme
 import eu.kanade.domain.ui.UiPreferences
+import eu.kanade.domain.ui.model.AppFont
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.theme.colorscheme.AppleAlpineColorScheme
 import eu.kanade.presentation.theme.colorscheme.AppleBlueColorScheme
@@ -54,8 +56,10 @@ import eu.kanade.presentation.theme.colorscheme.TealTurqoiseColorScheme
 import eu.kanade.presentation.theme.colorscheme.TidalWaveColorScheme
 import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
 import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
+import java.io.File
 import tachiyomi.presentation.core.components.material.LiquidGlassConfig
 import tachiyomi.presentation.core.components.material.LocalCupertinoHapticsEnabled
+import tachiyomi.presentation.core.components.material.LocalFloatingNavbar
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -93,12 +97,20 @@ fun TachiyomiTheme(
     } else {
         val uiPreferences = Injekt.get<UiPreferences>()
         val isAmoled = amoled ?: (uiPreferences.themeDarkAmoled().get() || uiPreferences.oledPureBlack().get())
+        val appFont by uiPreferences.appFont().collectAsState()
+        val customFontPath by uiPreferences.customFontPath().collectAsState()
+        val fontFamily = remember(appFont, customFontPath) {
+            getAppFontFamily(appFont, customFontPath)
+        }
+        val effectiveTypography = remember(typography, fontFamily) {
+            typography.withFontFamily(fontFamily)
+        }
         LiquidGlassThemeWrapper {
             DynamicMaterialExpressiveTheme(
                 seedColor = seedColor,
                 isAmoled = isAmoled,
                 style = uiPreferences.themeCoverBasedStyle().get(),
-                typography = typography,
+                typography = effectiveTypography,
                 animate = true,
                 content = content,
             )
@@ -126,6 +138,7 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     val springPhysics by uiPreferences.liquidGlassSpringPhysics().collectAsState()
     val depthEffect by uiPreferences.liquidGlassDepthEffect().collectAsState()
     val cupertinoHaptics by uiPreferences.cupertinoHaptics().collectAsState()
+    val floatingNavBar by uiPreferences.floatingNavBar().collectAsState()
 
     val glassConfig = remember(
         liquidGlassEnabled,
@@ -152,6 +165,7 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalLiquidGlassConfig provides glassConfig,
         LocalCupertinoHapticsEnabled provides cupertinoHaptics,
+        LocalFloatingNavbar provides floatingNavBar,
     ) {
         content()
     }
@@ -183,6 +197,64 @@ val CupertinoTypography = Typography(
     labelSmall = Typography().labelSmall.copy(letterSpacing = (-0.05).sp),
 )
 
+fun getAppFontFamily(appFont: AppFont, customPath: String): FontFamily {
+    return when (appFont) {
+        AppFont.DEFAULT -> FontFamily.Default
+        AppFont.SAN_SERIF -> FontFamily.SansSerif
+        AppFont.SERIF -> FontFamily.Serif
+        AppFont.MONOSPACE -> FontFamily.Monospace
+        AppFont.CURSIVE -> FontFamily.Cursive
+        AppFont.CUSTOM -> {
+            try {
+                val file = File(customPath.trim())
+                if (file.exists() && file.isFile && (file.extension.equals("ttf", ignoreCase = true) || file.extension.equals("otf", ignoreCase = true))) {
+                    val tf = android.graphics.Typeface.createFromFile(file)
+                    FontFamily(tf)
+                } else {
+                    FontFamily.Default
+                }
+            } catch (e: Throwable) {
+                FontFamily.Default
+            }
+        }
+    }
+}
+
+fun Typography.withFontFamily(fontFamily: FontFamily): Typography {
+    if (fontFamily == FontFamily.Default) return this
+    return this.copy(
+        displayLarge = displayLarge.copy(fontFamily = fontFamily),
+        displayMedium = displayMedium.copy(fontFamily = fontFamily),
+        displaySmall = displaySmall.copy(fontFamily = fontFamily),
+        headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
+        headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
+        headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
+        titleLarge = titleLarge.copy(fontFamily = fontFamily),
+        titleMedium = titleMedium.copy(fontFamily = fontFamily),
+        titleSmall = titleSmall.copy(fontFamily = fontFamily),
+        bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
+        bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
+        bodySmall = bodySmall.copy(fontFamily = fontFamily),
+        labelLarge = labelLarge.copy(fontFamily = fontFamily),
+        labelMedium = labelMedium.copy(fontFamily = fontFamily),
+        labelSmall = labelSmall.copy(fontFamily = fontFamily),
+    )
+}
+
+fun Color.boostSaturation(factor: Float = 1.3f): Color {
+    val hsv = FloatArray(3)
+    val androidColor = android.graphics.Color.argb(
+        (alpha * 255).toInt(),
+        (red * 255).toInt(),
+        (green * 255).toInt(),
+        (blue * 255).toInt(),
+    )
+    android.graphics.Color.colorToHSV(androidColor, hsv)
+    hsv[1] = (hsv[1] * factor).coerceIn(0f, 1f)
+    val rgb = android.graphics.Color.HSVToColor(hsv)
+    return Color(rgb).copy(alpha = alpha)
+}
+
 @Composable
 private fun BaseTachiyomiTheme(
     appTheme: AppTheme,
@@ -191,6 +263,15 @@ private fun BaseTachiyomiTheme(
 ) {
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
+    val uiPreferences = Injekt.get<UiPreferences>()
+    val appFont by uiPreferences.appFont().collectAsState()
+    val customFontPath by uiPreferences.customFontPath().collectAsState()
+    val vividAccent by uiPreferences.vividAccent().collectAsState()
+
+    val fontFamily = remember(appFont, customFontPath) {
+        getAppFontFamily(appFont, customFontPath)
+    }
+
     LiquidGlassThemeWrapper {
         val isCupertino = appTheme in listOf(
             AppTheme.CUPERTINO,
@@ -207,17 +288,35 @@ private fun BaseTachiyomiTheme(
             AppTheme.APPLE_ALPINE,
             AppTheme.APPLE_TITANIUM,
         ) || LocalLiquidGlassConfig.current.enabled
-        MaterialExpressiveTheme(
-            colorScheme = remember(appTheme, isDark, isAmoled) {
-                getThemeColorScheme(
-                    context = context,
-                    appTheme = appTheme,
-                    isDark = isDark,
-                    isAmoled = isAmoled,
+
+        val rawColorScheme = remember(appTheme, isDark, isAmoled) {
+            getThemeColorScheme(
+                context = context,
+                appTheme = appTheme,
+                isDark = isDark,
+                isAmoled = isAmoled,
+            )
+        }
+        val colorScheme = remember(rawColorScheme, vividAccent) {
+            if (vividAccent) {
+                rawColorScheme.copy(
+                    primary = rawColorScheme.primary.boostSaturation(1.3f),
+                    secondary = rawColorScheme.secondary.boostSaturation(1.2f),
+                    tertiary = rawColorScheme.tertiary.boostSaturation(1.2f),
                 )
-            },
+            } else {
+                rawColorScheme
+            }
+        }
+        val baseTypography = if (isCupertino) CupertinoTypography else MaterialTheme.typography
+        val effectiveTypography = remember(baseTypography, fontFamily) {
+            baseTypography.withFontFamily(fontFamily)
+        }
+
+        MaterialExpressiveTheme(
+            colorScheme = colorScheme,
             shapes = if (isCupertino) CupertinoShapes else MaterialTheme.shapes,
-            typography = if (isCupertino) CupertinoTypography else MaterialTheme.typography,
+            typography = effectiveTypography,
             content = content,
         )
     }

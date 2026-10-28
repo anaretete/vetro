@@ -15,6 +15,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.materialkolor.PaletteStyle
 import eu.kanade.core.preference.asState
 import eu.kanade.domain.ui.UiPreferences
+import eu.kanade.domain.ui.model.AppFont
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.domain.ui.model.ThemeMode
@@ -80,6 +81,7 @@ object SettingsAppearanceScreen : SearchableSettings {
         val amoled by amoledPref.collectAsState()
 
         val isLiquidGlassEnabled by uiPreferences.liquidGlassEnabled().collectAsState()
+        val appFont by uiPreferences.appFont().collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
@@ -185,6 +187,28 @@ object SettingsAppearanceScreen : SearchableSettings {
                         (context as? Activity)?.let { ActivityCompat.recreate(it) }
                         true
                     },
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    preference = uiPreferences.appFont(),
+                    entries = AppFont.entries.associateWith { it.label }.toImmutableMap(),
+                    title = "App Font & Typography",
+                    subtitle = "Select system font preset or load an external font file",
+                ),
+                Preference.PreferenceItem.EditTextPreference(
+                    preference = uiPreferences.customFontPath(),
+                    title = "Custom Font File Path",
+                    subtitle = "Full path to .ttf or .otf file on storage (e.g. /storage/emulated/0/Download/font.ttf)",
+                    enabled = appFont == AppFont.CUSTOM,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.floatingNavBar(),
+                    title = "Floating Tab Island Bar",
+                    subtitle = "Elevated floating navigation capsule across bottom tabs",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.vividAccent(),
+                    title = "Vivid Accent Mode",
+                    subtitle = "Boost saturation of primary accents for high-gamut and OLED screens",
                 ),
             ),
         )

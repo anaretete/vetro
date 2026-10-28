@@ -2,6 +2,7 @@ package eu.kanade.domain.ui
 
 import androidx.compose.material3.FabPosition
 import com.materialkolor.PaletteStyle
+import eu.kanade.domain.ui.model.AppFont
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.domain.ui.model.ThemeMode
@@ -34,6 +35,10 @@ class UiPreferences(
     fun liquidGlassDepthEffect() = preferenceStore.getBoolean("pref_liquid_glass_depth", true)
     fun cupertinoHaptics() = preferenceStore.getBoolean("pref_cupertino_haptics", true)
     fun oledPureBlack() = preferenceStore.getBoolean("pref_oled_pure_black", false)
+    fun appFont() = preferenceStore.getEnum("pref_app_font_key", AppFont.DEFAULT)
+    fun customFontPath() = preferenceStore.getString("pref_custom_font_path_key", "")
+    fun floatingNavBar() = preferenceStore.getBoolean("pref_floating_nav_bar_key", false)
+    fun vividAccent() = preferenceStore.getBoolean("pref_vivid_accent_key", false)
 
     // KMK -->
     fun colorTheme() = preferenceStore.getInt("pref_color_theme", 0xFFDF0090.toInt())
