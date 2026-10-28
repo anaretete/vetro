@@ -83,6 +83,15 @@ object SettingsAppearanceScreen : SearchableSettings {
         val isLiquidGlassEnabled by uiPreferences.liquidGlassEnabled().collectAsState()
         val appFont by uiPreferences.appFont().collectAsState()
 
+        val refractionStrengthPref = uiPreferences.liquidGlassRefractionStrength()
+        val refractionStrength by refractionStrengthPref.collectAsState()
+        val blurRadiusPref = uiPreferences.liquidGlassBlurRadius()
+        val blurRadius by blurRadiusPref.collectAsState()
+        val lensHeightPref = uiPreferences.liquidGlassLensHeight()
+        val lensHeight by lensHeightPref.collectAsState()
+        val tintAlphaPref = uiPreferences.liquidGlassTintAlpha()
+        val tintAlpha by tintAlphaPref.collectAsState()
+
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
             preferenceItems = persistentListOf(
@@ -172,6 +181,38 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Spring Physics Morphing",
                     subtitle = "Viscoelastic squish and stretch velocity deformation",
                     enabled = isLiquidGlassEnabled,
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = (refractionStrength * 100).toInt(),
+                    valueRange = 10..300,
+                    title = "Refraction Index Intensity",
+                    valueString = "${(refractionStrength * 100).toInt()}%",
+                    enabled = isLiquidGlassEnabled,
+                    onValueChanged = { refractionStrengthPref.set(it / 100f) },
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = (blurRadius * 100).toInt(),
+                    valueRange = 0..300,
+                    title = "Frost & Blur Depth",
+                    valueString = "${(blurRadius * 100).toInt()}%",
+                    enabled = isLiquidGlassEnabled,
+                    onValueChanged = { blurRadiusPref.set(it / 100f) },
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = (lensHeight * 100).toInt(),
+                    valueRange = 20..300,
+                    title = "Lens Convexity Thickness",
+                    valueString = "${(lensHeight * 100).toInt()}%",
+                    enabled = isLiquidGlassEnabled,
+                    onValueChanged = { lensHeightPref.set(it / 100f) },
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = (tintAlpha * 100).toInt(),
+                    valueRange = 0..100,
+                    title = "Surface Tint Alpha",
+                    valueString = "${(tintAlpha * 100).toInt()}%",
+                    enabled = isLiquidGlassEnabled,
+                    onValueChanged = { tintAlphaPref.set(it / 100f) },
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     preference = uiPreferences.cupertinoHaptics(),

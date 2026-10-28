@@ -154,6 +154,12 @@ class ReaderPreferences(
 
     fun readWithVolumeKeysInverted() = preferenceStore.getBoolean("reader_volume_keys_inverted", false)
 
+    fun volumeKeySmoothScroll() = preferenceStore.getBoolean("pref_volume_key_smooth_scroll", true)
+
+    fun volumeKeySmoothScrollSpeed() = preferenceStore.getFloat("pref_volume_key_smooth_scroll_speed", 1.0f)
+
+    fun volumeKeyTapStepPercent() = preferenceStore.getInt("pref_volume_key_tap_step_percent", 35)
+
     fun navigationModePager() = preferenceStore.getInt("reader_navigation_mode_pager", 0)
 
     fun navigationModeWebtoon() = preferenceStore.getInt("reader_navigation_mode_webtoon", 0)

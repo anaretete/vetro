@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.ui.reader.viewer.webtoon
 
 import android.graphics.PointF
+import android.os.SystemClock
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -252,6 +253,7 @@ class WebtoonViewer(
      */
     override fun destroy() {
         super.destroy()
+        stopVolumeSmoothScroll()
         scope.cancel()
     }
 
@@ -407,26 +409,82 @@ class WebtoonViewer(
         }
     }
 
+    private var volumeScrollDirection = 0
+    private var volumePressStartTime = 0L
+    private var isVolumeHolding = false
+
+    private val volumeSmoothScrollRunnable = object : Runnable {
+        override fun run() {
+            if (volumeScrollDirection == 0) return
+            val density = activity.resources.displayMetrics.density
+            val stepPx = (14f * density * config.volumeKeySmoothScrollSpeed).coerceIn(2f, 80f * density).toInt()
+            val delta = if (volumeScrollDirection > 0) stepPx else -stepPx
+            recycler.scrollBy(0, delta)
+            recycler.postOnAnimation(this)
+        }
+    }
+
+    private fun startVolumeSmoothScroll(direction: Int) {
+        if (volumeScrollDirection != direction) {
+            volumeScrollDirection = direction
+            recycler.removeCallbacks(volumeSmoothScrollRunnable)
+            recycler.postOnAnimation(volumeSmoothScrollRunnable)
+        }
+    }
+
+    private fun stopVolumeSmoothScroll() {
+        volumeScrollDirection = 0
+        recycler.removeCallbacks(volumeSmoothScrollRunnable)
+    }
+
     /**
      * Called from the containing activity when a key [event] is received. It should return true
      * if the event was handled, false otherwise.
      */
     override fun handleKeyEvent(event: KeyEvent): Boolean {
         val isUp = event.action == KeyEvent.ACTION_UP
+        val isDown = event.action == KeyEvent.ACTION_DOWN
 
         when (event.keyCode) {
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_UP,
+            -> {
                 if (!config.volumeKeysEnabled || activity.viewModel.state.value.menuVisible) {
                     return false
-                } else if (isUp) {
-                    if (!config.volumeKeysInverted) scrollDown() else scrollUp()
                 }
-            }
-            KeyEvent.KEYCODE_VOLUME_UP -> {
-                if (!config.volumeKeysEnabled || activity.viewModel.state.value.menuVisible) {
-                    return false
-                } else if (isUp) {
-                    if (!config.volumeKeysInverted) scrollUp() else scrollDown()
+                val isDownKey = event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
+                val isForward = if (isDownKey) !config.volumeKeysInverted else config.volumeKeysInverted
+                val targetDirection = if (isForward) 1 else -1
+
+                if (config.volumeKeySmoothScroll) {
+                    if (isDown) {
+                        if (event.repeatCount == 0) {
+                            volumePressStartTime = SystemClock.uptimeMillis()
+                            isVolumeHolding = false
+                            startVolumeSmoothScroll(targetDirection)
+                        } else {
+                            isVolumeHolding = true
+                            if (volumeScrollDirection != targetDirection) {
+                                startVolumeSmoothScroll(targetDirection)
+                            }
+                        }
+                        return true
+                    } else if (isUp) {
+                        stopVolumeSmoothScroll()
+                        val pressDuration = SystemClock.uptimeMillis() - volumePressStartTime
+                        if (!isVolumeHolding && pressDuration < 250L) {
+                            val tapDistance = (scrollDistance * (config.volumeKeyTapStepPercent / 100f)).toInt()
+                            val delta = if (targetDirection > 0) tapDistance else -tapDistance
+                            recycler.smoothScrollBy(0, delta)
+                        }
+                        isVolumeHolding = false
+                        return true
+                    }
+                } else {
+                    if (isUp) {
+                        if (targetDirection > 0) scrollDown() else scrollUp()
+                    }
+                    return true
                 }
             }
             KeyEvent.KEYCODE_MENU -> if (isUp) activity.toggleMenu()

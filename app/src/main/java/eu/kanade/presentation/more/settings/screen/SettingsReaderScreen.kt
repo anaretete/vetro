@@ -523,6 +523,13 @@ object SettingsReaderScreen : SearchableSettings {
     private fun getNavigationGroup(readerPreferences: ReaderPreferences): Preference.PreferenceGroup {
         val readWithVolumeKeysPref = readerPreferences.readWithVolumeKeys()
         val readWithVolumeKeys by readWithVolumeKeysPref.collectAsState()
+        val volumeKeySmoothScrollPref = readerPreferences.volumeKeySmoothScroll()
+        val volumeKeySmoothScroll by volumeKeySmoothScrollPref.collectAsState()
+        val volumeKeyTapStepPercentPref = readerPreferences.volumeKeyTapStepPercent()
+        val volumeKeyTapStepPercent by volumeKeyTapStepPercentPref.collectAsState()
+        val volumeKeySmoothScrollSpeedPref = readerPreferences.volumeKeySmoothScrollSpeed()
+        val volumeKeySmoothScrollSpeed by volumeKeySmoothScrollSpeedPref.collectAsState()
+
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_reader_navigation),
             preferenceItems = persistentListOf(
@@ -534,6 +541,29 @@ object SettingsReaderScreen : SearchableSettings {
                     preference = readerPreferences.readWithVolumeKeysInverted(),
                     title = stringResource(MR.strings.pref_read_with_volume_keys_inverted),
                     enabled = readWithVolumeKeys,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = volumeKeySmoothScrollPref,
+                    title = "Smooth Scroll on Volume Hold",
+                    subtitle = "Silky 60/120fps continuous glide while holding volume keys instead of jumpy page steps",
+                    enabled = readWithVolumeKeys,
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = (volumeKeySmoothScrollSpeed * 100).toInt(),
+                    valueRange = 25..300,
+                    title = "Holding Scroll Speed",
+                    valueString = "${(volumeKeySmoothScrollSpeed * 100).toInt()}%",
+                    enabled = readWithVolumeKeys && volumeKeySmoothScroll,
+                    onValueChanged = { volumeKeySmoothScrollSpeedPref.set(it / 100f) },
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = volumeKeyTapStepPercent,
+                    valueRange = 10..100,
+                    title = "Tap Scroll Step Distance",
+                    subtitle = "Percentage of screen height to scroll on quick volume button tap",
+                    valueString = "$volumeKeyTapStepPercent%",
+                    enabled = readWithVolumeKeys,
+                    onValueChanged = { volumeKeyTapStepPercentPref.set(it) },
                 ),
             ),
         )
