@@ -5,7 +5,7 @@
 
   <p>
     <a href="https://github.com/anaretete/komikku-liquid-glass/releases/latest">
-      <img src="https://img.shields.io/badge/Latest_Release-v1.14.52-0A84FF?style=for-the-badge&logo=android&logoColor=white" alt="Latest Release" />
+      <img src="https://img.shields.io/badge/Latest_Release-v1.14.54-0A84FF?style=for-the-badge&logo=android&logoColor=white" alt="Latest Release" />
     </a>
     <a href="https://github.com/anaretete/komikku-liquid-glass/actions">
       <img src="https://img.shields.io/badge/Build-Passing-30D158?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build Status" />
@@ -35,14 +35,6 @@ Whether browsing expansive libraries, tracking reading progress, or immersing yo
 - **Chromatic Aberration:** Physically modeled RGB light dispersion along curved glass borders.
 - **LayerBackdrop Architecture:** Hardware-accelerated offscreen sampling allows smooth 120 FPS glass rendering without UI thread hitching or recursive canvas captures.
 - **Viscoelastic Spring Physics:** Tactile button and slider interactions with natural velocity squish, stretch, and spring release.
-
-### 🎛️ Liquid Glass Studio
-Take full command of the aesthetic engine with granular, element-by-element optical tuning:
-- **Buttons & Action Chips:** Independently adjust refraction intensity, frost blur, and base tint alpha.
-- **Popouts, Dialogs & Sheets:** Fine-tune glass thickness and depth blur for modal sheets and alert dialogues.
-- **Sliders & Scrubbers:** Customize the optical distortion and lens behavior for chapter navigators and volume controls.
-- **Bars & Navigation:** Tailor the blur and transparency of top app bars, floating pill navigation bars, and segmented tab tracks.
-- **Live Interactive Previews:** Preview all adjustments live directly within the studio before applying.
 
 ### 📖 Superior Reader Experience
 - **Reading Modes:** Seamless Webtoon reader with automatic detection, Continuous Vertical, Left-to-Right, Right-to-Left, and Double Page viewers.

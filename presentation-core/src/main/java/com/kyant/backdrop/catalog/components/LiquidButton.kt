@@ -64,7 +64,6 @@ fun LiquidIconButton(
 ) {
     val animationScope = rememberCoroutineScope()
     val isDark = isSystemInDarkTheme()
-    val glassConfig = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current
 
     val interactiveHighlight = remember(animationScope) {
         InteractiveHighlight(
@@ -92,16 +91,8 @@ fun LiquidIconButton(
                 shape = { shape },
                 effects = {
                     vibrancy()
-                    val btnParams = glassConfig.buttons
-                    val effectiveBlur = 3f.dp.toPx() * glassConfig.blurMultiplier * btnParams.blurMultiplier
-                    if (effectiveBlur > 0.5f) {
-                        blur(effectiveBlur)
-                    }
-                    lens(
-                        (14f.dp.toPx() * glassConfig.refractionMultiplier * btnParams.refractionMultiplier).coerceAtLeast(0.1f),
-                        (24f.dp.toPx() * glassConfig.refractionMultiplier * btnParams.refractionMultiplier).coerceAtLeast(0.1f),
-                        chromaticAberration = glassConfig.chromaticAberration,
-                    )
+                    blur(3f.dp.toPx())
+                    lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
                 },
                 layerBlock = if (isInteractive && enabled) {
                     {
@@ -171,7 +162,6 @@ fun LiquidButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val animationScope = rememberCoroutineScope()
-    val glassConfig = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current
 
     val interactiveHighlight = remember(animationScope) {
         InteractiveHighlight(
@@ -196,16 +186,8 @@ fun LiquidButton(
                 shape = { shape },
                 effects = {
                     vibrancy()
-                    val btnParams = glassConfig.buttons
-                    val effectiveBlur = 3f.dp.toPx() * glassConfig.blurMultiplier * btnParams.blurMultiplier
-                    if (effectiveBlur > 0.5f) {
-                        blur(effectiveBlur)
-                    }
-                    lens(
-                        (14f.dp.toPx() * glassConfig.refractionMultiplier * btnParams.refractionMultiplier).coerceAtLeast(0.1f),
-                        (24f.dp.toPx() * glassConfig.refractionMultiplier * btnParams.refractionMultiplier).coerceAtLeast(0.1f),
-                        chromaticAberration = glassConfig.chromaticAberration,
-                    )
+                    blur(3f.dp.toPx())
+                    lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
                 },
                 layerBlock = if (isInteractive && enabled) {
                     {

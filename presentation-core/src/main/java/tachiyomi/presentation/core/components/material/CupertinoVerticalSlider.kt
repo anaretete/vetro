@@ -78,7 +78,6 @@ fun CupertinoVerticalSlider(
         }
 
     val trackBackdrop = rememberLayerBackdrop()
-    val glassConfig = LocalLiquidGlassConfig.current
     val density = LocalDensity.current
     val thumbWidth = 24.dp
     val thumbHeight = 40.dp
@@ -233,17 +232,13 @@ fun CupertinoVerticalSlider(
                     ),
                     shape = { Capsule() },
                     effects = {
-                        val sliderParams = glassConfig.sliders
                         val progress = dampedDragAnimation.pressProgress
-                        val effectiveBlur = 8f.dp.toPx() * (1f - progress) * glassConfig.blurMultiplier * sliderParams.blurMultiplier
-                        if (effectiveBlur > 0.5f) {
-                            blur(effectiveBlur)
-                        }
+                        blur(8f.dp.toPx() * (1f - progress))
                         if (progress > 0.001f) {
                             lens(
-                                (10f.dp.toPx() * progress * glassConfig.refractionMultiplier * sliderParams.refractionMultiplier).coerceAtLeast(0.1f),
-                                (14f.dp.toPx() * progress * glassConfig.refractionMultiplier * sliderParams.refractionMultiplier).coerceAtLeast(0.1f),
-                                chromaticAberration = glassConfig.chromaticAberration,
+                                (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                chromaticAberration = true,
                             )
                         }
                     },

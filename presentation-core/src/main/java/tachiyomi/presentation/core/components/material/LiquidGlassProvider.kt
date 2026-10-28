@@ -39,21 +39,6 @@ import com.kyant.backdrop.shadow.Shadow
 import com.kyant.shapes.Capsule
 import com.kyant.shapes.RoundedRectangularShape
 
-enum class LiquidGlassElementType {
-    GENERAL,
-    BUTTONS,
-    POPOUTS,
-    SLIDERS,
-    BARS,
-}
-
-@Immutable
-data class ElementGlassParams(
-    val refractionMultiplier: Float = 1.0f,
-    val blurMultiplier: Float = 1.0f,
-    val tintAlphaMultiplier: Float = 1.0f,
-)
-
 @Immutable
 data class LiquidGlassConfig(
     val enabled: Boolean = true,
@@ -64,10 +49,6 @@ data class LiquidGlassConfig(
     val tintAlphaMultiplier: Float = 1.0f,
     val springPhysicsEnabled: Boolean = true,
     val depthEffect: Boolean = true,
-    val buttons: ElementGlassParams = ElementGlassParams(),
-    val popouts: ElementGlassParams = ElementGlassParams(),
-    val sliders: ElementGlassParams = ElementGlassParams(),
-    val bars: ElementGlassParams = ElementGlassParams(),
 )
 
 val LocalLiquidGlassConfig = compositionLocalOf { LiquidGlassConfig() }
@@ -109,7 +90,6 @@ fun Modifier.liquidGlassSurface(
     isInteractive: Boolean = false,
     depthEffect: Boolean? = null,
     hasShadow: Boolean = true,
-    elementType: LiquidGlassElementType = LiquidGlassElementType.GENERAL,
 ): Modifier = composed {
     val config = LocalLiquidGlassConfig.current
     if (!config.enabled) return@composed this
@@ -152,26 +132,14 @@ fun Modifier.liquidGlassSurface(
         }
     }
 
-    val elementParams = when (elementType) {
-        LiquidGlassElementType.BUTTONS -> config.buttons
-        LiquidGlassElementType.POPOUTS -> config.popouts
-        LiquidGlassElementType.SLIDERS -> config.sliders
-        LiquidGlassElementType.BARS -> config.bars
-        LiquidGlassElementType.GENERAL -> ElementGlassParams(1f, 1f, 1f)
-    }
-
-    val finalRefractionMult = (config.refractionMultiplier * elementParams.refractionMultiplier).coerceAtLeast(0.01f)
-    val finalBlurMult = (config.blurMultiplier * elementParams.blurMultiplier).coerceAtLeast(0.01f)
-    val finalTintAlphaMult = (config.tintAlphaMultiplier * elementParams.tintAlphaMultiplier).coerceAtLeast(0.01f)
-
     val defaultAlpha = if (isDark) 0.16f else 0.22f
     val baseTint = if (tintColor.isSpecified && tintColor != Color.Transparent) {
-        tintColor.copy(alpha = (tintColor.alpha * finalTintAlphaMult).coerceIn(0f, 1f))
+        tintColor.copy(alpha = (tintColor.alpha * config.tintAlphaMultiplier).coerceIn(0f, 1f))
     } else {
         if (isDark) {
-            Color.White.copy(alpha = (0.10f * finalTintAlphaMult).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.10f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         } else {
-            Color.White.copy(alpha = (0.24f * finalTintAlphaMult).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.24f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         }
     }
 
@@ -183,14 +151,14 @@ fun Modifier.liquidGlassSurface(
         exportedBackdrop = exportedBackdrop,
         effects = {
             vibrancy()
-            val effectiveBlur = (blurRadius.toPx() * finalBlurMult).coerceAtLeast(0f)
+            val effectiveBlur = (blurRadius.toPx() * config.blurMultiplier).coerceAtLeast(0f)
             if (effectiveBlur > 0.5f) {
                 blur(effectiveBlur)
             }
             try {
                 lens(
-                    refractionHeight = (refractionHeight.toPx() * finalRefractionMult * config.lensHeightMultiplier).coerceAtLeast(0.1f),
-                    refractionAmount = (dynamicRefractionAmount.dp.toPx() * finalRefractionMult).coerceAtLeast(0.1f),
+                    refractionHeight = (refractionHeight.toPx() * config.refractionMultiplier * config.lensHeightMultiplier).coerceAtLeast(0.1f),
+                    refractionAmount = (dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier).coerceAtLeast(0.1f),
                     depthEffect = effectiveDepthEffect,
                     chromaticAberration = config.chromaticAberration,
                 )

@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ChromeReaderMode
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.CollectionsBookmark
 import androidx.compose.material.icons.outlined.Explore
@@ -268,14 +267,6 @@ object SettingsMainScreen : Screen() {
             icon = Icons.Outlined.Palette,
             badgeColor = Color(0xFF0A84FF),
             screen = SettingsAppearanceScreen,
-        ),
-        Item(
-            customTitle = "Liquid Glass Studio",
-            customSubtitle = "Fine-tune optical refraction, frost blur, and caustics",
-            iconRes = R.drawable.ic_lucide_sparkles,
-            icon = Icons.Outlined.AutoAwesome,
-            badgeColor = Color(0xFF00C7BE),
-            screen = SettingsLiquidGlassStudioScreen,
         ),
         Item(
             titleRes = MR.strings.pref_category_library,

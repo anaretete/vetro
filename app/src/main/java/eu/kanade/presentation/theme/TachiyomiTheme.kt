@@ -54,7 +54,6 @@ import eu.kanade.presentation.theme.colorscheme.TealTurqoiseColorScheme
 import eu.kanade.presentation.theme.colorscheme.TidalWaveColorScheme
 import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
 import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
-import tachiyomi.presentation.core.components.material.ElementGlassParams
 import tachiyomi.presentation.core.components.material.LiquidGlassConfig
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.util.collectAsState
@@ -125,22 +124,6 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     val springPhysics by uiPreferences.liquidGlassSpringPhysics().collectAsState()
     val depthEffect by uiPreferences.liquidGlassDepthEffect().collectAsState()
 
-    val btnRefraction by uiPreferences.liquidGlassButtonRefraction().collectAsState()
-    val btnBlur by uiPreferences.liquidGlassButtonBlur().collectAsState()
-    val btnTint by uiPreferences.liquidGlassButtonTintAlpha().collectAsState()
-
-    val popoutRefraction by uiPreferences.liquidGlassPopoutRefraction().collectAsState()
-    val popoutBlur by uiPreferences.liquidGlassPopoutBlur().collectAsState()
-    val popoutTint by uiPreferences.liquidGlassPopoutTintAlpha().collectAsState()
-
-    val sliderRefraction by uiPreferences.liquidGlassSliderRefraction().collectAsState()
-    val sliderBlur by uiPreferences.liquidGlassSliderBlur().collectAsState()
-    val sliderTint by uiPreferences.liquidGlassSliderTintAlpha().collectAsState()
-
-    val barRefraction by uiPreferences.liquidGlassBarRefraction().collectAsState()
-    val barBlur by uiPreferences.liquidGlassBarBlur().collectAsState()
-    val barTint by uiPreferences.liquidGlassBarTintAlpha().collectAsState()
-
     val glassConfig = remember(
         liquidGlassEnabled,
         chromaticAberration,
@@ -150,18 +133,6 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
         tintAlpha,
         springPhysics,
         depthEffect,
-        btnRefraction,
-        btnBlur,
-        btnTint,
-        popoutRefraction,
-        popoutBlur,
-        popoutTint,
-        sliderRefraction,
-        sliderBlur,
-        sliderTint,
-        barRefraction,
-        barBlur,
-        barTint,
     ) {
         LiquidGlassConfig(
             enabled = liquidGlassEnabled,
@@ -172,10 +143,6 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
             tintAlphaMultiplier = tintAlpha,
             springPhysicsEnabled = springPhysics,
             depthEffect = depthEffect,
-            buttons = ElementGlassParams(btnRefraction, btnBlur, btnTint),
-            popouts = ElementGlassParams(popoutRefraction, popoutBlur, popoutTint),
-            sliders = ElementGlassParams(sliderRefraction, sliderBlur, sliderTint),
-            bars = ElementGlassParams(barRefraction, barBlur, barTint),
         )
     }
 
