@@ -266,6 +266,11 @@ object SettingsDiscordScreen : SearchableSettings {
                     title = stringResource(KMR.strings.pref_discord_incognito),
                     subtitle = stringResource(KMR.strings.pref_discord_incognito_summary),
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = connectionsPreferences.discordCensorCover(),
+                    title = "Censor Manga Cover",
+                    subtitle = "Hide the manga cover art on Discord and display the default Vetro logo instead",
+                ),
                 Preference.PreferenceItem.MultiSelectListPreference(
                     preference = discordRPCIncognitoCategoriesPref,
                     entries = allCategories

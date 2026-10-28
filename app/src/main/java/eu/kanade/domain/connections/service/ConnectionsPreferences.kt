@@ -34,6 +34,8 @@ class ConnectionsPreferences(
 
     fun discordRPCIncognito() = preferenceStore.getBoolean("pref_discord_rpc_incognito", false)
 
+    fun discordCensorCover() = preferenceStore.getBoolean("pref_discord_censor_cover", false)
+
     fun discordRPCIncognitoCategories() = preferenceStore.getStringSet(
         "discord_rpc_incognito_categories",
         emptySet(),

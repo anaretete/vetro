@@ -24,6 +24,8 @@ abstract class ViewerConfig(readerPreferences: ReaderPreferences, private val sc
     var volumeKeySmoothScroll = true
     var volumeKeySmoothScrollSpeed = 1.0f
     var volumeKeyTapStepPercent = 35
+    var volumeKeyMomentumGlide = true
+    var volumeKeyInvertLandscape = false
     var alwaysShowChapterTransition = true
     var navigationMode = 0
         protected set
@@ -68,6 +70,12 @@ abstract class ViewerConfig(readerPreferences: ReaderPreferences, private val sc
 
         readerPreferences.volumeKeyTapStepPercent()
             .register({ volumeKeyTapStepPercent = it })
+
+        readerPreferences.volumeKeyMomentumGlide()
+            .register({ volumeKeyMomentumGlide = it })
+
+        readerPreferences.volumeKeyInvertLandscape()
+            .register({ volumeKeyInvertLandscape = it })
 
         readerPreferences.alwaysShowChapterTransition()
             .register({ alwaysShowChapterTransition = it })

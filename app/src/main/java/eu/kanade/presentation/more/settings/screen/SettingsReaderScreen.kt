@@ -565,6 +565,18 @@ object SettingsReaderScreen : SearchableSettings {
                     enabled = readWithVolumeKeys,
                     onValueChanged = { volumeKeyTapStepPercentPref.set(it) },
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.volumeKeyMomentumGlide(),
+                    title = "Inertial Momentum Glide",
+                    subtitle = "Smoothly decelerate when releasing volume keys after holding",
+                    enabled = readWithVolumeKeys && volumeKeySmoothScroll,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.volumeKeyInvertLandscape(),
+                    title = "Invert Volume Keys in Landscape",
+                    subtitle = "Match physical hand position when rotating device",
+                    enabled = readWithVolumeKeys,
+                ),
             ),
         )
     }

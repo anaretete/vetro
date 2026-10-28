@@ -251,6 +251,17 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "Vivid Accent Mode",
                     subtitle = "Boost saturation of primary accents for high-gamut and OLED screens",
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.liquidGlassSpecularGleam(),
+                    title = "Liquid Glass Specular Shimmer",
+                    subtitle = "Refractive dynamic light gleam across active glass elements",
+                    enabled = isLiquidGlassEnabled,
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.compactLibraryGrid(),
+                    title = "Compact Library Grid",
+                    subtitle = "Display tighter manga card spacing with 1.5x more items per row",
+                ),
             ),
         )
     }

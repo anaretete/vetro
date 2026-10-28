@@ -398,8 +398,12 @@ class DiscordRPCService : Service() {
 
                 withIOContext {
                     val rpcExternalAsset = getRPCExternalAsset()
-                    val mangaThumbnail =
+                    val censorCover = connectionsPreferences.discordCensorCover().get()
+                    val mangaThumbnail = if (censorCover) {
+                        null
+                    } else {
                         getDiscordThumbnail(rpcExternalAsset, readerData.thumbnailUrl, discordIncognito)
+                    }
 
                     discordScope.launchIO {
                         setScreen(

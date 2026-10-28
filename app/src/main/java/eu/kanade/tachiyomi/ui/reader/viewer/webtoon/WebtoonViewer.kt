@@ -433,8 +433,28 @@ class WebtoonViewer(
     }
 
     private fun stopVolumeSmoothScroll() {
+        val lastDir = volumeScrollDirection
         volumeScrollDirection = 0
         recycler.removeCallbacks(volumeSmoothScrollRunnable)
+        if (config.volumeKeyMomentumGlide && isVolumeHolding && lastDir != 0) {
+            startMomentumGlide(lastDir)
+        }
+    }
+
+    private fun startMomentumGlide(direction: Int) {
+        var velocity = 10f * activity.resources.displayMetrics.density * config.volumeKeySmoothScrollSpeed
+        val momentumRunnable = object : Runnable {
+            override fun run() {
+                velocity *= 0.65f
+                if (velocity < 1.0f) return
+                val delta = (if (direction > 0) velocity else -velocity).toInt()
+                if (delta != 0) {
+                    recycler.scrollBy(0, delta)
+                    recycler.postOnAnimation(this)
+                }
+            }
+        }
+        recycler.postOnAnimation(momentumRunnable)
     }
 
     /**
@@ -453,7 +473,9 @@ class WebtoonViewer(
                     return false
                 }
                 val isDownKey = event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
-                val isForward = if (isDownKey) !config.volumeKeysInverted else config.volumeKeysInverted
+                val isLandscape = activity.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                val invertDirection = if (config.volumeKeyInvertLandscape && isLandscape) !config.volumeKeysInverted else config.volumeKeysInverted
+                val isForward = if (isDownKey) !invertDirection else invertDirection
                 val targetDirection = if (isForward) 1 else -1
 
                 if (config.volumeKeySmoothScroll) {

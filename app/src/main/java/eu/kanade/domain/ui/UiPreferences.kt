@@ -39,6 +39,8 @@ class UiPreferences(
     fun customFontPath() = preferenceStore.getString("pref_custom_font_path_key", "")
     fun floatingNavBar() = preferenceStore.getBoolean("pref_floating_nav_bar_key", false)
     fun vividAccent() = preferenceStore.getBoolean("pref_vivid_accent_key", false)
+    fun liquidGlassSpecularGleam() = preferenceStore.getBoolean("pref_liquid_glass_gleam_key", true)
+    fun compactLibraryGrid() = preferenceStore.getBoolean("pref_compact_library_grid_key", false)
 
     // KMK -->
     fun colorTheme() = preferenceStore.getInt("pref_color_theme", 0xFFDF0090.toInt())

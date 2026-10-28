@@ -160,6 +160,10 @@ class ReaderPreferences(
 
     fun volumeKeyTapStepPercent() = preferenceStore.getInt("pref_volume_key_tap_step_percent", 35)
 
+    fun volumeKeyMomentumGlide() = preferenceStore.getBoolean("pref_volume_key_momentum_glide", true)
+
+    fun volumeKeyInvertLandscape() = preferenceStore.getBoolean("pref_volume_key_invert_landscape", false)
+
     fun navigationModePager() = preferenceStore.getInt("reader_navigation_mode_pager", 0)
 
     fun navigationModeWebtoon() = preferenceStore.getInt("reader_navigation_mode_webtoon", 0)
