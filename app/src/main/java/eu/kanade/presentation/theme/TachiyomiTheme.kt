@@ -55,6 +55,7 @@ import eu.kanade.presentation.theme.colorscheme.TidalWaveColorScheme
 import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
 import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
 import tachiyomi.presentation.core.components.material.LiquidGlassConfig
+import tachiyomi.presentation.core.components.material.LocalCupertinoHapticsEnabled
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -69,9 +70,10 @@ fun TachiyomiTheme(
     val uiPreferences = Injekt.get<UiPreferences>()
     val prefTheme by uiPreferences.appTheme().collectAsState()
     val prefAmoled by uiPreferences.themeDarkAmoled().collectAsState()
+    val oledPureBlack by uiPreferences.oledPureBlack().collectAsState()
     BaseTachiyomiTheme(
         appTheme = appTheme ?: prefTheme,
-        isAmoled = amoled ?: prefAmoled,
+        isAmoled = amoled ?: (prefAmoled || oledPureBlack),
         content = content,
     )
 }
@@ -90,7 +92,7 @@ fun TachiyomiTheme(
         TachiyomiTheme(appTheme, amoled, content)
     } else {
         val uiPreferences = Injekt.get<UiPreferences>()
-        val isAmoled = amoled ?: uiPreferences.themeDarkAmoled().get()
+        val isAmoled = amoled ?: (uiPreferences.themeDarkAmoled().get() || uiPreferences.oledPureBlack().get())
         LiquidGlassThemeWrapper {
             DynamicMaterialExpressiveTheme(
                 seedColor = seedColor,
@@ -123,6 +125,7 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     val tintAlpha by uiPreferences.liquidGlassTintAlpha().collectAsState()
     val springPhysics by uiPreferences.liquidGlassSpringPhysics().collectAsState()
     val depthEffect by uiPreferences.liquidGlassDepthEffect().collectAsState()
+    val cupertinoHaptics by uiPreferences.cupertinoHaptics().collectAsState()
 
     val glassConfig = remember(
         liquidGlassEnabled,
@@ -146,7 +149,10 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
         )
     }
 
-    CompositionLocalProvider(LocalLiquidGlassConfig provides glassConfig) {
+    CompositionLocalProvider(
+        LocalLiquidGlassConfig provides glassConfig,
+        LocalCupertinoHapticsEnabled provides cupertinoHaptics,
+    ) {
         content()
     }
 }

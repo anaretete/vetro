@@ -45,26 +45,17 @@ fun LabeledCheckbox(
             )
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (isGlass) Arrangement.SpaceBetween else Arrangement.spacedBy(MaterialTheme.padding.small),
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        if (isGlass) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f),
-            )
-            CupertinoCheckmark(
-                checked = checked,
-                enabled = enabled,
-            )
-        } else {
-            Checkbox(
-                checked = checked,
-                onCheckedChange = null,
-                enabled = enabled,
-            )
-            Text(text = label)
-        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        CupertinoCheckmark(
+            checked = checked,
+            enabled = enabled,
+        )
     }
 }

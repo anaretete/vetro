@@ -40,8 +40,12 @@ import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import com.kyant.shapes.Capsule
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.rememberCupertinoHaptics
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -82,53 +86,71 @@ fun LiquidIconButton(
         if (isDark) Color.White else Color.Black
     }
 
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val haptics = rememberCupertinoHaptics()
+
+    val glassOrSolidModifier = if (isGlass) {
+        Modifier.drawBackdrop(
+            backdrop = backdrop,
+            shape = { shape },
+            effects = {
+                vibrancy()
+                blur(3f.dp.toPx())
+                lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
+            },
+            layerBlock = if (isInteractive && enabled) {
+                {
+                    val progress = interactiveHighlight.pressProgress
+                    val scale = lerp(1f, 1f + 4f.dp.toPx() / this.size.height, progress)
+
+                    val maxOffset = this.size.minDimension
+                    val initialDerivative = 0.05f
+                    val offset = interactiveHighlight.offset
+                    translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
+                    translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
+
+                    val maxDragScale = 4f.dp.toPx() / this.size.height
+                    val offsetAngle = atan2(offset.y, offset.x)
+                    scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension)
+                    scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension)
+                }
+            } else {
+                null
+            },
+            onDrawSurface = {
+                if (tint.isSpecified) {
+                    drawRect(tint, blendMode = BlendMode.Hue)
+                    drawRect(tint.copy(alpha = 0.78f))
+                }
+                if (effectiveSurfaceColor.isSpecified) {
+                    drawRect(effectiveSurfaceColor)
+                }
+            },
+        )
+    } else {
+        Modifier
+            .clip(shape)
+            .background(
+                if (tint.isSpecified && tint != Color.Transparent) tint
+                else if (effectiveSurfaceColor.isSpecified) effectiveSurfaceColor
+                else defaultSurface
+            )
+    }
+
     Box(
         modifier = modifier
             .size(size)
             .alpha(if (enabled) 1f else 0.45f)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { shape },
-                effects = {
-                    vibrancy()
-                    blur(3f.dp.toPx())
-                    lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
-                },
-                layerBlock = if (isInteractive && enabled) {
-                    {
-                        val progress = interactiveHighlight.pressProgress
-                        val scale = lerp(1f, 1f + 4f.dp.toPx() / this.size.height, progress)
-
-                        val maxOffset = this.size.minDimension
-                        val initialDerivative = 0.05f
-                        val offset = interactiveHighlight.offset
-                        translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
-                        translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
-
-                        val maxDragScale = 4f.dp.toPx() / this.size.height
-                        val offsetAngle = atan2(offset.y, offset.x)
-                        scaleX = scale + maxDragScale * abs(cos(offsetAngle) * offset.x / this.size.maxDimension)
-                        scaleY = scale + maxDragScale * abs(sin(offsetAngle) * offset.y / this.size.maxDimension)
-                    }
-                } else {
-                    null
-                },
-                onDrawSurface = {
-                    if (tint.isSpecified) {
-                        drawRect(tint, blendMode = BlendMode.Hue)
-                        drawRect(tint.copy(alpha = 0.78f))
-                    }
-                    if (effectiveSurfaceColor.isSpecified) {
-                        drawRect(effectiveSurfaceColor)
-                    }
-                },
-            )
+            .then(glassOrSolidModifier)
             .clickable(
                 enabled = enabled,
                 interactionSource = null,
                 indication = if (isInteractive) null else LocalIndication.current,
                 role = Role.Button,
-                onClick = onClick,
+                onClick = {
+                    haptics.click()
+                    onClick()
+                },
             )
             .then(
                 if (isInteractive && enabled) {
@@ -177,62 +199,82 @@ fun LiquidButton(
         MaterialTheme.colorScheme.onSurface
     }
 
+    val isDark = isSystemInDarkTheme()
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val haptics = rememberCupertinoHaptics()
+    val defaultSurface = if (isDark) Color(0xFF2C2C2E).copy(alpha = 0.75f) else Color(0xFFE5E5EA).copy(alpha = 0.85f)
+    val effectiveSurfaceColor = if (surfaceColor.isSpecified) surfaceColor else defaultSurface
+
+    val glassOrSolidModifier = if (isGlass) {
+        Modifier.drawBackdrop(
+            backdrop = backdrop,
+            shape = { shape },
+            effects = {
+                vibrancy()
+                blur(3f.dp.toPx())
+                lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
+            },
+            layerBlock = if (isInteractive && enabled) {
+                {
+                    val width = size.width
+                    val height = size.height
+
+                    val progress = interactiveHighlight.pressProgress
+                    val scale = lerp(1f, 1f + 4f.dp.toPx() / size.height, progress)
+
+                    val maxOffset = size.minDimension
+                    val initialDerivative = 0.05f
+                    val offset = interactiveHighlight.offset
+                    translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
+                    translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
+
+                    val maxDragScale = 4f.dp.toPx() / size.height
+                    val offsetAngle = atan2(offset.y, offset.x)
+                    scaleX =
+                        scale +
+                        maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension) *
+                        (width / height).fastCoerceAtMost(1f)
+                    scaleY =
+                        scale +
+                        maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension) *
+                        (height / width).fastCoerceAtMost(1f)
+                }
+            } else {
+                null
+            },
+            onDrawSurface = {
+                if (tint.isSpecified) {
+                    drawRect(tint, blendMode = BlendMode.Hue)
+                    drawRect(tint.copy(alpha = 0.78f))
+                }
+                if (surfaceColor.isSpecified) {
+                    drawRect(surfaceColor)
+                }
+            },
+        )
+    } else {
+        Modifier
+            .clip(shape)
+            .background(
+                if (tint.isSpecified && tint != Color.Transparent) tint
+                else effectiveSurfaceColor
+            )
+    }
+
     Row(
         modifier
             .defaultMinSize(minHeight = 44.dp)
             .alpha(if (enabled) 1f else 0.45f)
-            .drawBackdrop(
-                backdrop = backdrop,
-                shape = { shape },
-                effects = {
-                    vibrancy()
-                    blur(3f.dp.toPx())
-                    lens(14f.dp.toPx(), 24f.dp.toPx(), chromaticAberration = true)
-                },
-                layerBlock = if (isInteractive && enabled) {
-                    {
-                        val width = size.width
-                        val height = size.height
-
-                        val progress = interactiveHighlight.pressProgress
-                        val scale = lerp(1f, 1f + 4f.dp.toPx() / size.height, progress)
-
-                        val maxOffset = size.minDimension
-                        val initialDerivative = 0.05f
-                        val offset = interactiveHighlight.offset
-                        translationX = maxOffset * tanh(initialDerivative * offset.x / maxOffset)
-                        translationY = maxOffset * tanh(initialDerivative * offset.y / maxOffset)
-
-                        val maxDragScale = 4f.dp.toPx() / size.height
-                        val offsetAngle = atan2(offset.y, offset.x)
-                        scaleX =
-                            scale +
-                            maxDragScale * abs(cos(offsetAngle) * offset.x / size.maxDimension) *
-                            (width / height).fastCoerceAtMost(1f)
-                        scaleY =
-                            scale +
-                            maxDragScale * abs(sin(offsetAngle) * offset.y / size.maxDimension) *
-                            (height / width).fastCoerceAtMost(1f)
-                    }
-                } else {
-                    null
-                },
-                onDrawSurface = {
-                    if (tint.isSpecified) {
-                        drawRect(tint, blendMode = BlendMode.Hue)
-                        drawRect(tint.copy(alpha = 0.78f))
-                    }
-                    if (surfaceColor.isSpecified) {
-                        drawRect(surfaceColor)
-                    }
-                },
-            )
+            .then(glassOrSolidModifier)
             .clickable(
                 enabled = enabled,
                 interactionSource = null,
                 indication = if (isInteractive) null else LocalIndication.current,
                 role = Role.Button,
-                onClick = onClick,
+                onClick = {
+                    haptics.click()
+                    onClick()
+                },
             )
             .then(
                 if (isInteractive && enabled) {

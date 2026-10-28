@@ -147,9 +147,9 @@ fun SolidCupertinoSlider(
     val isLightTheme = !isSystemInDarkTheme()
     val trackColor = if (isLightTheme) Color(0xFF787878).copy(alpha = 0.2f) else Color(0xFF787880).copy(alpha = 0.36f)
     val density = LocalDensity.current
-    val thumbWidth = 40.dp
-    val thumbHeight = 24.dp
-    val thumbWidthPx = with(density) { thumbWidth.toPx() }
+    val haptics = rememberCupertinoHaptics()
+    val thumbSize = 28.dp
+    val thumbWidthPx = with(density) { thumbSize.toPx() }
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val rangeSpan = (valueRange.endInclusive - valueRange.start).coerceAtLeast(0.0001f)
 
@@ -178,6 +178,12 @@ fun SolidCupertinoSlider(
             } else {
                 valueRange.start + effectiveFraction * rangeSpan
             }.coerceIn(valueRange)
+
+            val oldStep = if (steps > 0) (((value - valueRange.start) / rangeSpan) * (steps + 1)).roundToInt() else value.roundToInt()
+            val newStep = if (steps > 0) (((targetValue - valueRange.start) / rangeSpan) * (steps + 1)).roundToInt() else targetValue.roundToInt()
+            if (oldStep != newStep) {
+                haptics.tick()
+            }
             onValueChange(targetValue)
         }
 
@@ -233,13 +239,13 @@ fun SolidCupertinoSlider(
             )
         }
 
-        // Capsule Thumb (40x24dp)
+        // Standard Apple iOS Circular Thumb (28dp) with shadow
         Box(
             Modifier
                 .offset(x = with(density) { (maxTravel * (if (isLtr) progress else 1f - progress)).toDp() })
-                .size(thumbWidth, thumbHeight)
-                .shadow(elevation = 3.dp, shape = Capsule())
-                .clip(Capsule())
+                .size(thumbSize)
+                .shadow(elevation = 3.dp, shape = CircleShape)
+                .clip(CircleShape)
                 .background(Color.White),
         )
     }

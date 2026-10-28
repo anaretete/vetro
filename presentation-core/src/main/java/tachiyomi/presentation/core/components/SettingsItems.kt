@@ -170,21 +170,13 @@ fun CheckboxItem(label: String, pref: Preference<Boolean>) {
 
 @Composable
 fun CheckboxItem(label: String, checked: Boolean, onClick: () -> Unit) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
     BaseSettingsItem(
         label = label,
         widget = {
-            if (isGlass) {
-                CupertinoSwitch(
-                    checked = checked,
-                    onCheckedChange = { if (it != checked) onClick() },
-                )
-            } else {
-                Checkbox(
-                    checked = checked,
-                    onCheckedChange = null,
-                )
-            }
+            CupertinoSwitch(
+                checked = checked,
+                onCheckedChange = { if (it != checked) onClick() },
+            )
         },
         onClick = onClick,
     )
@@ -192,20 +184,12 @@ fun CheckboxItem(label: String, checked: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun RadioItem(label: String, selected: Boolean, onClick: () -> Unit) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
     BaseSettingsItem(
         label = label,
         widget = {
-            if (isGlass) {
-                CupertinoCheckmark(
-                    checked = selected,
-                )
-            } else {
-                RadioButton(
-                    selected = selected,
-                    onClick = null,
-                )
-            }
+            CupertinoCheckmark(
+                checked = selected,
+            )
         },
         onClick = onClick,
     )
@@ -430,45 +414,21 @@ fun TriStateItem(
     ) {
         val stateAlpha = if (enabled && onClick != null) 1f else DISABLED_ALPHA
 
-        if (isGlass) {
-            Text(
-                text = label,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                modifier = Modifier.weight(1f),
-            )
-            tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
-                state = when (state) {
-                    TriState.ENABLED_IS -> androidx.compose.ui.state.ToggleableState.On
-                    TriState.DISABLED -> androidx.compose.ui.state.ToggleableState.Off
-                    TriState.ENABLED_NOT -> androidx.compose.ui.state.ToggleableState.Indeterminate
-                },
-                excludeIsCross = true,
-                enabled = enabled && onClick != null,
-            )
-        } else {
-            Icon(
-                imageVector = when (state) {
-                    TriState.DISABLED -> Icons.Rounded.CheckBoxOutlineBlank
-                    TriState.ENABLED_IS -> Icons.Rounded.CheckBox
-                    TriState.ENABLED_NOT -> Icons.Rounded.DisabledByDefault
-                },
-                contentDescription = null,
-                tint = if (!enabled || state == TriState.DISABLED) {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = stateAlpha)
-                } else {
-                    when (onClick) {
-                        null -> MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_ALPHA)
-                        else -> MaterialTheme.colorScheme.primary
-                    }
-                },
-            )
-            Text(
-                text = label,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+            modifier = Modifier.weight(1f),
+        )
+        tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
+            state = when (state) {
+                TriState.ENABLED_IS -> androidx.compose.ui.state.ToggleableState.On
+                TriState.DISABLED -> androidx.compose.ui.state.ToggleableState.Off
+                TriState.ENABLED_NOT -> androidx.compose.ui.state.ToggleableState.Indeterminate
+            },
+            excludeIsCross = true,
+            enabled = enabled && onClick != null,
+        )
     }
 }
 

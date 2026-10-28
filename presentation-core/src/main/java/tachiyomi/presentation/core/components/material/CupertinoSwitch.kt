@@ -1,19 +1,50 @@
 package tachiyomi.presentation.core.components.material
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidToggle
+import com.kyant.shapes.Capsule
 
 /**
  * Authentic Apple iOS Cupertino Switch.
- * Standard 51dp x 31dp stadium capsule with Apple Emerald Green active fill and liquid glass optics.
+ * Dispatches to LiquidToggle when Liquid Glass is enabled, and SolidCupertinoSwitch when disabled.
  */
 @Composable
 fun CupertinoSwitch(
@@ -23,17 +54,129 @@ fun CupertinoSwitch(
     enabled: Boolean = true,
     backdrop: Backdrop? = null,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
     val currentChecked by rememberUpdatedState(checked)
     val currentOnCheckedChange by rememberUpdatedState(onCheckedChange)
-    val fallbackBackdrop = rememberLayerBackdrop()
-    val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current ?: fallbackBackdrop
+    val haptics = rememberCupertinoHaptics()
 
-    LiquidToggle(
-        selected = { currentChecked },
-        onSelect = { newValue -> if (enabled) currentOnCheckedChange?.invoke(newValue) },
-        backdrop = effectiveBackdrop,
-        modifier = modifier.alpha(if (enabled) 1f else 0.38f),
+    if (isGlass) {
+        val fallbackBackdrop = rememberLayerBackdrop()
+        val effectiveBackdrop = backdrop ?: LocalLayerBackdrop.current ?: fallbackBackdrop
+
+        LiquidToggle(
+            selected = { currentChecked },
+            onSelect = { newValue ->
+                if (enabled) {
+                    haptics.toggle()
+                    currentOnCheckedChange?.invoke(newValue)
+                }
+            },
+            backdrop = effectiveBackdrop,
+            modifier = modifier.alpha(if (enabled) 1f else 0.38f),
+        )
+    } else {
+        SolidCupertinoSwitch(
+            checked = currentChecked,
+            onCheckedChange = { newValue ->
+                if (enabled) {
+                    haptics.toggle()
+                    currentOnCheckedChange?.invoke(newValue)
+                }
+            },
+            modifier = modifier,
+            enabled = enabled,
+        )
+    }
+}
+
+/**
+ * Pixel-perfect Apple iOS Solid Switch (51x31dp track, 27dp thumb).
+ * Used when Liquid Glass is disabled for a clean, non-glass Cupertino experience.
+ */
+@Composable
+fun SolidCupertinoSwitch(
+    checked: Boolean,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val isDark = isSystemInDarkTheme()
+    val activeColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = if (isDark) Color(0xFF39393D) else Color(0xFFE9E9EA)
+
+    val trackColor by animateColorAsState(
+        targetValue = if (checked) activeColor else inactiveColor,
+        animationSpec = tween(durationMillis = 200),
+        label = "switchTrackColor",
     )
+
+    var isPressed by remember { mutableStateOf(false) }
+
+    // Dimensions: 51dp width x 31dp height.
+    // Thumb: 27dp diameter, 2dp padding on left and right.
+    // Travel: 51 - 27 - 2 - 2 = 20dp.
+    val targetOffset = if (checked) 22.dp else 2.dp
+    val thumbOffset by animateDpAsState(
+        targetValue = targetOffset,
+        animationSpec = spring(
+            stiffness = Spring.StiffnessMediumLow,
+            dampingRatio = Spring.DampingRatioLowBouncy,
+        ),
+        label = "switchThumbOffset",
+    )
+
+    val thumbWidth by animateDpAsState(
+        targetValue = if (isPressed) 31.dp else 27.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "switchThumbWidth",
+    )
+
+    Box(
+        modifier = modifier
+            .size(51.dp, 31.dp)
+            .alpha(if (enabled) 1f else 0.38f)
+            .semantics { role = Role.Switch }
+            .clip(Capsule())
+            .background(trackColor)
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                detectTapGestures(
+                    onPress = {
+                        isPressed = true
+                        tryAwaitRelease()
+                        isPressed = false
+                    },
+                    onTap = {
+                        onCheckedChange?.invoke(!checked)
+                    },
+                )
+            }
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                detectHorizontalDragGestures(
+                    onDragStart = { isPressed = true },
+                    onDragEnd = { isPressed = false },
+                    onDragCancel = { isPressed = false },
+                    onHorizontalDrag = { _, dragAmount ->
+                        if (dragAmount > 8f && !checked) {
+                            onCheckedChange?.invoke(true)
+                        } else if (dragAmount < -8f && checked) {
+                            onCheckedChange?.invoke(false)
+                        }
+                    },
+                )
+            },
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Box(
+            modifier = Modifier
+                .offset(x = thumbOffset)
+                .size(width = thumbWidth, height = 27.dp)
+                .shadow(elevation = 2.5.dp, shape = Capsule())
+                .clip(Capsule())
+                .background(Color.White),
+        )
+    }
 }
 
 /**

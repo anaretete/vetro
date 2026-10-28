@@ -32,6 +32,8 @@ class UiPreferences(
     fun liquidGlassTintAlpha() = preferenceStore.getFloat("pref_liquid_glass_tint_alpha", 1.0f)
     fun liquidGlassSpringPhysics() = preferenceStore.getBoolean("pref_liquid_glass_spring", true)
     fun liquidGlassDepthEffect() = preferenceStore.getBoolean("pref_liquid_glass_depth", true)
+    fun cupertinoHaptics() = preferenceStore.getBoolean("pref_cupertino_haptics", true)
+    fun oledPureBlack() = preferenceStore.getBoolean("pref_oled_pure_black", false)
 
     // KMK -->
     fun colorTheme() = preferenceStore.getInt("pref_color_theme", 0xFFDF0090.toInt())

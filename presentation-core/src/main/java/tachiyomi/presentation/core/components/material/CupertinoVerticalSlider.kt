@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
@@ -63,6 +64,8 @@ fun CupertinoVerticalSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     backdrop: Backdrop? = null,
 ) {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val haptics = rememberCupertinoHaptics()
     val isLightTheme = !isSystemInDarkTheme()
     val isDark = !isLightTheme
     val activeBackdrop = backdrop ?: LocalLayerBackdrop.current ?: rememberCanvasBackdrop {
@@ -140,6 +143,11 @@ fun CupertinoVerticalSlider(
             } else {
                 valueRange.endInclusive - fraction * (valueRange.endInclusive - valueRange.start)
             }.coerceIn(valueRange)
+            val oldInt = currentDragValue.fastRoundToInt()
+            val newInt = targetValue.fastRoundToInt()
+            if (oldInt != newInt) {
+                haptics.tick()
+            }
             currentDragValue = targetValue
             dampedDragAnimation.updateValue(targetValue)
             onValueChange(targetValue)
@@ -212,67 +220,83 @@ fun CupertinoVerticalSlider(
         }
 
         // 24x40dp Capsule Thumb (vertical equivalent of LiquidSlider's 40x24dp thumb)
-        Box(
-            Modifier
-                .graphicsLayer {
-                    val progress = dampedDragAnimation.progress.coerceIn(0f, 1f)
-                    translationY = maxTravel * progress
-                }
-                .drawBackdrop(
-                    backdrop = rememberCombinedBackdrop(
-                        activeBackdrop,
-                        rememberBackdrop(trackBackdrop) { drawBackdrop ->
+        if (isGlass) {
+            Box(
+                Modifier
+                    .graphicsLayer {
+                        val progress = dampedDragAnimation.progress.coerceIn(0f, 1f)
+                        translationY = maxTravel * progress
+                    }
+                    .drawBackdrop(
+                        backdrop = rememberCombinedBackdrop(
+                            activeBackdrop,
+                            rememberBackdrop(trackBackdrop) { drawBackdrop ->
+                                val progress = dampedDragAnimation.pressProgress
+                                val scaleX = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
+                                val scaleY = lerp(2f / 3f, 1f, progress).coerceAtLeast(0.001f)
+                                scale(scaleX, scaleY) {
+                                    drawBackdrop()
+                                }
+                            },
+                        ),
+                        shape = { Capsule() },
+                        effects = {
                             val progress = dampedDragAnimation.pressProgress
-                            val scaleX = lerp(0.001f, 1f, progress).coerceAtLeast(0.001f)
-                            val scaleY = lerp(2f / 3f, 1f, progress).coerceAtLeast(0.001f)
-                            scale(scaleX, scaleY) {
-                                drawBackdrop()
+                            blur(8f.dp.toPx() * (1f - progress))
+                            if (progress > 0.001f) {
+                                lens(
+                                    (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                    (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
+                                    chromaticAberration = true,
+                                )
                             }
                         },
-                    ),
-                    shape = { Capsule() },
-                    effects = {
-                        val progress = dampedDragAnimation.pressProgress
-                        blur(8f.dp.toPx() * (1f - progress))
-                        if (progress > 0.001f) {
-                            lens(
-                                (10f.dp.toPx() * progress).coerceAtLeast(0.1f),
-                                (14f.dp.toPx() * progress).coerceAtLeast(0.1f),
-                                chromaticAberration = true,
+                        highlight = {
+                            val progress = dampedDragAnimation.pressProgress
+                            Highlight.Ambient.copy(
+                                width = Highlight.Ambient.width / 1.5f,
+                                blurRadius = Highlight.Ambient.blurRadius / 1.5f,
+                                alpha = progress,
                             )
-                        }
-                    },
-                    highlight = {
-                        val progress = dampedDragAnimation.pressProgress
-                        Highlight.Ambient.copy(
-                            width = Highlight.Ambient.width / 1.5f,
-                            blurRadius = Highlight.Ambient.blurRadius / 1.5f,
-                            alpha = progress,
-                        )
-                    },
-                    shadow = {
-                        Shadow(
-                            radius = 4f.dp,
-                            color = Color.Black.copy(alpha = 0.05f),
-                        )
-                    },
-                    innerShadow = {
-                        val progress = dampedDragAnimation.pressProgress
-                        InnerShadow(
-                            radius = 4f.dp * progress,
-                            alpha = progress,
-                        )
-                    },
-                    layerBlock = {
+                        },
+                        shadow = {
+                            Shadow(
+                                radius = 4f.dp,
+                                color = Color.Black.copy(alpha = 0.05f),
+                            )
+                        },
+                        innerShadow = {
+                            val progress = dampedDragAnimation.pressProgress
+                            InnerShadow(
+                                radius = 4f.dp * progress,
+                                alpha = progress,
+                            )
+                        },
+                        layerBlock = {
+                            scaleX = dampedDragAnimation.scaleX
+                            scaleY = dampedDragAnimation.scaleY
+                        },
+                        onDrawSurface = {
+                            val progress = dampedDragAnimation.pressProgress
+                            drawRect(Color.White.copy(alpha = 1f - progress))
+                        },
+                    )
+                    .size(thumbWidth, thumbHeight),
+            )
+        } else {
+            Box(
+                Modifier
+                    .graphicsLayer {
+                        val progress = dampedDragAnimation.progress.coerceIn(0f, 1f)
+                        translationY = maxTravel * progress
                         scaleX = dampedDragAnimation.scaleX
                         scaleY = dampedDragAnimation.scaleY
-                    },
-                    onDrawSurface = {
-                        val progress = dampedDragAnimation.pressProgress
-                        drawRect(Color.White.copy(alpha = 1f - progress))
-                    },
-                )
-                .size(thumbWidth, thumbHeight),
-        )
+                    }
+                    .size(thumbWidth, thumbHeight)
+                    .shadow(elevation = 3.dp, shape = Capsule())
+                    .clip(Capsule())
+                    .background(Color.White),
+            )
+        }
     }
 }

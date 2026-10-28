@@ -171,6 +171,21 @@ object SettingsAppearanceScreen : SearchableSettings {
                     subtitle = "Viscoelastic squish and stretch velocity deformation",
                     enabled = isLiquidGlassEnabled,
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.cupertinoHaptics(),
+                    title = "Tactile Haptic Feedback",
+                    subtitle = "Subtle iOS taptic response on switches, sliders, buttons, and page turns",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = uiPreferences.oledPureBlack(),
+                    title = "OLED Pure Black Mode",
+                    subtitle = "Turn off pixels completely for true OLED black backgrounds",
+                    enabled = themeMode != ThemeMode.LIGHT,
+                    onValueChanged = {
+                        (context as? Activity)?.let { ActivityCompat.recreate(it) }
+                        true
+                    },
+                ),
             ),
         )
     }
