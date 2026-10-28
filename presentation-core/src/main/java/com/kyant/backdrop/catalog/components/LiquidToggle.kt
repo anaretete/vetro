@@ -57,8 +57,8 @@ fun LiquidToggle(
     val isLightTheme = !isSystemInDarkTheme()
     val isDark = !isLightTheme
     val defaultCupertinoGreen = if (isDark) Color(0xFF30D158) else Color(0xFF34C759)
-    val isCupertinoTheme = MaterialTheme.colorScheme.primary == Color(0xFF007AFF) || MaterialTheme.colorScheme.primary == Color(0xFF0A84FF)
-    val accentColor = customAccentColor ?: if (isCupertinoTheme) defaultCupertinoGreen else MaterialTheme.colorScheme.primary
+    val greenToggles = tachiyomi.presentation.core.components.material.LocalCupertinoGreenToggles.current
+    val accentColor = customAccentColor ?: if (greenToggles) defaultCupertinoGreen else MaterialTheme.colorScheme.primary
     val trackColor =
         if (isLightTheme) {
             Color(0xFF787878).copy(0.2f)

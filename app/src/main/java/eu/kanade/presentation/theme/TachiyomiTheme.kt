@@ -58,6 +58,7 @@ import eu.kanade.presentation.theme.colorscheme.YinYangColorScheme
 import eu.kanade.presentation.theme.colorscheme.YotsubaColorScheme
 import java.io.File
 import tachiyomi.presentation.core.components.material.LiquidGlassConfig
+import tachiyomi.presentation.core.components.material.LocalCupertinoGreenToggles
 import tachiyomi.presentation.core.components.material.LocalCupertinoHapticsEnabled
 import tachiyomi.presentation.core.components.material.LocalFloatingNavbar
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
@@ -313,12 +314,18 @@ private fun BaseTachiyomiTheme(
             baseTypography.withFontFamily(fontFamily)
         }
 
-        MaterialExpressiveTheme(
-            colorScheme = colorScheme,
-            shapes = if (isCupertino) CupertinoShapes else MaterialTheme.shapes,
-            typography = effectiveTypography,
-            content = content,
-        )
+        val isCupertinoTheme = appTheme == AppTheme.CUPERTINO
+
+        CompositionLocalProvider(
+            LocalCupertinoGreenToggles provides isCupertinoTheme,
+        ) {
+            MaterialExpressiveTheme(
+                colorScheme = colorScheme,
+                shapes = if (isCupertino) CupertinoShapes else MaterialTheme.shapes,
+                typography = effectiveTypography,
+                content = content,
+            )
+        }
     }
 }
 

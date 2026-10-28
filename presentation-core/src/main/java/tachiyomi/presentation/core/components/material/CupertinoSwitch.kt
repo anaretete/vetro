@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,8 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.kyant.backdrop.catalog.components.LiquidToggle
 import com.kyant.shapes.Capsule
 
+val LocalCupertinoGreenToggles = compositionLocalOf { false }
+
 /**
  * Authentic Apple iOS Cupertino Switch.
  * Dispatches to LiquidToggle when Liquid Glass is enabled, and SolidCupertinoSwitch when disabled.
@@ -62,8 +65,8 @@ fun CupertinoSwitch(
 
     val isDark = isSystemInDarkTheme()
     val cupertinoGreen = if (isDark) Color(0xFF30D158) else Color(0xFF34C759)
-    val isCupertinoTheme = MaterialTheme.colorScheme.primary == Color(0xFF007AFF) || MaterialTheme.colorScheme.primary == Color(0xFF0A84FF)
-    val activeColor = customActiveColor ?: if (isCupertinoTheme) cupertinoGreen else MaterialTheme.colorScheme.primary
+    val greenToggles = LocalCupertinoGreenToggles.current
+    val activeColor = customActiveColor ?: if (greenToggles) cupertinoGreen else MaterialTheme.colorScheme.primary
 
     if (isGlass) {
         val fallbackBackdrop = rememberLayerBackdrop()
@@ -111,8 +114,8 @@ fun SolidCupertinoSwitch(
 ) {
     val isDark = isSystemInDarkTheme()
     val cupertinoGreen = if (isDark) Color(0xFF30D158) else Color(0xFF34C759)
-    val isCupertinoTheme = MaterialTheme.colorScheme.primary == Color(0xFF007AFF) || MaterialTheme.colorScheme.primary == Color(0xFF0A84FF)
-    val activeColor = customActiveColor ?: if (isCupertinoTheme) cupertinoGreen else MaterialTheme.colorScheme.primary
+    val greenToggles = LocalCupertinoGreenToggles.current
+    val activeColor = customActiveColor ?: if (greenToggles) cupertinoGreen else MaterialTheme.colorScheme.primary
     val inactiveColor = if (isDark) Color(0xFF39393D) else Color(0xFFE9E9EA)
 
     val trackColor by animateColorAsState(
