@@ -25,8 +25,6 @@ fun LabeledCheckbox(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-
     Row(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)

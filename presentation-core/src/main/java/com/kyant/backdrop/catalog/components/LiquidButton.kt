@@ -128,13 +128,14 @@ fun LiquidIconButton(
             },
         )
     } else {
+        val solidColor = when {
+            tint.isSpecified && tint != Color.Transparent -> tint
+            effectiveSurfaceColor.isSpecified -> effectiveSurfaceColor
+            else -> defaultSurface
+        }
         Modifier
             .clip(shape)
-            .background(
-                if (tint.isSpecified && tint != Color.Transparent) tint
-                else if (effectiveSurfaceColor.isSpecified) effectiveSurfaceColor
-                else defaultSurface
-            )
+            .background(solidColor)
     }
 
     Box(
@@ -253,12 +254,14 @@ fun LiquidButton(
             },
         )
     } else {
+        val solidColor = when {
+            tint.isSpecified && tint != Color.Transparent -> tint
+            effectiveSurfaceColor.isSpecified -> effectiveSurfaceColor
+            else -> defaultSurface
+        }
         Modifier
             .clip(shape)
-            .background(
-                if (tint.isSpecified && tint != Color.Transparent) tint
-                else effectiveSurfaceColor
-            )
+            .background(solidColor)
     }
 
     Row(
