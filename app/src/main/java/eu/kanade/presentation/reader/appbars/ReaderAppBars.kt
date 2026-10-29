@@ -111,6 +111,8 @@ fun ReaderAppBars(
     onClickChapterList: () -> Unit,
     onClickPageLayout: () -> Unit,
     onClickShiftPage: () -> Unit,
+    isTopLight: Boolean = true,
+    isBottomLight: Boolean = true,
     // SY <--
 ) {
     val isRtl = viewer is R2LPagerViewer
@@ -164,6 +166,7 @@ fun ReaderAppBars(
                 onClickReadingMode = onClickReadingMode,
                 onClickOrientation = onClickOrientation,
                 onClickChapterList = onClickChapterList,
+                isTopLight = isTopLight,
             )
         }
 
@@ -197,6 +200,7 @@ fun ReaderAppBars(
                         // SY -->
                         isVerticalSlider = true,
                         currentPageText = currentPageText,
+                        isBottomLight = isBottomLight,
                         // SY <--
                     )
                 }
@@ -230,6 +234,7 @@ fun ReaderAppBars(
                         // SY -->
                         isVerticalSlider = true,
                         currentPageText = currentPageText,
+                        isBottomLight = isBottomLight,
                         // SY <--
                     )
                 }
@@ -263,6 +268,7 @@ fun ReaderAppBars(
                         // SY -->
                         isVerticalSlider = false,
                         currentPageText = currentPageText,
+                        isBottomLight = isBottomLight,
                         // SY <--
                     )
                 }
@@ -299,6 +305,7 @@ fun ReaderAppBars(
                     onClickShare = onShare,
                     onClickPageLayout = onClickPageLayout,
                     onClickShiftPage = onClickShiftPage,
+                    isBottomLight = isBottomLight,
                     // SY <--
                 )
             }

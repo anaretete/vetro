@@ -26,6 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +47,9 @@ fun CupertinoFrostedPopup(
 ) {
     val isDark = isSystemInDarkTheme()
     val shape = RoundedCornerShape(16.dp)
+    val popupSurface = if (isDark) Color(0xDC202024) else Color(0xF4FAFAFC)
+    val popupTextColor = if (isDark) Color.White else Color(0xFF111113)
+    val popupBorder = if (isDark) Color(0x35FFFFFF) else Color(0x22000000)
 
     MaterialTheme(
         shapes = MaterialTheme.shapes.copy(extraSmall = shape),
@@ -65,17 +71,29 @@ fun CupertinoFrostedPopup(
                     refractionHeight = 16.dp,
                     refractionAmount = 22.dp,
                     tintColor = Color.Unspecified,
+                    surfaceColor = popupSurface,
                 )
                 .border(
                     width = 0.5.dp,
-                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                    color = popupBorder,
                     shape = shape,
                 ),
             shape = shape,
             containerColor = Color.Transparent,
             shadowElevation = 14.dp,
-            content = content,
-        )
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides popupTextColor,
+            ) {
+                ProvideTextStyle(
+                    value = MaterialTheme.typography.bodyLarge.copy(
+                        color = popupTextColor,
+                    ),
+                ) {
+                    content()
+                }
+            }
+        }
     }
 }
 

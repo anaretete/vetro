@@ -1,5 +1,7 @@
 package eu.kanade.presentation.reader.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -79,6 +81,7 @@ fun ChapterNavigator(
     totalPages: Int,
     onPageIndexChange: (Int) -> Unit,
     onPageFloatChange: ((Float) -> Unit)? = null,
+    isBottomLight: Boolean = true,
 ) {
     // SY -->
     if (isVerticalSlider) {
@@ -92,6 +95,7 @@ fun ChapterNavigator(
             totalPages = totalPages,
             onPageIndexChange = onPageIndexChange,
             onPageFloatChange = onPageFloatChange,
+            isBottomLight = isBottomLight,
         )
         return
     }
@@ -118,10 +122,13 @@ fun ChapterNavigator(
             contentColor = MaterialTheme.colorScheme.primary,
         )
     }
-    val textColor = if (isDark) Color.White else Color(0xFF111113)
-
-    val pillBgColor = Color.Unspecified
-    val pillBorderColor = if (isDark) Color(0x35FFFFFF) else Color(0x20000000)
+    val targetTextColor = if (isBottomLight) Color(0xFF111113) else Color.White
+    val targetPillBorder = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
+    val targetPillBg = if (isBottomLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
+    val textColor by animateColorAsState(targetTextColor, animationSpec = tween(250), label = "chapNavText")
+    val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "chapNavBorder")
+    val pillBgColor by animateColorAsState(targetPillBg, animationSpec = tween(250), label = "chapNavBg")
+    val skipIconTint = if (isBottomLight) Color(0xFF111113) else Color.White
 
     // We explicitly handle direction based on the reader viewer rather than the system direction
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -157,7 +164,7 @@ fun ChapterNavigator(
                         contentDescription = stringResource(
                             if (isRtl) MR.strings.action_next_chapter else MR.strings.action_previous_chapter,
                         ),
-                        tint = if (prevEnabled) (if (isDark) Color.White else Color.Black) else Color.Gray,
+                        tint = if (prevEnabled) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                     )
                 }
             } else {
@@ -288,7 +295,7 @@ fun ChapterNavigator(
                         contentDescription = stringResource(
                             if (isRtl) MR.strings.action_previous_chapter else MR.strings.action_next_chapter,
                         ),
-                        tint = if (nextEnabled) (if (isDark) Color.White else Color.Black) else Color.Gray,
+                        tint = if (nextEnabled) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                     )
                 }
             } else {
@@ -322,6 +329,7 @@ fun ChapterNavigatorVert(
     totalPages: Int,
     onPageIndexChange: (Int) -> Unit,
     onPageFloatChange: ((Float) -> Unit)? = null,
+    isBottomLight: Boolean = true,
 ) {
     val isTabletUi = isTabletUi()
     val isGlass = LocalLiquidGlassConfig.current.enabled
@@ -348,10 +356,13 @@ fun ChapterNavigatorVert(
             disabledContainerColor = if (isGlass) Color.Transparent else (if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF)),
             disabledContentColor = Color.Gray,
         )
-        val textColor = if (isDark) Color.White else Color(0xFF111113)
-
-        val pillBgColor = Color.Unspecified
-        val pillBorderColor = if (isDark) Color(0x35FFFFFF) else Color(0x20000000)
+        val targetTextColor = if (isBottomLight) Color(0xFF111113) else Color.White
+        val targetPillBorder = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
+        val targetPillBg = if (isBottomLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
+        val textColor by animateColorAsState(targetTextColor, animationSpec = tween(250), label = "chapNavVertText")
+        val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "chapNavVertBorder")
+        val pillBgColor by animateColorAsState(targetPillBg, animationSpec = tween(250), label = "chapNavVertBg")
+        val skipIconTint = if (isBottomLight) Color(0xFF111113) else Color.White
 
         if (isGlass) {
             Box(
@@ -376,7 +387,7 @@ fun ChapterNavigatorVert(
                     imageVector = Icons.Outlined.SkipPrevious,
                     contentDescription = stringResource(MR.strings.action_previous_chapter),
                     modifier = Modifier.rotate(90f),
-                    tint = if (enabledPrevious) (if (isDark) Color.White else Color.Black) else Color.Gray,
+                    tint = if (enabledPrevious) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                 )
             }
         } else {
@@ -491,7 +502,7 @@ fun ChapterNavigatorVert(
                     imageVector = Icons.Outlined.SkipNext,
                     contentDescription = stringResource(MR.strings.action_next_chapter),
                     modifier = Modifier.rotate(90f),
-                    tint = if (enabledNext) (if (isDark) Color.White else Color.Black) else Color.Gray,
+                    tint = if (enabledNext) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                 )
             }
         } else {

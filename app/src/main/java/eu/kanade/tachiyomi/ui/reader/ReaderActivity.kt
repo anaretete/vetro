@@ -792,11 +792,60 @@ class ReaderActivity : BaseActivity() {
         }
     }
 
+    private fun sampleLuminance(view: View?, isTop: Boolean): Float {
+        if (view == null || view.width <= 0 || view.height <= 0) return 1.0f
+        return try {
+            val sampleSize = 8
+            val bitmap = android.graphics.Bitmap.createBitmap(sampleSize, sampleSize, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(bitmap)
+            val viewW = view.width.toFloat()
+            val viewH = view.height.toFloat()
+            val regionH = (viewH * 0.15f).coerceAtLeast(100f)
+
+            canvas.save()
+            canvas.scale(sampleSize / viewW, sampleSize / regionH)
+            if (!isTop) {
+                canvas.translate(0f, -(viewH - regionH))
+            }
+            view.draw(canvas)
+            canvas.restore()
+
+            var totalLum = 0f
+            for (x in 0 until sampleSize) {
+                for (y in 0 until sampleSize) {
+                    val pixel = bitmap.getPixel(x, y)
+                    val r = (pixel shr 16 and 0xFF) / 255f
+                    val g = (pixel shr 8 and 0xFF) / 255f
+                    val b = (pixel and 0xFF) / 255f
+                    totalLum += 0.299f * r + 0.587f * g + 0.114f * b
+                }
+            }
+            bitmap.recycle()
+            totalLum / (sampleSize * sampleSize)
+        } catch (_: Throwable) {
+            1.0f
+        }
+    }
+
     @Composable
     fun AppBars(state: ReaderViewModel.State) {
         if (!ifSourcesLoaded()) {
             return
         }
+
+        val currentBinding = binding
+        var topLuminance by remember { mutableFloatStateOf(1.0f) }
+        var bottomLuminance by remember { mutableFloatStateOf(1.0f) }
+
+        LaunchedEffect(state.currentPage, state.menuVisible, state.viewerChapters) {
+            if (state.menuVisible) {
+                delay(32)
+                topLuminance = sampleLuminance(currentBinding.viewerContainer, isTop = true)
+                bottomLuminance = sampleLuminance(currentBinding.viewerContainer, isTop = false)
+            }
+        }
+        val isTopLight = topLuminance > 0.45f
+        val isBottomLight = bottomLuminance > 0.45f
 
         val isHttpSource = viewModel.getSource() is HttpSource
 
@@ -915,6 +964,8 @@ class ReaderActivity : BaseActivity() {
                 }
             },
             onClickShiftPage = ::shiftDoublePages,
+            isTopLight = isTopLight,
+            isBottomLight = isBottomLight,
             // SY <--
         )
     }

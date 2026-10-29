@@ -1,5 +1,7 @@
 package eu.kanade.presentation.reader.appbars
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -64,12 +66,16 @@ fun ReaderBottomBar(
     onClickShare: (() -> Unit)?,
     onClickPageLayout: () -> Unit,
     onClickShiftPage: () -> Unit,
+    isBottomLight: Boolean = true,
     // SY <--
     modifier: Modifier = Modifier,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val containerBorder = if (isDark) Color(0x35FFFFFF) else Color(0x20000000)
+    val targetContainerBorder = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
+    val targetContainerTint = if (isBottomLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
+    val containerBorder by animateColorAsState(targetContainerBorder, animationSpec = tween(250), label = "bottomBarBorder")
+    val containerTint by animateColorAsState(targetContainerTint, animationSpec = tween(250), label = "bottomBarTint")
 
     val effectiveModifier = if (isGlass) {
         modifier
@@ -78,7 +84,7 @@ fun ReaderBottomBar(
                 blurRadius = 14.dp,
                 refractionHeight = 18.dp,
                 refractionAmount = 26.dp,
-                tintColor = Color.Unspecified,
+                tintColor = containerTint,
                 surfaceColor = Color.Unspecified,
             )
             .border(
@@ -103,6 +109,7 @@ fun ReaderBottomBar(
                 icon = Icons.Outlined.FormatListNumbered,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -113,6 +120,7 @@ fun ReaderBottomBar(
                 icon = Icons.Outlined.Public,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -123,6 +131,7 @@ fun ReaderBottomBar(
                 icon = Icons.Outlined.Explore,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -133,6 +142,7 @@ fun ReaderBottomBar(
                 icon = Icons.Outlined.Share,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -145,6 +155,7 @@ fun ReaderBottomBar(
                 activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -157,6 +168,7 @@ fun ReaderBottomBar(
                 activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -176,6 +188,7 @@ fun ReaderBottomBar(
                 activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -190,6 +203,7 @@ fun ReaderBottomBar(
                 icon = painterResource(R.drawable.ic_book_open_variant_24dp),
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -202,6 +216,7 @@ fun ReaderBottomBar(
                 activeColor = MaterialTheme.colorScheme.primary,
                 isDark = isDark,
                 isGlass = isGlass,
+                isBottomLight = isBottomLight,
             )
         }
 
@@ -211,6 +226,7 @@ fun ReaderBottomBar(
             icon = Icons.Outlined.Settings,
             isDark = isDark,
             isGlass = isGlass,
+            isBottomLight = isBottomLight,
         )
         // SY <--
     }
@@ -226,12 +242,14 @@ private fun ReaderBottomBarItem(
     activeColor: Color = MaterialTheme.colorScheme.primary,
     isDark: Boolean = isSystemInDarkTheme(),
     isGlass: Boolean = true,
+    isBottomLight: Boolean = true,
 ) {
-    val defaultColor = if (isGlass) {
-        if (isDark) Color.White else Color(0xFF1C1C1E)
+    val targetDefault = if (isGlass) {
+        if (isBottomLight) Color(0xFF111113) else Color.White
     } else {
         MaterialTheme.colorScheme.onSurface
     }
+    val defaultColor by animateColorAsState(targetDefault, animationSpec = tween(250), label = "bottomItemColor")
     val tint = if (isActive) activeColor else defaultColor
 
     Box(

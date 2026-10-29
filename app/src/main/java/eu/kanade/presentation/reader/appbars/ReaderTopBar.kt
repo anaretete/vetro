@@ -1,8 +1,10 @@
 package eu.kanade.presentation.reader.appbars
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -88,17 +90,27 @@ fun ReaderTopBar(
     onClickReadingMode: (() -> Unit)? = null,
     onClickOrientation: (() -> Unit)? = null,
     onClickChapterList: (() -> Unit)? = null,
+    isTopLight: Boolean = true,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
 
     if (isGlass) {
-        // Unified untinted Apple Cupertino Liquid Glass
-        val glassTintColor = Color.Unspecified
-        val pillBorderColor = if (isDark) Color(0x35FFFFFF) else Color(0x20000000)
-        val primaryTextColor = if (isDark) Color.White else Color(0xFF111113)
-        val secondaryTextColor = if (isDark) Color(0xCCFFFFFF) else Color(0x99111113)
-        val surfacePillBg = if (isDark) Color(0x28FFFFFF) else Color(0x12000000)
+        // Dynamic contrast based on sampled background luminance:
+        val targetPrimary = if (isTopLight) Color(0xFF111113) else Color.White
+        val targetSecondary = if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
+        val targetPillBorder = if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
+        val targetSurfacePillBg = if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
+        val targetGlassTint = if (isTopLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
+        val targetOverviewSurface = if (isTopLight) Color(0xEEFFFFFF) else Color(0xD81C1C20)
+
+        val primaryTextColor by animateColorAsState(targetPrimary, animationSpec = tween(250), label = "topBarPrimary")
+        val secondaryTextColor by animateColorAsState(targetSecondary, animationSpec = tween(250), label = "topBarSecondary")
+        val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "topBarBorder")
+        val surfacePillBg by animateColorAsState(targetSurfacePillBg, animationSpec = tween(250), label = "topBarPillBg")
+        val glassTintColor by animateColorAsState(targetGlassTint, animationSpec = tween(250), label = "topBarGlassTint")
+        val overviewSurfaceColor by animateColorAsState(targetOverviewSurface, animationSpec = tween(250), label = "topBarOverviewSurface")
+
         val activePillBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
         val activePillText = MaterialTheme.colorScheme.primary
         val haptic = LocalHapticFeedback.current
@@ -134,7 +146,7 @@ fun ReaderTopBar(
                             refractionHeight = 22.dp,
                             refractionAmount = 30.dp,
                             tintColor = Color.Unspecified,
-                            surfaceColor = Color.Unspecified,
+                            surfaceColor = overviewSurfaceColor,
                         )
                         .border(
                             width = 0.5.dp,

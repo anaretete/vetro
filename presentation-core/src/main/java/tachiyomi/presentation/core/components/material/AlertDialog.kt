@@ -109,7 +109,7 @@ fun AlertDialogContent(
                 refractionHeight = 18.dp,
                 refractionAmount = 26.dp,
                 tintColor = Color.Unspecified,
-                surfaceColor = Color.Unspecified,
+                surfaceColor = if (isDark) Color(0xEA202024) else Color(0xF4FAFAFC),
                 depthEffect = true,
             )
             .border(

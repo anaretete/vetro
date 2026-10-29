@@ -115,7 +115,7 @@ fun AdaptiveSheet(
                     refractionHeight = 22.dp,
                     refractionAmount = 30.dp,
                     tintColor = Color.Unspecified,
-                    surfaceColor = Color.Unspecified,
+                    surfaceColor = if (isDark) Color(0xDC202024) else Color(0xF2FAFAFC),
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
                 )
@@ -280,7 +280,7 @@ fun AdaptiveSheet(
                         refractionHeight = 22.dp,
                         refractionAmount = 30.dp,
                         tintColor = Color.Unspecified,
-                        surfaceColor = Color.Unspecified,
+                        surfaceColor = if (isDark) Color(0xDC202024) else Color(0xF2FAFAFC),
                         backdrop = sheetBackdrop,
                         exportedBackdrop = sheetExportedBackdrop,
                     )
