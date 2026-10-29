@@ -78,13 +78,27 @@ fun LiquidIconButton(
     val defaultSurface = if (isDark) Color(0xFF2C2C2E).copy(alpha = 0.55f) else Color(0xFFE5E5EA).copy(alpha = 0.65f)
     val effectiveSurfaceColor = if (surfaceColor.isSpecified) surfaceColor else defaultSurface
 
-    val effectiveContentColor = if (contentColor.isSpecified) {
-        contentColor
-    } else if (tint.isSpecified && tint != Color.Transparent) {
-        val tintLum = 0.299f * tint.red + 0.587f * tint.green + 0.114f * tint.blue
-        if (tintLum > 0.5f) Color(0xFF111113) else Color.White
-    } else {
-        if (isDark) Color.White else Color(0xFF111113)
+    val tintLum = if (tint.isSpecified && tint != Color.Transparent) {
+        0.299f * tint.red + 0.587f * tint.green + 0.114f * tint.blue
+    } else -1f
+
+    val surfaceLum = if (surfaceColor.isSpecified && surfaceColor != Color.Transparent) {
+        0.299f * surfaceColor.red + 0.587f * surfaceColor.green + 0.114f * surfaceColor.blue
+    } else -1f
+
+    val effectiveBgLum = when {
+        tintLum >= 0f -> tintLum
+        surfaceLum >= 0f -> surfaceLum
+        else -> if (isDark) 0.15f else 0.85f
+    }
+
+    val dynamicContrastColor = if (effectiveBgLum > 0.45f) Color(0xFF111113) else Color.White
+
+    val effectiveContentColor = when {
+        contentColor.isSpecified && contentColor == Color.White && effectiveBgLum > 0.45f -> Color(0xFF111113)
+        contentColor.isSpecified && contentColor == Color(0xFF111113) && effectiveBgLum <= 0.45f -> Color.White
+        contentColor.isSpecified -> contentColor
+        else -> dynamicContrastColor
     }
 
     val isGlass = LocalLiquidGlassConfig.current.enabled
@@ -193,16 +207,29 @@ fun LiquidButton(
         )
     }
 
-    val effectiveContentColor = if (contentColor.isSpecified) {
-        contentColor
-    } else if (tint.isSpecified && tint != Color.Transparent) {
-        val tintLum = 0.299f * tint.red + 0.587f * tint.green + 0.114f * tint.blue
-        if (tintLum > 0.5f) Color(0xFF111113) else Color.White
-    } else {
-        MaterialTheme.colorScheme.onSurface
+    val isDark = isSystemInDarkTheme()
+    val tintLum = if (tint.isSpecified && tint != Color.Transparent) {
+        0.299f * tint.red + 0.587f * tint.green + 0.114f * tint.blue
+    } else -1f
+
+    val surfaceLum = if (surfaceColor.isSpecified && surfaceColor != Color.Transparent) {
+        0.299f * surfaceColor.red + 0.587f * surfaceColor.green + 0.114f * surfaceColor.blue
+    } else -1f
+
+    val effectiveBgLum = when {
+        tintLum >= 0f -> tintLum
+        surfaceLum >= 0f -> surfaceLum
+        else -> if (isDark) 0.15f else 0.85f
     }
 
-    val isDark = isSystemInDarkTheme()
+    val dynamicContrastColor = if (effectiveBgLum > 0.45f) Color(0xFF111113) else Color.White
+
+    val effectiveContentColor = when {
+        contentColor.isSpecified && contentColor == Color.White && effectiveBgLum > 0.45f -> Color(0xFF111113)
+        contentColor.isSpecified && contentColor == Color(0xFF111113) && effectiveBgLum <= 0.45f -> Color.White
+        contentColor.isSpecified -> contentColor
+        else -> dynamicContrastColor
+    }
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val haptics = rememberCupertinoHaptics()
     val defaultSurface = if (isDark) Color(0xFF2C2C2E).copy(alpha = 0.75f) else Color(0xFFE5E5EA).copy(alpha = 0.85f)

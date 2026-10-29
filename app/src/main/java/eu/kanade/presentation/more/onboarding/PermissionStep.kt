@@ -270,7 +270,6 @@ internal class PermissionStep : OnboardingStep {
                             Text(
                                 text = stringResource(MR.strings.onboarding_permission_action_grant),
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = Color.White,
                             )
                         }
                     }

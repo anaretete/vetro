@@ -99,7 +99,6 @@ fun InfoScreen(
                         Text(
                             text = acceptText,
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = Color.White,
                         )
                     }
                     if (rejectText != null && onRejectClick != null) {

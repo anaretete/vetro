@@ -85,7 +85,6 @@ internal class StorageStep : OnboardingStep {
                     Text(
                         text = stringResource(MR.strings.onboarding_storage_action_select),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
-                        color = androidx.compose.ui.graphics.Color.White,
                     )
                 }
             } else {
@@ -120,7 +119,6 @@ internal class StorageStep : OnboardingStep {
                     Text(
                         text = stringResource(MR.strings.onboarding_storage_help_action),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
-                        color = androidx.compose.ui.graphics.Color.White,
                     )
                 }
             } else {

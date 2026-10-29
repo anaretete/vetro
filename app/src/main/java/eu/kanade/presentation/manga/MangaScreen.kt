@@ -607,6 +607,11 @@ private fun MangaScreenSmallImpl(
                             }
                         },
                     containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = run {
+                        val primary = MaterialTheme.colorScheme.primary
+                        val primaryLum = 0.299f * primary.red + 0.587f * primary.green + 0.114f * primary.blue
+                        if (primaryLum > 0.45f) Color(0xFF111113) else Color.White
+                    },
                     // KMK <--
                 )
             }
@@ -711,6 +716,9 @@ private fun MangaScreenSmallImpl(
                                 }
                                 val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
                                 val buttonText = stringResource(if (isReading) MR.strings.action_resume else MR.strings.action_start)
+                                val primary = MaterialTheme.colorScheme.primary
+                                val primaryLum = 0.299f * primary.red + 0.587f * primary.green + 0.114f * primary.blue
+                                val buttonContentColor = if (primaryLum > 0.45f) Color(0xFF111113) else Color.White
                                 if (isGlass) {
                                     LiquidButton(
                                         onClick = onContinueReading,
@@ -718,13 +726,13 @@ private fun MangaScreenSmallImpl(
                                             .fillMaxWidth()
                                             .padding(horizontal = 16.dp, vertical = 6.dp)
                                             .height(48.dp),
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        contentColor = Color.White,
+                                        tint = primary,
+                                        contentColor = buttonContentColor,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.PlayArrow,
                                             contentDescription = null,
-                                            tint = Color.White,
+                                            tint = buttonContentColor,
                                             modifier = Modifier.size(20.dp),
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -734,7 +742,7 @@ private fun MangaScreenSmallImpl(
                                                 fontSize = 15.sp,
                                                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                                                 letterSpacing = (-0.2f).sp,
-                                                color = Color.White,
+                                                color = buttonContentColor,
                                             ),
                                         )
                                     }
@@ -747,14 +755,14 @@ private fun MangaScreenSmallImpl(
                                             .height(48.dp),
                                         shape = androidx.compose.foundation.shape.CircleShape,
                                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.primary,
-                                            contentColor = Color.White,
+                                            containerColor = primary,
+                                            contentColor = buttonContentColor,
                                         ),
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.PlayArrow,
                                             contentDescription = null,
-                                            tint = Color.White,
+                                            tint = buttonContentColor,
                                             modifier = Modifier.size(20.dp),
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
@@ -764,7 +772,7 @@ private fun MangaScreenSmallImpl(
                                                 fontSize = 15.sp,
                                                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                                                 letterSpacing = (-0.2f).sp,
-                                                color = Color.White,
+                                                color = buttonContentColor,
                                             ),
                                         )
                                     }
@@ -1159,6 +1167,11 @@ private fun MangaScreenLargeImpl(
                         }
                     },
                 containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = run {
+                    val primary = MaterialTheme.colorScheme.primary
+                    val primaryLum = 0.299f * primary.red + 0.587f * primary.green + 0.114f * primary.blue
+                    if (primaryLum > 0.45f) Color(0xFF111113) else Color.White
+                },
                 // KMK <--
             )
         },

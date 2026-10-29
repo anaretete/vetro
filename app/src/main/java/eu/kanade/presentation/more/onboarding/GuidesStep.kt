@@ -47,7 +47,6 @@ internal class GuidesStep(
                     Text(
                         text = stringResource(MR.strings.getting_started_guide),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
-                        color = androidx.compose.ui.graphics.Color.White,
                     )
                 }
             } else {
@@ -76,7 +75,6 @@ internal class GuidesStep(
                     Text(
                         text = stringResource(MR.strings.pref_restore_backup),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
-                        color = androidx.compose.ui.graphics.Color.White,
                     )
                 }
             } else {

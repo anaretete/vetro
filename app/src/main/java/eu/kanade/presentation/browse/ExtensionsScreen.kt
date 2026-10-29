@@ -202,7 +202,6 @@ private fun ExtensionContent(
                                                 Text(
                                                     text = stringResource(MR.strings.ext_update_all),
                                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                                    color = Color.White,
                                                 )
                                             }
                                         } else {
@@ -230,7 +229,6 @@ private fun ExtensionContent(
                                                 Text(
                                                     text = stringResource(MR.strings.action_addExtensionStore),
                                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                                    color = Color.White,
                                                 )
                                             }
                                         } else {
