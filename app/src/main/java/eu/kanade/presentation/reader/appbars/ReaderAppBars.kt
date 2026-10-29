@@ -158,6 +158,12 @@ fun ReaderAppBars(
                 totalPages = totalPages,
                 readingModeName = stringResource(currentReadingMode.stringRes),
                 orientationName = stringResource(orientation.stringRes),
+                onPageIndexChange = onPageIndexChange,
+                cropEnabled = cropEnabled,
+                onClickCropBorder = onClickCropBorder,
+                onClickReadingMode = onClickReadingMode,
+                onClickOrientation = onClickOrientation,
+                onClickChapterList = onClickChapterList,
             )
         }
 

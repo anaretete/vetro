@@ -118,10 +118,10 @@ fun ChapterNavigator(
             contentColor = MaterialTheme.colorScheme.primary,
         )
     }
-    val textColor = MaterialTheme.colorScheme.onSurface
+    val textColor = if (isDark) Color.White else Color(0xFF111113)
 
-    val pillBgColor = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
-    val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
+    val pillBgColor = if (isDark) Color(0xD01C1C1E) else Color(0xE8FFFFFF)
+    val pillBorderColor = if (isDark) Color(0x33FFFFFF) else Color(0x22000000)
 
     // We explicitly handle direction based on the reader viewer rather than the system direction
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -348,10 +348,10 @@ fun ChapterNavigatorVert(
             disabledContainerColor = if (isGlass) Color.Transparent else (if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF)),
             disabledContentColor = Color.Gray,
         )
-        val textColor = MaterialTheme.colorScheme.onSurface
+        val textColor = if (isDark) Color.White else Color(0xFF111113)
 
-        val pillBgColor = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
-        val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
+        val pillBgColor = if (isDark) Color(0xD01C1C1E) else Color(0xE8FFFFFF)
+        val pillBorderColor = if (isDark) Color(0x33FFFFFF) else Color(0x22000000)
 
         if (isGlass) {
             Box(
