@@ -141,7 +141,7 @@ fun CupertinoAlertDialog(
                             fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = if (isDark) Color.White else Color(0xFF111113),
                         ),
                     ) {
                         title()
@@ -152,7 +152,7 @@ fun CupertinoAlertDialog(
                         value = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113),
                             lineHeight = 18.sp,
                         ),
                     ) {
@@ -633,8 +633,11 @@ fun CupertinoIconBadge(
     modifier: Modifier = Modifier,
     badgeSize: Dp = 30.dp,
     iconSize: Dp = 18.dp,
-    iconTint: Color = Color.White,
+    iconTint: Color = Color.Unspecified,
 ) {
+    val bgLum = 0.299f * backgroundColor.red + 0.587f * backgroundColor.green + 0.114f * backgroundColor.blue
+    val effectiveTint = if (iconTint != Color.Unspecified) iconTint else (if (bgLum > 0.5f) Color(0xFF111113) else Color.White)
+
     Box(
         modifier = modifier
             .size(badgeSize)
@@ -647,7 +650,7 @@ fun CupertinoIconBadge(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = iconTint,
+                    tint = effectiveTint,
                     modifier = Modifier.size(iconSize),
                 )
             }
@@ -655,7 +658,7 @@ fun CupertinoIconBadge(
                 Icon(
                     painter = icon,
                     contentDescription = null,
-                    tint = iconTint,
+                    tint = effectiveTint,
                     modifier = Modifier.size(iconSize),
                 )
             }
@@ -677,7 +680,8 @@ fun CupertinoSegmentedControl(
     val isDark = isSystemInDarkTheme()
     val trackBg = if (isDark) Color(0x282C2C2E) else Color(0x38E5E5EA)
     val thumbBg = MaterialTheme.colorScheme.primary
-    val textSelected = MaterialTheme.colorScheme.onPrimary
+    val primaryLum = 0.299f * thumbBg.red + 0.587f * thumbBg.green + 0.114f * thumbBg.blue
+    val textSelected = if (primaryLum > 0.5f) Color(0xFF111113) else Color.White
     val textUnselected = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
 
     BoxWithConstraints(

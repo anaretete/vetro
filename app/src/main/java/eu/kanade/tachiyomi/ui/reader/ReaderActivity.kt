@@ -792,38 +792,58 @@ class ReaderActivity : BaseActivity() {
         }
     }
 
-    private fun sampleLuminance(view: View?, isTop: Boolean): Float {
-        if (view == null || view.width <= 0 || view.height <= 0) return 1.0f
-        return try {
-            val sampleSize = 8
-            val bitmap = android.graphics.Bitmap.createBitmap(sampleSize, sampleSize, android.graphics.Bitmap.Config.ARGB_8888)
-            val canvas = android.graphics.Canvas(bitmap)
-            val viewW = view.width.toFloat()
-            val viewH = view.height.toFloat()
-            val regionH = (viewH * 0.15f).coerceAtLeast(100f)
+    private fun sampleWindowLuminance(isTop: Boolean, onResult: (Float) -> Unit) {
+        val window = this.window ?: return
+        val decorView = window.decorView ?: return
+        val width = decorView.width
+        val height = decorView.height
+        if (width <= 0 || height <= 0) return
 
-            canvas.save()
-            canvas.scale(sampleSize / viewW, sampleSize / regionH)
-            if (!isTop) {
-                canvas.translate(0f, -(viewH - regionH))
-            }
-            view.draw(canvas)
-            canvas.restore()
+        val sampleSize = 16
+        val bitmap = android.graphics.Bitmap.createBitmap(sampleSize, sampleSize, android.graphics.Bitmap.Config.ARGB_8888)
+        val regionH = (height * 0.15f).toInt().coerceAtLeast(100)
+        val srcRect = if (isTop) {
+            android.graphics.Rect(0, 0, width, regionH)
+        } else {
+            android.graphics.Rect(0, height - regionH, width, height)
+        }
 
-            var totalLum = 0f
-            for (x in 0 until sampleSize) {
-                for (y in 0 until sampleSize) {
-                    val pixel = bitmap.getPixel(x, y)
-                    val r = (pixel shr 16 and 0xFF) / 255f
-                    val g = (pixel shr 8 and 0xFF) / 255f
-                    val b = (pixel and 0xFF) / 255f
-                    totalLum += 0.299f * r + 0.587f * g + 0.114f * b
-                }
-            }
-            bitmap.recycle()
-            totalLum / (sampleSize * sampleSize)
+        try {
+            android.view.PixelCopy.request(
+                window,
+                srcRect,
+                bitmap,
+                { copyResult ->
+                    if (copyResult == android.view.PixelCopy.SUCCESS) {
+                        var totalLum = 0f
+                        var sampleCount = 0
+                        for (x in 0 until sampleSize) {
+                            for (y in 0 until sampleSize) {
+                                val pixel = bitmap.getPixel(x, y)
+                                val alpha = (pixel shr 24 and 0xFF) / 255f
+                                if (alpha > 0.1f) {
+                                    val r = (pixel shr 16 and 0xFF) / 255f
+                                    val g = (pixel shr 8 and 0xFF) / 255f
+                                    val b = (pixel and 0xFF) / 255f
+                                    totalLum += 0.299f * r + 0.587f * g + 0.114f * b
+                                    sampleCount++
+                                }
+                            }
+                        }
+                        bitmap.recycle()
+                        if (sampleCount > 0) {
+                            onResult(totalLum / sampleCount)
+                        }
+                    } else {
+                        bitmap.recycle()
+                    }
+                },
+                android.os.Handler(android.os.Looper.getMainLooper()),
+            )
         } catch (_: Throwable) {
-            1.0f
+            try {
+                bitmap.recycle()
+            } catch (_: Throwable) {}
         }
     }
 
@@ -833,19 +853,31 @@ class ReaderActivity : BaseActivity() {
             return
         }
 
-        val currentBinding = binding
-        var topLuminance by remember { mutableFloatStateOf(1.0f) }
-        var bottomLuminance by remember { mutableFloatStateOf(1.0f) }
+        val invertColorsPref = remember { readerPreferences.readerInvertColors() }
+        val invertColors by invertColorsPref.collectAsState()
 
-        LaunchedEffect(state.currentPage, state.menuVisible, state.viewerChapters) {
+        // Manga pages are white paper by default, so controls default to light-background mode (black text/icons)
+        var isTopLight by remember { mutableStateOf(!invertColors) }
+        var isBottomLight by remember { mutableStateOf(!invertColors) }
+
+        LaunchedEffect(state.currentPage, state.menuVisible, state.viewerChapters, invertColors) {
+            if (invertColors) {
+                isTopLight = false
+                isBottomLight = false
+            } else {
+                isTopLight = true
+                isBottomLight = true
+            }
             if (state.menuVisible) {
-                delay(32)
-                topLuminance = sampleLuminance(currentBinding.viewerContainer, isTop = true)
-                bottomLuminance = sampleLuminance(currentBinding.viewerContainer, isTop = false)
+                delay(50)
+                sampleWindowLuminance(isTop = true) { lum ->
+                    isTopLight = if (invertColors) lum <= 0.45f else lum > 0.45f
+                }
+                sampleWindowLuminance(isTop = false) { lum ->
+                    isBottomLight = if (invertColors) lum <= 0.45f else lum > 0.45f
+                }
             }
         }
-        val isTopLight = topLuminance > 0.45f
-        val isBottomLight = bottomLuminance > 0.45f
 
         val isHttpSource = viewModel.getSource() is HttpSource
 

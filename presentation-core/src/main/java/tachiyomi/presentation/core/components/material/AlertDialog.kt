@@ -155,12 +155,13 @@ fun AlertDialogContent(
                 }
                 title?.let {
                     CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+                        LocalContentColor provides (if (isDark) Color.White else Color(0xFF111113)),
                     ) {
                         val textStyle = MaterialTheme.typography.titleMedium.copy(
                             fontSize = 17.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            color = if (isDark) Color.White else Color(0xFF111113),
                         )
                         ProvideTextStyle(textStyle) {
                             Box(
@@ -175,7 +176,11 @@ fun AlertDialogContent(
                 }
             }
         }
-        content?.invoke(this)
+        CompositionLocalProvider(
+            LocalContentColor provides (if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113)),
+        ) {
+            content?.invoke(this)
+        }
     }
 }
 

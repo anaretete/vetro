@@ -81,9 +81,10 @@ fun LiquidIconButton(
     val effectiveContentColor = if (contentColor.isSpecified) {
         contentColor
     } else if (tint.isSpecified && tint != Color.Transparent) {
-        Color.White
+        val tintLum = 0.299f * tint.red + 0.587f * tint.green + 0.114f * tint.blue
+        if (tintLum > 0.5f) Color(0xFF111113) else Color.White
     } else {
-        if (isDark) Color.White else Color.Black
+        if (isDark) Color.White else Color(0xFF111113)
     }
 
     val isGlass = LocalLiquidGlassConfig.current.enabled
@@ -195,7 +196,8 @@ fun LiquidButton(
     val effectiveContentColor = if (contentColor.isSpecified) {
         contentColor
     } else if (tint.isSpecified && tint != Color.Transparent) {
-        Color.White
+        val tintLum = 0.299f * tint.red + 0.587f * tint.green + 0.114f * tint.blue
+        if (tintLum > 0.5f) Color(0xFF111113) else Color.White
     } else {
         MaterialTheme.colorScheme.onSurface
     }

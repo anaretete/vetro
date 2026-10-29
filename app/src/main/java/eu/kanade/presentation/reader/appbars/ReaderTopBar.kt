@@ -95,67 +95,76 @@ fun ReaderTopBar(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
 
-    if (isGlass) {
-        // Dynamic contrast based on sampled background luminance:
-        val targetPrimary = if (isTopLight) Color(0xFF111113) else Color.White
-        val targetSecondary = if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
-        val targetPillBorder = if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
-        val targetSurfacePillBg = if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
-        val targetGlassTint = if (isTopLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
-        val targetOverviewSurface = if (isTopLight) Color(0xEEFFFFFF) else Color(0xD81C1C20)
+    // Dynamic contrast based on sampled background luminance:
+    val targetPrimary = if (isTopLight) Color(0xFF111113) else Color.White
+    val targetSecondary = if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
+    val targetPillBorder = if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
+    val targetSurfacePillBg = if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
+    val targetGlassTint = if (isTopLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
+    val targetOverviewSurface = if (isTopLight) Color(0xEEFFFFFF) else Color(0xD81C1C20)
+    val solidBackingBg = if (isTopLight) Color(0xF4FAFAFC) else Color(0xEA202024)
 
-        val primaryTextColor by animateColorAsState(targetPrimary, animationSpec = tween(250), label = "topBarPrimary")
-        val secondaryTextColor by animateColorAsState(targetSecondary, animationSpec = tween(250), label = "topBarSecondary")
-        val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "topBarBorder")
-        val surfacePillBg by animateColorAsState(targetSurfacePillBg, animationSpec = tween(250), label = "topBarPillBg")
-        val glassTintColor by animateColorAsState(targetGlassTint, animationSpec = tween(250), label = "topBarGlassTint")
-        val overviewSurfaceColor by animateColorAsState(targetOverviewSurface, animationSpec = tween(250), label = "topBarOverviewSurface")
+    val primaryTextColor by animateColorAsState(targetPrimary, animationSpec = tween(250), label = "topBarPrimary")
+    val secondaryTextColor by animateColorAsState(targetSecondary, animationSpec = tween(250), label = "topBarSecondary")
+    val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "topBarBorder")
+    val surfacePillBg by animateColorAsState(targetSurfacePillBg, animationSpec = tween(250), label = "topBarPillBg")
+    val glassTintColor by animateColorAsState(targetGlassTint, animationSpec = tween(250), label = "topBarGlassTint")
+    val overviewSurfaceColor by animateColorAsState(targetOverviewSurface, animationSpec = tween(250), label = "topBarOverviewSurface")
 
-        val activePillBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
-        val activePillText = MaterialTheme.colorScheme.primary
-        val haptic = LocalHapticFeedback.current
+    val activePillBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+    val activePillText = MaterialTheme.colorScheme.primary
+    val haptic = LocalHapticFeedback.current
 
-        val readerPreferences = remember { Injekt.get<ReaderPreferences>() }
-        val readingRulerPref = remember { readerPreferences.readerReadingRuler() }
-        val readingRulerEnabled by readingRulerPref.collectAsState()
-        val eyeCareFilterPref = remember { readerPreferences.readerEyeCareFilter() }
-        val eyeCareFilter by eyeCareFilterPref.collectAsState()
-        val invertColorsPref = remember { readerPreferences.readerInvertColors() }
-        val invertColors by invertColorsPref.collectAsState()
-        var showOverflow by remember { mutableStateOf(false) }
-        var isExpanded by remember { mutableStateOf(false) }
-        val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
+    val readerPreferences = remember { Injekt.get<ReaderPreferences>() }
+    val readingRulerPref = remember { readerPreferences.readerReadingRuler() }
+    val readingRulerEnabled by readingRulerPref.collectAsState()
+    val eyeCareFilterPref = remember { readerPreferences.readerEyeCareFilter() }
+    val eyeCareFilter by eyeCareFilterPref.collectAsState()
+    val invertColorsPref = remember { readerPreferences.readerInvertColors() }
+    val invertColors by invertColorsPref.collectAsState()
+    var showOverflow by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(false) }
+    val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
 
-        if (isExpanded) {
-            // Full-Width Apple Cupertino Overview Sheet (occupies top 1/3 to 1/2 of screen)
-            Box(
-                modifier = modifier.fillMaxWidth(),
+    if (isExpanded) {
+        // Full-Width Apple Cupertino Overview Sheet (occupies top 1/3 to 1/2 of screen)
+        Box(
+            modifier = modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow,
+                        ),
+                    )
+                    .then(
+                        if (isGlass) {
+                            Modifier.liquidGlassSurface(
+                                shape = RoundedCornerShape(28.dp),
+                                blurRadius = 18.dp,
+                                refractionHeight = 22.dp,
+                                refractionAmount = 30.dp,
+                                tintColor = Color.Unspecified,
+                                surfaceColor = overviewSurfaceColor,
+                            )
+                        } else {
+                            Modifier.background(
+                                color = overviewSurfaceColor,
+                                shape = RoundedCornerShape(28.dp),
+                            )
+                        },
+                    )
+                    .border(
+                        width = 0.5.dp,
+                        color = pillBorderColor,
+                        shape = RoundedCornerShape(28.dp),
+                    )
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateContentSize(
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioLowBouncy,
-                                stiffness = Spring.StiffnessMediumLow,
-                            ),
-                        )
-                        .liquidGlassSurface(
-                            shape = RoundedCornerShape(28.dp),
-                            blurRadius = 18.dp,
-                            refractionHeight = 22.dp,
-                            refractionAmount = 30.dp,
-                            tintColor = Color.Unspecified,
-                            surfaceColor = overviewSurfaceColor,
-                        )
-                        .border(
-                            width = 0.5.dp,
-                            color = pillBorderColor,
-                            shape = RoundedCornerShape(28.dp),
-                        )
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
                     // Top drag grabber handle
                     Box(
                         modifier = Modifier
@@ -318,7 +327,12 @@ fun ReaderTopBar(
                                 ) {
                                     onOpenInWebView?.let {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(MR.strings.action_open_in_web_view)) },
+                                            text = { Text(stringResource(MR.strings.action_open_in_web_view), color = primaryTextColor) },
+                                            colors = androidx.compose.material3.MenuDefaults.itemColors(
+                                                textColor = primaryTextColor,
+                                                leadingIconColor = primaryTextColor,
+                                                trailingIconColor = primaryTextColor,
+                                            ),
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -327,7 +341,12 @@ fun ReaderTopBar(
                                     }
                                     onOpenInBrowser?.let {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(MR.strings.action_open_in_browser)) },
+                                            text = { Text(stringResource(MR.strings.action_open_in_browser), color = primaryTextColor) },
+                                            colors = androidx.compose.material3.MenuDefaults.itemColors(
+                                                textColor = primaryTextColor,
+                                                leadingIconColor = primaryTextColor,
+                                                trailingIconColor = primaryTextColor,
+                                            ),
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -336,7 +355,12 @@ fun ReaderTopBar(
                                     }
                                     onShare?.let {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(MR.strings.action_share)) },
+                                            text = { Text(stringResource(MR.strings.action_share), color = primaryTextColor) },
+                                            colors = androidx.compose.material3.MenuDefaults.itemColors(
+                                                textColor = primaryTextColor,
+                                                leadingIconColor = primaryTextColor,
+                                                trailingIconColor = primaryTextColor,
+                                            ),
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -647,12 +671,21 @@ fun ReaderTopBar(
                 Box(
                     modifier = Modifier
                         .size(44.dp)
-                        .liquidGlassSurface(
-                            shape = CircleShape,
-                            blurRadius = 3.dp,
-                            refractionHeight = 16.dp,
-                            refractionAmount = 24.dp,
-                            tintColor = glassTintColor,
+                        .then(
+                            if (isGlass) {
+                                Modifier.liquidGlassSurface(
+                                    shape = CircleShape,
+                                    blurRadius = 3.dp,
+                                    refractionHeight = 16.dp,
+                                    refractionAmount = 24.dp,
+                                    tintColor = glassTintColor,
+                                )
+                            } else {
+                                Modifier.background(
+                                    color = solidBackingBg,
+                                    shape = CircleShape,
+                                )
+                            },
                         )
                         .border(
                             width = 0.5.dp,
@@ -682,12 +715,21 @@ fun ReaderTopBar(
                 ) {
                     Column(
                         modifier = Modifier
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 3.dp,
-                                refractionHeight = 16.dp,
-                                refractionAmount = 26.dp,
-                                tintColor = glassTintColor,
+                            .then(
+                                if (isGlass) {
+                                    Modifier.liquidGlassSurface(
+                                        shape = Capsule(),
+                                        blurRadius = 3.dp,
+                                        refractionHeight = 16.dp,
+                                        refractionAmount = 26.dp,
+                                        tintColor = glassTintColor,
+                                    )
+                                } else {
+                                    Modifier.background(
+                                        color = solidBackingBg,
+                                        shape = Capsule(),
+                                    )
+                                },
                             )
                             .border(
                                 width = 0.5.dp,
@@ -741,12 +783,21 @@ fun ReaderTopBar(
                     Box(
                         modifier = Modifier
                             .size(44.dp)
-                            .liquidGlassSurface(
-                                shape = CircleShape,
-                                blurRadius = 3.dp,
-                                refractionHeight = 16.dp,
-                                refractionAmount = 24.dp,
-                                tintColor = glassTintColor,
+                            .then(
+                                if (isGlass) {
+                                    Modifier.liquidGlassSurface(
+                                        shape = CircleShape,
+                                        blurRadius = 3.dp,
+                                        refractionHeight = 16.dp,
+                                        refractionAmount = 24.dp,
+                                        tintColor = glassTintColor,
+                                    )
+                                } else {
+                                    Modifier.background(
+                                        color = solidBackingBg,
+                                        shape = CircleShape,
+                                    )
+                                },
                             )
                             .border(
                                 width = 0.5.dp,
@@ -774,12 +825,21 @@ fun ReaderTopBar(
                             Box(
                                 modifier = Modifier
                                     .size(44.dp)
-                                    .liquidGlassSurface(
-                                        shape = CircleShape,
-                                        blurRadius = 3.dp,
-                                        refractionHeight = 16.dp,
-                                        refractionAmount = 24.dp,
-                                        tintColor = glassTintColor,
+                                    .then(
+                                        if (isGlass) {
+                                            Modifier.liquidGlassSurface(
+                                                shape = CircleShape,
+                                                blurRadius = 3.dp,
+                                                refractionHeight = 16.dp,
+                                                refractionAmount = 24.dp,
+                                                tintColor = glassTintColor,
+                                            )
+                                        } else {
+                                            Modifier.background(
+                                                color = solidBackingBg,
+                                                shape = CircleShape,
+                                            )
+                                        },
                                     )
                                     .border(
                                         width = 0.5.dp,
@@ -806,7 +866,12 @@ fun ReaderTopBar(
                             ) {
                                 onOpenInWebView?.let {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(MR.strings.action_open_in_web_view)) },
+                                        text = { Text(stringResource(MR.strings.action_open_in_web_view), color = primaryTextColor) },
+                                        colors = androidx.compose.material3.MenuDefaults.itemColors(
+                                            textColor = primaryTextColor,
+                                            leadingIconColor = primaryTextColor,
+                                            trailingIconColor = primaryTextColor,
+                                        ),
                                         onClick = {
                                             showOverflow = false
                                             it()
@@ -815,7 +880,12 @@ fun ReaderTopBar(
                                 }
                                 onOpenInBrowser?.let {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(MR.strings.action_open_in_browser)) },
+                                        text = { Text(stringResource(MR.strings.action_open_in_browser), color = primaryTextColor) },
+                                        colors = androidx.compose.material3.MenuDefaults.itemColors(
+                                            textColor = primaryTextColor,
+                                            leadingIconColor = primaryTextColor,
+                                            trailingIconColor = primaryTextColor,
+                                        ),
                                         onClick = {
                                             showOverflow = false
                                             it()
@@ -824,7 +894,12 @@ fun ReaderTopBar(
                                 }
                                 onShare?.let {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(MR.strings.action_share)) },
+                                        text = { Text(stringResource(MR.strings.action_share), color = primaryTextColor) },
+                                        colors = androidx.compose.material3.MenuDefaults.itemColors(
+                                            textColor = primaryTextColor,
+                                            leadingIconColor = primaryTextColor,
+                                            trailingIconColor = primaryTextColor,
+                                        ),
                                         onClick = {
                                             showOverflow = false
                                             it()
@@ -837,62 +912,4 @@ fun ReaderTopBar(
                 }
             }
         }
-    } else {
-        AppBar(
-            modifier = modifier,
-            backgroundColor = Color.Transparent,
-            title = mangaTitle,
-            subtitle = chapterTitle,
-            navigateUp = navigateUp,
-            actions = {
-                AppBarActions(
-                    actions = persistentListOf<AppBar.AppBarAction>().builder()
-                        .apply {
-                            add(
-                                AppBar.Action(
-                                    title = stringResource(
-                                        if (bookmarked) {
-                                            MR.strings.action_remove_bookmark
-                                        } else {
-                                            MR.strings.action_bookmark
-                                        },
-                                    ),
-                                    icon = if (bookmarked) {
-                                        Icons.Outlined.Bookmark
-                                    } else {
-                                        Icons.Outlined.BookmarkBorder
-                                    },
-                                    onClick = onToggleBookmarked,
-                                ),
-                            )
-                            onOpenInWebView?.let {
-                                add(
-                                    AppBar.OverflowAction(
-                                        title = stringResource(MR.strings.action_open_in_web_view),
-                                        onClick = it,
-                                    ),
-                                )
-                            }
-                            onOpenInBrowser?.let {
-                                add(
-                                    AppBar.OverflowAction(
-                                        title = stringResource(MR.strings.action_open_in_browser),
-                                        onClick = it,
-                                    ),
-                                )
-                            }
-                            onShare?.let {
-                                add(
-                                    AppBar.OverflowAction(
-                                        title = stringResource(MR.strings.action_share),
-                                        onClick = it,
-                                    ),
-                                )
-                            }
-                        }
-                        .build(),
-                )
-            },
-        )
-    }
 }

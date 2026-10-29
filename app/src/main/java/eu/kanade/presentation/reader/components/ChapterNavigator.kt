@@ -178,6 +178,7 @@ fun ChapterNavigator(
                         contentDescription = stringResource(
                             if (isRtl) MR.strings.action_next_chapter else MR.strings.action_previous_chapter,
                         ),
+                        tint = if (prevEnabled) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                     )
                 }
             }
@@ -202,9 +203,10 @@ fun ChapterNavigator(
                 } else {
                     Modifier
                         .weight(1f)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(backgroundColor)
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 8.dp)
+                        .background(if (isBottomLight) Color(0xF4FAFAFC) else Color(0xEA202024), Capsule())
+                        .border(0.5.dp, pillBorderColor, Capsule())
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
                 }
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                     Row(
@@ -243,6 +245,11 @@ fun ChapterNavigator(
                                 value = safeCurrentPageFloat,
                                 valueRange = 1f..safeTotalPages.toFloat(),
                                 steps = 0,
+                                colors = androidx.compose.material3.SliderDefaults.colors(
+                                    thumbColor = MaterialTheme.colorScheme.primary,
+                                    activeTrackColor = MaterialTheme.colorScheme.primary,
+                                    inactiveTrackColor = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF),
+                                ),
                                 onValueChange = f@{ nextVal ->
                                     val floatIdx = (nextVal - 1f).coerceIn(0f, (safeTotalPages - 1).toFloat())
                                     if (onPageFloatChange != null) {
@@ -309,6 +316,7 @@ fun ChapterNavigator(
                         contentDescription = stringResource(
                             if (isRtl) MR.strings.action_previous_chapter else MR.strings.action_next_chapter,
                         ),
+                        tint = if (nextEnabled) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                     )
                 }
             }
@@ -351,8 +359,8 @@ fun ChapterNavigatorVert(
             .surfaceColorAtElevation(3.dp)
             .copy(alpha = if (isDark) 0.9f else 0.95f)
         val buttonColor = IconButtonDefaults.filledIconButtonColors(
-            containerColor = if (isGlass) Color.Transparent else backgroundColor,
-            contentColor = if (isDark) Color.White else Color(0xFF1C1C1E),
+            containerColor = if (isGlass) Color.Transparent else (if (isBottomLight) Color(0xF4FAFAFC) else Color(0xEA202024)),
+            contentColor = if (isBottomLight) Color(0xFF111113) else Color.White,
             disabledContainerColor = if (isGlass) Color.Transparent else (if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF)),
             disabledContentColor = Color.Gray,
         )
@@ -400,6 +408,7 @@ fun ChapterNavigatorVert(
                     imageVector = Icons.Outlined.SkipPrevious,
                     contentDescription = stringResource(MR.strings.action_previous_chapter),
                     modifier = Modifier.rotate(90f),
+                    tint = if (enabledPrevious) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                 )
             }
         }
@@ -424,9 +433,10 @@ fun ChapterNavigatorVert(
             } else {
                 Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(backgroundColor)
-                    .padding(vertical = 12.dp)
+                    .padding(vertical = 8.dp)
+                    .background(if (isBottomLight) Color(0xF4FAFAFC) else Color(0xEA202024), Capsule())
+                    .border(0.5.dp, pillBorderColor, Capsule())
+                    .padding(vertical = 12.dp, horizontal = 6.dp)
             }
             Column(
                 modifier = sliderModifier,
@@ -515,6 +525,7 @@ fun ChapterNavigatorVert(
                     imageVector = Icons.Outlined.SkipNext,
                     contentDescription = stringResource(MR.strings.action_next_chapter),
                     modifier = Modifier.rotate(90f),
+                    tint = if (enabledNext) skipIconTint else Color.Gray.copy(alpha = 0.6f),
                 )
             }
         }

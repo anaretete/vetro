@@ -95,6 +95,15 @@ fun ReaderBottomBar(
             )
     } else {
         modifier
+            .background(
+                color = if (isBottomLight) Color(0xF4FAFAFC) else Color(0xEA202024),
+                shape = Capsule(),
+            )
+            .border(
+                width = 0.5.dp,
+                color = containerBorder,
+                shape = Capsule(),
+            )
     }
 
     Row(
@@ -245,11 +254,7 @@ private fun ReaderBottomBarItem(
     isGlass: Boolean = true,
     isBottomLight: Boolean = true,
 ) {
-    val targetDefault = if (isGlass) {
-        if (isBottomLight) Color(0xFF111113) else Color.White
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
+    val targetDefault = if (isBottomLight) Color(0xFF111113) else Color.White
     val defaultColor by animateColorAsState(targetDefault, animationSpec = tween(250), label = "bottomItemColor")
     val tint = if (isActive) activeColor else defaultColor
 
