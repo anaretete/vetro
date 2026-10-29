@@ -97,6 +97,7 @@ fun AlertDialogContent(
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
     val dialogShape = RoundedCornerShape(20.dp)
 
     val dialogModifier = if (isGlass) {

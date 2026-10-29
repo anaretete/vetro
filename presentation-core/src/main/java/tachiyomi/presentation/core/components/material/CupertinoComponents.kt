@@ -88,6 +88,7 @@ fun CupertinoAlertDialog(
     properties: DialogProperties = DialogProperties(),
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
     val dialogShape = RoundedCornerShape(20.dp)
     val dialogModifier = if (isGlass) {
         modifier
@@ -538,6 +539,7 @@ fun CupertinoActionSheetCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
     val sheetShape = RoundedCornerShape(20.dp)
     val cardModifier = if (isGlass) {
         modifier
