@@ -270,20 +270,21 @@ class DiscordRPCService : Service() {
             val showTimestamp = connectionsPreferences.discordShowTimestamp().get()
 
             val useAppIconOnly = connectionsPreferences.discordUseAppIconOnly().get()
+            val censorCover = connectionsPreferences.discordCensorCover().get()
             val (title, state, imageUrl) = when (discordScreen) {
                 DiscordScreen.MANGA -> Triple(
                     readerData.mangaTitle,
                     readerData.chapterNumber.takeIf { showProgress },
-                    if (useAppIconOnly && connectionsPreferences.discordCensorCover().get()) {
-                        DiscordScreen.APP.imageUrl
+                    if (useAppIconOnly || censorCover) {
+                        getVetroDiscordUri()
                     } else {
-                        readerData.thumbnailUrl ?: discordScreen.imageUrl
+                        readerData.thumbnailUrl ?: getVetroDiscordUri()
                     },
                 )
                 else -> Triple(
                     null,
                     context.getString(discordScreen.text),
-                    if (useAppIconOnly) DiscordScreen.APP.imageUrl else discordScreen.imageUrl,
+                    getVetroDiscordUri(),
                 )
             }
 
@@ -309,6 +310,25 @@ class DiscordRPCService : Service() {
                 timestamps = timestamps,
                 // KMK <--
             )
+        }
+
+        @Volatile
+        private var cachedVetroDiscordAsset: String? = null
+
+        private suspend fun getVetroDiscordUri(): String {
+            cachedVetroDiscordAsset?.let { return it }
+            return try {
+                val rpcAsset = getRPCExternalAsset()
+                val uri = rpcAsset.getDiscordUri(VETRO_IMAGE_URL)
+                if (!uri.isNullOrBlank()) {
+                    cachedVetroDiscordAsset = uri
+                    uri
+                } else {
+                    "$MP_PREFIX$VETRO_IMAGE_URL"
+                }
+            } catch (_: Exception) {
+                "$MP_PREFIX$VETRO_IMAGE_URL"
+            }
         }
 
         private suspend fun updateDiscordRPC(
@@ -354,6 +374,20 @@ class DiscordRPCService : Service() {
                 null
             }
 
+            val vetroAsset = getVetroDiscordUri()
+            val resolvedLargeImage = when {
+                imageUrl.startsWith("mp:") -> imageUrl
+                imageUrl.startsWith("http://") || imageUrl.startsWith("https://") -> {
+                    try {
+                        getRPCExternalAsset().getDiscordUri(imageUrl) ?: vetroAsset
+                    } catch (_: Exception) {
+                        vetroAsset
+                    }
+                }
+                imageUrl.isNotBlank() -> "$MP_PREFIX$imageUrl"
+                else -> vetroAsset
+            }
+
             rpc?.updateRPC(
                 activity = Activity(
                     name = name,
@@ -362,8 +396,8 @@ class DiscordRPCService : Service() {
                     type = ActivityType.WATCHING.value,
                     timestamps = timestamps,
                     assets = Activity.Assets(
-                        largeImage = "$MP_PREFIX$imageUrl",
-                        smallImage = "$MP_PREFIX${DiscordScreen.APP.imageUrl}",
+                        largeImage = resolvedLargeImage,
+                        smallImage = vetroAsset,
                         largeText = context.getString(
                             R.string.discord_status_description,
                             context.getString(discordScreen.details),
@@ -414,10 +448,11 @@ class DiscordRPCService : Service() {
                 withIOContext {
                     val rpcExternalAsset = getRPCExternalAsset()
                     val censorCover = connectionsPreferences.discordCensorCover().get()
-                    val mangaThumbnail = if (censorCover) {
-                        null
+                    val useAppIconOnly = connectionsPreferences.discordUseAppIconOnly().get()
+                    val mangaThumbnail = if (censorCover || useAppIconOnly) {
+                        getVetroDiscordUri()
                     } else {
-                        getDiscordThumbnail(rpcExternalAsset, readerData.thumbnailUrl, discordIncognito)
+                        getDiscordThumbnail(rpcExternalAsset, readerData.thumbnailUrl, discordIncognito) ?: getVetroDiscordUri()
                     }
 
                     discordScope.launchIO {

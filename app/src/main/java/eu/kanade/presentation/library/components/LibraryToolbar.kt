@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Casino
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.FlipToBack
 import androidx.compose.material.icons.outlined.SelectAll
@@ -119,6 +120,11 @@ private fun LibraryRegularToolbar(
             val filterTint = if (hasFilters) MaterialTheme.colorScheme.active else LocalContentColor.current
             AppBarActions(
                 persistentListOf(
+                    AppBar.Action(
+                        title = stringResource(MR.strings.action_open_random_manga),
+                        icon = Icons.Outlined.Casino,
+                        onClick = onClickOpenRandomManga,
+                    ),
                     AppBar.Action(
                         title = stringResource(MR.strings.action_filter),
                         icon = Icons.Outlined.FilterList,

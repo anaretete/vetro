@@ -61,6 +61,8 @@ class ConnectionsPreferences(
 
     fun discordShowDiscordButton() = preferenceStore.getBoolean("pref_discord_show_discord_button", true)
 
+    fun discordShowReadingPace() = preferenceStore.getBoolean("pref_discord_show_reading_pace", false)
+
     fun discordAccounts() = preferenceStore.getString("discord_accounts", "")
 
     companion object {

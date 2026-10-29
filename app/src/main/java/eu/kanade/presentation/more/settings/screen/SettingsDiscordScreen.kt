@@ -227,6 +227,11 @@ object SettingsDiscordScreen : SearchableSettings {
                         subtitle = stringResource(KMR.strings.pref_discord_show_discord_button_summary),
                         enabled = showButtons,
                     ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        preference = connectionsPreferences.discordShowReadingPace(),
+                        title = "Show Reading Pace & Progress",
+                        subtitle = "Display pages read and chapter progress in your Discord status",
+                    ),
                 ),
             ),
             Preference.PreferenceItem.CustomPreference(

@@ -184,6 +184,37 @@ object SettingsReaderScreen : SearchableSettings {
                     title = "Auto-Join Landscape Spreads",
                     subtitle = "Seamlessly join adjacent portrait pages into two-page spreads in landscape orientation",
                 ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.readerReadingRuler(),
+                    title = "Reading Ruler / Focus Guide",
+                    subtitle = "Display a draggable translucent guide bar over pages to keep your reading place",
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = readerPreferences.readingRulerHeight().get(),
+                    valueRange = 20..120,
+                    title = "Ruler Thickness",
+                    subtitle = "Adjust thickness of the focus ruler guide",
+                    valueString = "${readerPreferences.readingRulerHeight().get()} dp",
+                    onValueChanged = { readerPreferences.readingRulerHeight().set(it) },
+                ),
+                Preference.PreferenceItem.SliderPreference(
+                    value = readerPreferences.readerBedtimeDim().get(),
+                    valueRange = 0..80,
+                    title = "Bedtime Ultra-Dimming",
+                    subtitle = "Dim screen below Android minimum brightness for bedtime reading",
+                    valueString = if (readerPreferences.readerBedtimeDim().get() == 0) "Off" else "${readerPreferences.readerBedtimeDim().get()}%",
+                    onValueChanged = { readerPreferences.readerBedtimeDim().set(it) },
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.readerDoubleTapBookmark(),
+                    title = "Double-Tap Corner Quick Bookmark",
+                    subtitle = "Double tap the top-right corner while reading to quickly toggle bookmark",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.readerPageScrubHaptics(),
+                    title = "Seekbar Haptic Feedback",
+                    subtitle = "Vibrate subtly as pages tick by on the reader progress slider",
+                ),
             ),
         )
     }

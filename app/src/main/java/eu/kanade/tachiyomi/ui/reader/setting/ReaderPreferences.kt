@@ -110,6 +110,16 @@ class ReaderPreferences(
     fun readerInvertColors() = preferenceStore.getBoolean("reader_invert_colors", false)
 
     fun autoJoinDoublePages() = preferenceStore.getBoolean("auto_join_double_pages", false)
+
+    fun readerReadingRuler() = preferenceStore.getBoolean("reader_reading_ruler", false)
+
+    fun readingRulerHeight() = preferenceStore.getInt("reader_reading_ruler_height", 44)
+
+    fun readerDoubleTapBookmark() = preferenceStore.getBoolean("reader_double_tap_bookmark", true)
+
+    fun readerBedtimeDim() = preferenceStore.getInt("reader_bedtime_dim", 0)
+
+    fun readerPageScrubHaptics() = preferenceStore.getBoolean("reader_page_scrub_haptics", true)
     // KMK <--
 
     // endregion

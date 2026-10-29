@@ -432,6 +432,7 @@ abstract class PagerViewer(
      * if the event was handled, false otherwise.
      */
     override fun handleKeyEvent(event: KeyEvent): Boolean {
+        val isDown = event.action == KeyEvent.ACTION_DOWN
         val isUp = event.action == KeyEvent.ACTION_UP
         val ctrlPressed = event.metaState.and(KeyEvent.META_CTRL_ON) > 0
 
@@ -439,6 +440,9 @@ abstract class PagerViewer(
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
                 if (!config.volumeKeysEnabled || activity.viewModel.state.value.menuVisible) {
                     return false
+                }
+                if (config.volumeKeySmoothScroll && isDown && event.repeatCount > 0 && event.repeatCount % 6 == 0) {
+                    if (!config.volumeKeysInverted) moveDown() else moveUp()
                 } else if (isUp) {
                     if (!config.volumeKeysInverted) moveDown() else moveUp()
                 }
@@ -446,6 +450,9 @@ abstract class PagerViewer(
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 if (!config.volumeKeysEnabled || activity.viewModel.state.value.menuVisible) {
                     return false
+                }
+                if (config.volumeKeySmoothScroll && isDown && event.repeatCount > 0 && event.repeatCount % 6 == 0) {
+                    if (!config.volumeKeysInverted) moveUp() else moveDown()
                 } else if (isUp) {
                     if (!config.volumeKeysInverted) moveUp() else moveDown()
                 }

@@ -27,12 +27,22 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,18 +51,26 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.kyant.shapes.Capsule
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
+import kotlin.math.roundToInt
 import androidx.core.content.getSystemService
 import androidx.core.graphics.Insets
 import androidx.core.net.toUri
@@ -355,8 +373,9 @@ class ReaderActivity : BaseActivity() {
             }
             val grayscale by readerPreferences.grayscale().collectAsState()
             val invertedColors by readerPreferences.invertedColors().collectAsState()
-            val layerPaint = remember(grayscale, invertedColors) {
-                if (grayscale || invertedColors) config?.getCombinedPaint(grayscale, invertedColors) else null
+            val eyeCareFilter by readerPreferences.readerEyeCareFilter().collectAsState()
+            val layerPaint = remember(grayscale, invertedColors, eyeCareFilter) {
+                if (grayscale || invertedColors || eyeCareFilter > 0) config?.getCombinedPaint(grayscale, invertedColors, eyeCareFilter) else null
             }
 
             var backdropTick by remember { mutableIntStateOf(0) }
@@ -372,6 +391,7 @@ class ReaderActivity : BaseActivity() {
                 colorOverlayMode,
                 grayscale,
                 invertedColors,
+                eyeCareFilter,
             ) {
                 backdropTick++
                 delay(16)
@@ -429,6 +449,41 @@ class ReaderActivity : BaseActivity() {
                 )
 
                 ContentOverlay(state = state)
+
+                // Bedtime Ultra-Dimming Scrim
+                val bedtimeDim by readerPreferences.readerBedtimeDim().collectAsState()
+                if (bedtimeDim > 0) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(ComposeColor.Black.copy(alpha = (bedtimeDim / 100f).coerceIn(0f, 0.85f))),
+                    )
+                }
+
+                // Reading Ruler / Focus Guide
+                val readingRulerEnabled by readerPreferences.readerReadingRuler().collectAsState()
+                val readingRulerHeight by readerPreferences.readingRulerHeight().collectAsState()
+                if (readingRulerEnabled) {
+                    ReadingRuler(heightDp = readingRulerHeight)
+                }
+
+                // Double-Tap Corner Quick Bookmark
+                val doubleTapBookmark by readerPreferences.readerDoubleTapBookmark().collectAsState()
+                if (doubleTapBookmark) {
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .align(Alignment.TopEnd)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = {
+                                        viewModel.toggleChapterBookmark()
+                                        toast(if (!state.bookmarked) MR.strings.action_bookmark else MR.strings.action_remove_bookmark)
+                                    },
+                                )
+                            },
+                    )
+                }
 
                 if (!state.menuVisible && showPageNumber) {
                     ReaderPageIndicator(
@@ -802,6 +857,9 @@ class ReaderActivity : BaseActivity() {
             totalPages = state.totalPages,
             onPageIndexChange = {
                 isScrollingThroughPages = true
+                if (readerPreferences.readerPageScrubHaptics().get()) {
+                    window.decorView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                }
                 moveToPageIndex(it)
             },
             onPageFloatChange = {
@@ -862,6 +920,61 @@ class ReaderActivity : BaseActivity() {
     }
 
     // KMK -->
+    @Composable
+    private fun ReadingRuler(heightDp: Int) {
+        var offsetY by remember { mutableFloatStateOf(300f) }
+        val isDark = isSystemInDarkTheme()
+        val isGlass = LocalLiquidGlassConfig.current.enabled
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .offset { IntOffset(0, offsetY.roundToInt()) }
+                    .fillMaxWidth()
+                    .height(heightDp.dp)
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures { change, dragAmount ->
+                            change.consume()
+                            offsetY = (offsetY + dragAmount).coerceAtLeast(0f)
+                        }
+                    }
+                    .then(
+                        if (isGlass) {
+                            Modifier.liquidGlassSurface(
+                                shape = RoundedCornerShape(8.dp),
+                                blurRadius = 4.dp,
+                                refractionHeight = 12.dp,
+                                refractionAmount = 20.dp,
+                                tintColor = if (isDark) ComposeColor(0x3300E5FF) else ComposeColor(0x22007AFF),
+                            )
+                        } else {
+                            Modifier
+                                .background(
+                                    if (isDark) ComposeColor(0x4400E5FF) else ComposeColor(0x33007AFF),
+                                    RoundedCornerShape(8.dp),
+                                )
+                                .border(
+                                    1.dp,
+                                    if (isDark) ComposeColor(0x8800E5FF) else ComposeColor(0x66007AFF),
+                                    RoundedCornerShape(8.dp),
+                                )
+                        },
+                    ),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(width = 24.dp, height = 4.dp)
+                        .clip(Capsule())
+                        .background((if (isDark) ComposeColor.White else ComposeColor.Black).copy(alpha = 0.4f)),
+                )
+            }
+        }
+    }
+
     @Composable
     private fun seedColorState(): ComposeColor? {
         val state by viewModel.state.collectAsState()
@@ -1448,7 +1561,7 @@ class ReaderActivity : BaseActivity() {
      */
     private inner class ReaderConfig {
 
-        internal fun getCombinedPaint(grayscale: Boolean, invertedColors: Boolean): Paint {
+        internal fun getCombinedPaint(grayscale: Boolean, invertedColors: Boolean, eyeCareFilter: Int = 0): Paint {
             return Paint().apply {
                 colorFilter = ColorMatrixColorFilter(
                     ColorMatrix().apply {
@@ -1466,6 +1579,44 @@ class ReaderActivity : BaseActivity() {
                                     ),
                                 ),
                             )
+                        }
+                        when (eyeCareFilter) {
+                            1 -> {
+                                postConcat(
+                                    ColorMatrix(
+                                        floatArrayOf(
+                                            0.393f, 0.769f, 0.189f, 0f, 0f,
+                                            0.349f, 0.686f, 0.168f, 0f, 0f,
+                                            0.272f, 0.534f, 0.131f, 0f, 0f,
+                                            0f, 0f, 0f, 1f, 0f,
+                                        ),
+                                    ),
+                                )
+                            }
+                            2 -> {
+                                postConcat(
+                                    ColorMatrix(
+                                        floatArrayOf(
+                                            1.0f, 0f, 0f, 0f, 0f,
+                                            0f, 0.85f, 0f, 0f, 0f,
+                                            0f, 0f, 0.60f, 0f, 0f,
+                                            0f, 0f, 0f, 1f, 0f,
+                                        ),
+                                    ),
+                                )
+                            }
+                            3 -> {
+                                postConcat(
+                                    ColorMatrix(
+                                        floatArrayOf(
+                                            1.25f, 0f, 0f, 0f, -30f,
+                                            0f, 1.25f, 0f, 0f, -30f,
+                                            0f, 0f, 1.25f, 0f, -30f,
+                                            0f, 0f, 0f, 1f, 0f,
+                                        ),
+                                    ),
+                                )
+                            }
                         }
                     },
                 )
@@ -1506,9 +1657,10 @@ class ReaderActivity : BaseActivity() {
             combine(
                 readerPreferences.grayscale().changes(),
                 readerPreferences.invertedColors().changes(),
-            ) { grayscale, invertedColors -> grayscale to invertedColors }
-                .onEach { (grayscale, invertedColors) ->
-                    setLayerPaint(grayscale, invertedColors)
+                readerPreferences.readerEyeCareFilter().changes(),
+            ) { grayscale, invertedColors, eyeCare -> Triple(grayscale, invertedColors, eyeCare) }
+                .onEach { (grayscale, invertedColors, eyeCare) ->
+                    setLayerPaint(grayscale, invertedColors, eyeCare)
                 }
                 .launchIn(lifecycleScope)
 
@@ -1630,8 +1782,8 @@ class ReaderActivity : BaseActivity() {
 
             viewModel.setBrightnessOverlayValue(value)
         }
-        private fun setLayerPaint(grayscale: Boolean, invertedColors: Boolean) {
-            val paint = if (grayscale || invertedColors) getCombinedPaint(grayscale, invertedColors) else null
+        private fun setLayerPaint(grayscale: Boolean, invertedColors: Boolean, eyeCareFilter: Int = 0) {
+            val paint = if (grayscale || invertedColors || eyeCareFilter > 0) getCombinedPaint(grayscale, invertedColors, eyeCareFilter) else null
             binding.viewerContainer.setLayerType(LAYER_TYPE_HARDWARE, paint)
         }
     }

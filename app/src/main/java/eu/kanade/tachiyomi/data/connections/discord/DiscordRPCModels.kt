@@ -197,8 +197,9 @@ enum class DiscordScreen(
 }
 
 // Constants for standard Rich Presence image urls
-private const val KOMIKKU_IMAGE_URL = "emojis/1365538288894738532.webp?quality=lossless"
-private const val KOMIKKU_PREVIEW_IMAGE_URL = "emojis/1365538288894738532.webp?quality=lossless"
+const val VETRO_IMAGE_URL = "https://raw.githubusercontent.com/anaretete/komikku-liquid-glass/liquid-glass-main/app/src/main/res/drawable/komikku.png"
+private const val KOMIKKU_IMAGE_URL = VETRO_IMAGE_URL
+private const val KOMIKKU_PREVIEW_IMAGE_URL = VETRO_IMAGE_URL
 
 private val KOMIKKU_IMAGE = if (isPreviewBuildType) KOMIKKU_PREVIEW_IMAGE_URL else KOMIKKU_IMAGE_URL
 // <-- AM (DISCORD)

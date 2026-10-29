@@ -14,11 +14,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+import kotlin.math.ceil
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.Bookmark
@@ -81,6 +87,13 @@ fun ReaderTopBar(
     if (isGlass) {
         val glassTintColor = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
         val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
+        val readerPreferences = remember { Injekt.get<ReaderPreferences>() }
+        val readingRulerPref = remember { readerPreferences.readerReadingRuler() }
+        val readingRulerEnabled by readingRulerPref.collectAsState()
+        val eyeCareFilterPref = remember { readerPreferences.readerEyeCareFilter() }
+        val eyeCareFilter by eyeCareFilterPref.collectAsState()
+        val invertColorsPref = remember { readerPreferences.readerInvertColors() }
+        val invertColors by invertColorsPref.collectAsState()
         var showOverflow by remember { mutableStateOf(false) }
         var isExpanded by remember { mutableStateOf(false) }
         val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
@@ -199,6 +212,26 @@ fun ReaderTopBar(
                                     ),
                                 )
                             }
+                            if (totalPages > 0 && currentPage > 0) {
+                                val remainingPages = (totalPages - currentPage).coerceAtLeast(0)
+                                val etaMin = ceil(remainingPages / 2.2f).toInt()
+                                if (etaMin > 0) {
+                                    Text(
+                                        text = "•",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.4f),
+                                        ),
+                                    )
+                                    Text(
+                                        text = "⚡ ~${etaMin}m left",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 11.sp,
+                                        ),
+                                    )
+                                }
+                            }
                             if (!readingModeName.isNullOrEmpty()) {
                                 Text(
                                     text = "•",
@@ -228,6 +261,124 @@ fun ReaderTopBar(
                                         fontSize = 11.sp,
                                     ),
                                 )
+                            }
+                        }
+
+                        // Live Cupertino chapter progress track
+                        if (totalPages > 0) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            val progress = (currentPage.toFloat() / totalPages.coerceAtLeast(1)).coerceIn(0f, 1f)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(3.dp)
+                                    .clip(Capsule())
+                                    .background((if (isDark) Color.White else Color.Black).copy(alpha = 0.12f)),
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(progress)
+                                        .height(3.dp)
+                                        .clip(Capsule())
+                                        .background(MaterialTheme.colorScheme.primary),
+                                )
+                            }
+                        }
+
+                        // Interactive Quick Action Pills
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            val eyeComfortLabel = when (eyeCareFilter) {
+                                1 -> "Sepia"
+                                2 -> "Night"
+                                3 -> "OLED"
+                                else -> "Eye Care"
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(Capsule())
+                                    .background(
+                                        if (eyeCareFilter > 0) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                        else (if (isDark) Color.White else Color.Black).copy(alpha = 0.08f),
+                                    )
+                                    .clickable {
+                                        eyeCareFilterPref.set((eyeCareFilter + 1) % 4)
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    text = "🌙 $eyeComfortLabel",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp,
+                                        fontWeight = if (eyeCareFilter > 0) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (eyeCareFilter > 0) MaterialTheme.colorScheme.primary else (if (isDark) Color.White else Color.Black),
+                                    ),
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(Capsule())
+                                    .background(
+                                        if (readingRulerEnabled) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                        else (if (isDark) Color.White else Color.Black).copy(alpha = 0.08f),
+                                    )
+                                    .clickable {
+                                        readingRulerPref.set(!readingRulerEnabled)
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    text = "📏 Ruler",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp,
+                                        fontWeight = if (readingRulerEnabled) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (readingRulerEnabled) MaterialTheme.colorScheme.primary else (if (isDark) Color.White else Color.Black),
+                                    ),
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(Capsule())
+                                    .background(
+                                        if (invertColors) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                        else (if (isDark) Color.White else Color.Black).copy(alpha = 0.08f),
+                                    )
+                                    .clickable {
+                                        invertColorsPref.set(!invertColors)
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    text = "🌓 Invert",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp,
+                                        fontWeight = if (invertColors) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (invertColors) MaterialTheme.colorScheme.primary else (if (isDark) Color.White else Color.Black),
+                                    ),
+                                )
+                            }
+
+                            if (onClickTopAppBar != null) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(Capsule())
+                                        .background((if (isDark) Color.White else Color.Black).copy(alpha = 0.08f))
+                                        .clickable(onClick = onClickTopAppBar)
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                ) {
+                                    Text(
+                                        text = "📖 Details",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 10.sp,
+                                            color = (if (isDark) Color.White else Color.Black),
+                                        ),
+                                    )
+                                }
                             }
                         }
 
