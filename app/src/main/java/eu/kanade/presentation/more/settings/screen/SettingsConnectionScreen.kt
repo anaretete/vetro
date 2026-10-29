@@ -82,7 +82,7 @@ object SettingsConnectionScreen : SearchableSettings {
         }
 
         val isLoggedIn by connectionsManager.discord.isLoggedInFlow.collectAsState(connectionsManager.discord.isLogged)
-        val isWebhookEnabled by connectionsManager.webhook.connectionsPreferences.enableWebhooks().collectAsState()
+        val isWebhookEnabled by connectionsManager.webhook.connectionsPreferences.enableWebhooks().changes().collectAsState(connectionsManager.webhook.isLogged)
 
         return listOf(
             Preference.PreferenceGroup(

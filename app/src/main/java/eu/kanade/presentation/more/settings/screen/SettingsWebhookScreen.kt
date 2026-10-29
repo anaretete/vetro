@@ -262,10 +262,10 @@ object SettingsWebhookScreen : SearchableSettings {
                         },
                     ),
                     Preference.PreferenceItem.TextPreference(
-                        title = stringResource(MR.strings.action_disconnect),
+                        title = stringResource(MR.strings.logout),
                         onClick = {
                             connectionsManager.webhook.logout()
-                            context.toast(MR.strings.action_disconnect)
+                            context.toast(MR.strings.logout)
                             navigator.pop()
                         },
                     ),
