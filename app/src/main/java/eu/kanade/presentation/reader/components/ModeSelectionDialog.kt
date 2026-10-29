@@ -1,6 +1,7 @@
 package eu.kanade.presentation.reader.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,7 +83,13 @@ fun ModeSelectionDialog(
                                     blurRadius = 12.dp,
                                     refractionHeight = 14.dp,
                                     refractionAmount = 20.dp,
-                                    tintColor = if (isDark) Color(0x55252528) else Color(0x66FFFFFF),
+                                    tintColor = Color.Unspecified,
+                                    surfaceColor = Color.Unspecified,
+                                )
+                                .border(
+                                    width = 0.5.dp,
+                                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                                    shape = Capsule(),
                                 ),
                         ) {
                             Text(

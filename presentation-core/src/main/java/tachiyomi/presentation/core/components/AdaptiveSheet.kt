@@ -3,6 +3,7 @@ package tachiyomi.presentation.core.components
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -110,12 +111,18 @@ fun AdaptiveSheet(
                 .padding(vertical = 16.dp)
                 .liquidGlassSurface(
                     shape = tabletShape,
-                    blurRadius = 8.dp,
-                    refractionHeight = 24.dp,
-                    refractionAmount = 32.dp,
-                    tintColor = sheetBg,
+                    blurRadius = 18.dp,
+                    refractionHeight = 22.dp,
+                    refractionAmount = 30.dp,
+                    tintColor = Color.Unspecified,
+                    surfaceColor = Color.Unspecified,
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
+                )
+                .border(
+                    width = 0.5.dp,
+                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                    shape = tabletShape,
                 )
                 .then(modifier)
         } else {
@@ -266,15 +273,22 @@ fun AdaptiveSheet(
                 .statusBarsPadding()
 
             val phoneModifier: Modifier = if (isGlass) {
-                phoneBaseModifier.liquidGlassSurface(
-                    shape = bottomSheetShape,
-                    blurRadius = 8.dp,
-                    refractionHeight = 24.dp,
-                    refractionAmount = 32.dp,
-                    tintColor = sheetBg,
-                    backdrop = sheetBackdrop,
-                    exportedBackdrop = sheetExportedBackdrop,
-                )
+                phoneBaseModifier
+                    .liquidGlassSurface(
+                        shape = bottomSheetShape,
+                        blurRadius = 18.dp,
+                        refractionHeight = 22.dp,
+                        refractionAmount = 30.dp,
+                        tintColor = Color.Unspecified,
+                        surfaceColor = Color.Unspecified,
+                        backdrop = sheetBackdrop,
+                        exportedBackdrop = sheetExportedBackdrop,
+                    )
+                    .border(
+                        width = 0.5.dp,
+                        color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                        shape = bottomSheetShape,
+                    )
             } else {
                 phoneBaseModifier
             }

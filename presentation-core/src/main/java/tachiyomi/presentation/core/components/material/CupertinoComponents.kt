@@ -88,29 +88,29 @@ fun CupertinoAlertDialog(
     properties: DialogProperties = DialogProperties(),
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val isDark = isSystemInDarkTheme()
-    val dialogBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.76f) else Color(0xFFF6F6FA).copy(alpha = 0.82f)
-    } else {
-        if (isDark) Color(0xFF252528) else Color(0xFFFFFFFF)
-    }
-
+    val dialogShape = RoundedCornerShape(20.dp)
     val dialogModifier = if (isGlass) {
         modifier
             .widthIn(min = 270.dp, max = 320.dp)
             .liquidGlassSurface(
-                shape = RoundedCornerShape(20.dp),
-                blurRadius = 14.dp,
-                refractionHeight = 14.dp,
-                refractionAmount = 20.dp,
-                surfaceColor = dialogBg,
-                depthEffect = false,
+                shape = dialogShape,
+                blurRadius = 18.dp,
+                refractionHeight = 18.dp,
+                refractionAmount = 26.dp,
+                tintColor = Color.Unspecified,
+                surfaceColor = Color.Unspecified,
+                depthEffect = true,
+            )
+            .border(
+                width = 0.5.dp,
+                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                shape = dialogShape,
             )
     } else {
         modifier
             .widthIn(min = 270.dp, max = 320.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(dialogBg)
+            .clip(dialogShape)
+            .background(if (isDark) Color(0xFF252528) else Color(0xFFFFFFFF))
     }
 
     BasicAlertDialog(
@@ -538,28 +538,28 @@ fun CupertinoActionSheetCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val isDark = isSystemInDarkTheme()
-    val cardBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.40f) else Color(0xFFF9F9F9).copy(alpha = 0.50f)
-    } else {
-        if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9)
-    }
-
+    val sheetShape = RoundedCornerShape(20.dp)
     val cardModifier = if (isGlass) {
         modifier
             .fillMaxWidth()
             .liquidGlassSurface(
-                shape = RoundedCornerShape(20.dp),
-                blurRadius = 6.dp,
-                refractionHeight = 20.dp,
-                refractionAmount = 28.dp,
-                tintColor = cardBg,
+                shape = sheetShape,
+                blurRadius = 18.dp,
+                refractionHeight = 18.dp,
+                refractionAmount = 26.dp,
+                tintColor = Color.Unspecified,
+                surfaceColor = Color.Unspecified,
+            )
+            .border(
+                width = 0.5.dp,
+                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                shape = sheetShape,
             )
     } else {
         modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(cardBg)
+            .clip(sheetShape)
+            .background(if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9))
     }
 
     Column(
@@ -580,29 +580,30 @@ fun CupertinoCancelPill(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val pillBg = if (isGlass) {
-        if (isDark) Color(0xFF222226).copy(alpha = 0.45f) else Color(0xFFFFFFFF).copy(alpha = 0.55f)
-    } else {
-        if (isDark) Color(0xFF222226) else Color(0xFFFFFFFF)
-    }
-
+    val pillShape = RoundedCornerShape(20.dp)
     val pillModifier = if (isGlass) {
         modifier
             .fillMaxWidth()
             .height(54.dp)
             .liquidGlassSurface(
-                shape = RoundedCornerShape(20.dp),
-                blurRadius = 6.dp,
-                refractionHeight = 20.dp,
-                refractionAmount = 28.dp,
-                tintColor = pillBg,
+                shape = pillShape,
+                blurRadius = 18.dp,
+                refractionHeight = 18.dp,
+                refractionAmount = 26.dp,
+                tintColor = Color.Unspecified,
+                surfaceColor = Color.Unspecified,
+            )
+            .border(
+                width = 0.5.dp,
+                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                shape = pillShape,
             )
     } else {
         modifier
             .fillMaxWidth()
             .height(54.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(pillBg)
+            .clip(pillShape)
+            .background(if (isDark) Color(0xFF222226) else Color(0xFFFFFFFF))
     }
 
     Box(

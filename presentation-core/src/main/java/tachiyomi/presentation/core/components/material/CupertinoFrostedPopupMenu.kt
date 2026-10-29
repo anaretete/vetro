@@ -64,7 +64,12 @@ fun CupertinoFrostedPopup(
                     blurRadius = 24.dp,
                     refractionHeight = 16.dp,
                     refractionAmount = 22.dp,
-                    tintColor = if (isDark) Color(0xFF252528).copy(alpha = 0.88f) else Color(0xFFF6F6F8).copy(alpha = 0.94f),
+                    tintColor = Color.Unspecified,
+                )
+                .border(
+                    width = 0.5.dp,
+                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                    shape = shape,
                 ),
             shape = shape,
             containerColor = Color.Transparent,
@@ -116,9 +121,9 @@ fun <T> CupertinoFrostedPopupMenu(
                         color = if (isSelected) {
                             MaterialTheme.colorScheme.primary
                         } else if (isDark) {
-                            Color(0xFFF2F2F7)
+                            Color.White
                         } else {
-                            Color(0xFF1C1C1E)
+                            Color(0xFF111113)
                         },
                     ),
                     modifier = Modifier.weight(1f),
@@ -140,7 +145,7 @@ fun <T> CupertinoFrostedPopupMenu(
             if (index < entryList.lastIndex) {
                 HorizontalDivider(
                     thickness = 0.5.dp,
-                    color = if (isDark) Color(0xFF38383A) else Color(0xFFE5E5EA),
+                    color = if (isDark) Color(0x25FFFFFF) else Color(0x18000000),
                     modifier = Modifier.padding(horizontal = 12.dp),
                 )
             }

@@ -93,9 +93,9 @@ fun ReaderTopBar(
     val isDark = isSystemInDarkTheme()
 
     if (isGlass) {
-        // High contrast Apple Cupertino Frosted Glass tinting (solid legibility on any manga background)
-        val glassTintColor = if (isDark) Color(0xD81C1C1E) else Color(0xF4FFFFFF)
-        val pillBorderColor = if (isDark) Color(0x33FFFFFF) else Color(0x1F000000)
+        // Unified untinted Apple Cupertino Liquid Glass
+        val glassTintColor = Color.Unspecified
+        val pillBorderColor = if (isDark) Color(0x35FFFFFF) else Color(0x20000000)
         val primaryTextColor = if (isDark) Color.White else Color(0xFF111113)
         val secondaryTextColor = if (isDark) Color(0xCCFFFFFF) else Color(0x99111113)
         val surfacePillBg = if (isDark) Color(0x28FFFFFF) else Color(0x12000000)
@@ -130,10 +130,11 @@ fun ReaderTopBar(
                         )
                         .liquidGlassSurface(
                             shape = RoundedCornerShape(28.dp),
-                            blurRadius = 6.dp,
+                            blurRadius = 18.dp,
                             refractionHeight = 22.dp,
-                            refractionAmount = 32.dp,
-                            tintColor = glassTintColor,
+                            refractionAmount = 30.dp,
+                            tintColor = Color.Unspecified,
+                            surfaceColor = Color.Unspecified,
                         )
                         .border(
                             width = 0.5.dp,

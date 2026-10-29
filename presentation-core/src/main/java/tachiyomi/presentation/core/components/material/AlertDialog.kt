@@ -1,6 +1,7 @@
 package tachiyomi.presentation.core.components.material
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -96,8 +97,6 @@ fun AlertDialogContent(
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val isDark = isSystemInDarkTheme()
-    val dialogBg = if (isDark) Color(0xFF222226).copy(alpha = 0.75f) else Color(0xFFF9F9F9).copy(alpha = 0.85f)
     val dialogShape = RoundedCornerShape(20.dp)
 
     val dialogModifier = if (isGlass) {
@@ -105,10 +104,17 @@ fun AlertDialogContent(
             .sizeIn(minWidth = 280.dp, maxWidth = 320.dp)
             .liquidGlassSurface(
                 shape = dialogShape,
-                blurRadius = 22.dp,
-                refractionHeight = 22.dp,
-                refractionAmount = 30.dp,
-                tintColor = dialogBg,
+                blurRadius = 18.dp,
+                refractionHeight = 18.dp,
+                refractionAmount = 26.dp,
+                tintColor = Color.Unspecified,
+                surfaceColor = Color.Unspecified,
+                depthEffect = true,
+            )
+            .border(
+                width = 0.5.dp,
+                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                shape = dialogShape,
             )
     } else {
         modifier

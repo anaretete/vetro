@@ -96,17 +96,23 @@ fun TabbedDialog(
                     val pillBg = MaterialTheme.colorScheme.primary
                     val closeBg = if (isDark) Color(0x442C2C2E) else Color(0x55E5E5EA)
 
-                    // Segmented Control Stadium Track with Liquid Glass
+                    // Segmented Control Stadium Track with Untinted Liquid Glass
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(1f)
                             .height(36.dp)
                             .liquidGlassSurface(
                                 shape = Capsule(),
-                                blurRadius = 6.dp,
+                                blurRadius = 10.dp,
                                 refractionHeight = 14.dp,
                                 refractionAmount = 18.dp,
-                                tintColor = trackBg,
+                                tintColor = Color.Unspecified,
+                                surfaceColor = Color.Unspecified,
+                            )
+                            .border(
+                                width = 0.5.dp,
+                                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                                shape = Capsule(),
                             )
                             .padding(2.dp),
                         contentAlignment = Alignment.CenterStart,
@@ -166,7 +172,7 @@ fun TabbedDialog(
                         }
                     }
 
-                    // iOS circular close button "X" with Liquid Glass
+                    // iOS circular close button "X" with Untinted Liquid Glass
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
@@ -176,13 +182,12 @@ fun TabbedDialog(
                                 blurRadius = 10.dp,
                                 refractionHeight = 12.dp,
                                 refractionAmount = 16.dp,
-                                tintColor = closeBg,
+                                tintColor = Color.Unspecified,
+                                surfaceColor = Color.Unspecified,
                             )
                             .border(
-                                BorderStroke(
-                                    0.5.dp,
-                                    if (isDark) Color(0xFF5A5A5E).copy(alpha = 0.4f) else Color(0xFFD1D1D6),
-                                ),
+                                width = 0.5.dp,
+                                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
                                 shape = CircleShape,
                             )
                             .clickable(onClick = onDismissRequest),

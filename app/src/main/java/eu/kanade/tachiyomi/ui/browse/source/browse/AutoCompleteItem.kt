@@ -1,7 +1,13 @@
 package eu.kanade.tachiyomi.ui.browse.source.browse
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -188,9 +194,33 @@ fun AutoCompleteTextField(
             }
         }
         if (value.text.length > 2 && filteredValues.isNotEmpty()) {
+            val isGlass = LocalLiquidGlassConfig.current.enabled
+            val isDark = isSystemInDarkTheme()
+            val menuShape = RoundedCornerShape(16.dp)
+
             ExposedDropdownMenu(
                 modifier = Modifier
-                    .exposedDropdownSize(matchAnchorWidth = true),
+                    .exposedDropdownSize(matchAnchorWidth = true)
+                    .then(
+                        if (isGlass) {
+                            Modifier
+                                .liquidGlassSurface(
+                                    shape = menuShape,
+                                    blurRadius = 20.dp,
+                                    refractionHeight = 16.dp,
+                                    refractionAmount = 22.dp,
+                                    tintColor = Color.Unspecified,
+                                    surfaceColor = Color.Unspecified,
+                                )
+                                .border(
+                                    width = 0.5.dp,
+                                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                                    shape = menuShape,
+                                )
+                        } else {
+                            Modifier
+                        },
+                    ),
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
