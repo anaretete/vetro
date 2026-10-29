@@ -47,9 +47,7 @@ fun CupertinoFrostedPopup(
 ) {
     val isDark = isSystemInDarkTheme()
     val shape = RoundedCornerShape(16.dp)
-    val popupSurface = if (isDark) Color(0xDC202024) else Color(0xF4FAFAFC)
-    val popupTextColor = if (isDark) Color.White else Color(0xFF111113)
-    val popupBorder = if (isDark) Color(0x35FFFFFF) else Color(0x22000000)
+    val popupTextColor = LiquidGlassDefaults.popupTextColor(isDark)
 
     MaterialTheme(
         shapes = MaterialTheme.shapes.copy(extraSmall = shape),
@@ -65,19 +63,7 @@ fun CupertinoFrostedPopup(
             ),
             modifier = modifier
                 .widthIn(min = 190.dp, max = 280.dp)
-                .liquidGlassSurface(
-                    shape = shape,
-                    blurRadius = 24.dp,
-                    refractionHeight = 16.dp,
-                    refractionAmount = 22.dp,
-                    tintColor = Color.Unspecified,
-                    surfaceColor = popupSurface,
-                )
-                .border(
-                    width = 0.5.dp,
-                    color = popupBorder,
-                    shape = shape,
-                ),
+                .liquidGlassPopupSurface(shape = shape),
             shape = shape,
             containerColor = Color.Transparent,
             shadowElevation = 14.dp,

@@ -103,20 +103,7 @@ fun AlertDialogContent(
     val dialogModifier = if (isGlass) {
         modifier
             .sizeIn(minWidth = 280.dp, maxWidth = 320.dp)
-            .liquidGlassSurface(
-                shape = dialogShape,
-                blurRadius = 18.dp,
-                refractionHeight = 18.dp,
-                refractionAmount = 26.dp,
-                tintColor = Color.Unspecified,
-                surfaceColor = if (isDark) Color(0xEA202024) else Color(0xF4FAFAFC),
-                depthEffect = true,
-            )
-            .border(
-                width = 0.5.dp,
-                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                shape = dialogShape,
-            )
+            .liquidGlassPopupSurface(shape = dialogShape)
     } else {
         modifier
             .sizeIn(minWidth = 280.dp, maxWidth = 320.dp)

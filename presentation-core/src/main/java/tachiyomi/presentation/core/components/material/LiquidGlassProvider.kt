@@ -3,6 +3,7 @@ package tachiyomi.presentation.core.components.material
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -190,3 +191,77 @@ fun Modifier.liquidGlassSurface(
             },
         )
 }
+
+/**
+ * Canonical liquid glass defaults for all popup menus, bottom cards/sheets, dialogs, and popup selectors.
+ */
+object LiquidGlassDefaults {
+    /**
+     * Exact unified liquid glass background surface color for all popup menus,
+     * bottom cards/sheets, dialogs, and popup selectors.
+     */
+    fun popupSurfaceColor(isDark: Boolean): Color =
+        if (isDark) Color(0xDC202024) else Color(0xF4FAFAFC)
+
+    /**
+     * Exact unified hair-line border color.
+     */
+    fun popupBorderColor(isDark: Boolean): Color =
+        if (isDark) Color(0x35FFFFFF) else Color(0x22000000)
+
+    val PopupBorderWidth: Dp = 0.5.dp
+
+    val PopupBlurRadius: Dp = 20.dp
+    val PopupRefractionHeight: Dp = 18.dp
+    val PopupRefractionAmount: Dp = 24.dp
+
+    fun popupTextColor(isDark: Boolean): Color =
+        if (isDark) Color.White else Color(0xFF111113)
+
+    fun popupSecondaryTextColor(isDark: Boolean): Color =
+        if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113)
+}
+
+/**
+ * Universal Modifier that applies the exact, unified liquid glass background
+ * for all popup menus, bottom cards/sheets, dialogs, and popup selectors.
+ */
+fun Modifier.liquidGlassPopupSurface(
+    shape: Shape = RoundedCornerShape(16.dp),
+    backdrop: Backdrop? = null,
+    exportedBackdrop: LayerBackdrop? = null,
+    borderWidth: Dp = LiquidGlassDefaults.PopupBorderWidth,
+    hasBorder: Boolean = true,
+): Modifier = composed {
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    if (!isGlass) return@composed this
+
+    val isDark = isSystemInDarkTheme()
+    val surfaceColor = LiquidGlassDefaults.popupSurfaceColor(isDark)
+    val borderColor = LiquidGlassDefaults.popupBorderColor(isDark)
+
+    this
+        .liquidGlassSurface(
+            shape = shape,
+            blurRadius = LiquidGlassDefaults.PopupBlurRadius,
+            refractionHeight = LiquidGlassDefaults.PopupRefractionHeight,
+            refractionAmount = LiquidGlassDefaults.PopupRefractionAmount,
+            tintColor = Color.Unspecified,
+            surfaceColor = surfaceColor,
+            backdrop = backdrop,
+            exportedBackdrop = exportedBackdrop,
+            depthEffect = true,
+        )
+        .then(
+            if (hasBorder) {
+                Modifier.border(
+                    width = borderWidth,
+                    color = borderColor,
+                    shape = shape,
+                )
+            } else {
+                Modifier
+            },
+        )
+}
+

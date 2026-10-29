@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import com.kyant.shapes.Capsule
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -243,20 +244,7 @@ private fun ActionsPill(content: @Composable () -> Unit) {
     val isDark = isSystemInDarkTheme()
     val pillShape = Capsule()
     val pillModifier = if (isGlass) {
-        Modifier
-            .liquidGlassSurface(
-                shape = pillShape,
-                blurRadius = 14.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 22.dp,
-                tintColor = Color.Unspecified,
-                surfaceColor = Color.Unspecified,
-            )
-            .border(
-                width = 0.5.dp,
-                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                shape = pillShape,
-            )
+        Modifier.liquidGlassPopupSurface(shape = pillShape)
     } else {
         Modifier
             .clip(MaterialTheme.shapes.extraLarge)

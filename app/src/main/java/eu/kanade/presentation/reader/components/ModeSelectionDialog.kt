@@ -33,6 +33,7 @@ import tachiyomi.presentation.core.components.material.Button
 import tachiyomi.presentation.core.components.material.FilledTonalButton
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.OutlinedButton
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
@@ -78,17 +79,7 @@ fun ModeSelectionDialog(
                             onClick = it,
                             modifier = Modifier
                                 .height(44.dp)
-                                .liquidGlassSurface(
-                                    shape = Capsule(),
-                                    blurRadius = 12.dp,
-                                    refractionHeight = 14.dp,
-                                    refractionAmount = 20.dp,
-                                    tintColor = Color.Unspecified,
-                                    surfaceColor = Color.Unspecified,
-                                )
-                                .border(
-                                    width = 0.5.dp,
-                                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                                .liquidGlassPopupSurface(
                                     shape = Capsule(),
                                 ),
                         ) {

@@ -67,8 +67,10 @@ import tachiyomi.core.common.preference.toggle
 import tachiyomi.presentation.core.components.material.CupertinoCheckmark
 import tachiyomi.presentation.core.components.material.CupertinoSwitch
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
+import tachiyomi.presentation.core.components.material.LiquidGlassDefaults
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.Slider
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.theme.header
@@ -374,30 +376,25 @@ fun SelectItem(
                 .exposedDropdownSize()
                 .then(
                     if (isGlass) {
-                        Modifier
-                            .liquidGlassSurface(
-                                shape = menuShape,
-                                blurRadius = 20.dp,
-                                refractionHeight = 16.dp,
-                                refractionAmount = 22.dp,
-                                tintColor = Color.Unspecified,
-                                surfaceColor = Color.Unspecified,
-                            )
-                            .border(
-                                width = 0.5.dp,
-                                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                                shape = menuShape,
-                            )
+                        Modifier.liquidGlassPopupSurface(shape = menuShape)
                     } else {
                         Modifier
                     },
                 ),
+            shape = menuShape,
+            containerColor = if (isGlass) Color.Transparent else androidx.compose.material3.MenuDefaults.containerColor,
+            shadowElevation = if (isGlass) 14.dp else androidx.compose.material3.MenuDefaults.ShadowElevation,
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
             options.forEachIndexed { index, text ->
                 DropdownMenuItem(
-                    text = { Text(text.toString()) },
+                    text = {
+                        Text(
+                            text = text.toString(),
+                            color = if (isGlass) LiquidGlassDefaults.popupTextColor(isDark) else Color.Unspecified,
+                        )
+                    },
                     onClick = {
                         onSelect(index)
                         expanded = false

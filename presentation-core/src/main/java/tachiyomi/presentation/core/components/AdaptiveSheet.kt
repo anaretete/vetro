@@ -61,6 +61,7 @@ import kotlinx.coroutines.launch
 import tachiyomi.presentation.core.components.material.CupertinoGrabber
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import kotlin.math.roundToInt
 
@@ -109,20 +110,10 @@ fun AdaptiveSheet(
                 )
                 .systemBarsPadding()
                 .padding(vertical = 16.dp)
-                .liquidGlassSurface(
+                .liquidGlassPopupSurface(
                     shape = tabletShape,
-                    blurRadius = 18.dp,
-                    refractionHeight = 22.dp,
-                    refractionAmount = 30.dp,
-                    tintColor = Color.Unspecified,
-                    surfaceColor = if (isDark) Color(0xDC202024) else Color(0xF2FAFAFC),
                     backdrop = sheetBackdrop,
                     exportedBackdrop = sheetExportedBackdrop,
-                )
-                .border(
-                    width = 0.5.dp,
-                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                    shape = tabletShape,
                 )
                 .then(modifier)
         } else {
@@ -274,20 +265,10 @@ fun AdaptiveSheet(
 
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier
-                    .liquidGlassSurface(
+                    .liquidGlassPopupSurface(
                         shape = bottomSheetShape,
-                        blurRadius = 18.dp,
-                        refractionHeight = 22.dp,
-                        refractionAmount = 30.dp,
-                        tintColor = Color.Unspecified,
-                        surfaceColor = if (isDark) Color(0xDC202024) else Color(0xF2FAFAFC),
                         backdrop = sheetBackdrop,
                         exportedBackdrop = sheetExportedBackdrop,
-                    )
-                    .border(
-                        width = 0.5.dp,
-                        color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                        shape = bottomSheetShape,
                     )
             } else {
                 phoneBaseModifier

@@ -6,7 +6,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import tachiyomi.presentation.core.components.material.LiquidGlassDefaults
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -203,30 +205,25 @@ fun AutoCompleteTextField(
                     .exposedDropdownSize(matchAnchorWidth = true)
                     .then(
                         if (isGlass) {
-                            Modifier
-                                .liquidGlassSurface(
-                                    shape = menuShape,
-                                    blurRadius = 20.dp,
-                                    refractionHeight = 16.dp,
-                                    refractionAmount = 22.dp,
-                                    tintColor = Color.Unspecified,
-                                    surfaceColor = Color.Unspecified,
-                                )
-                                .border(
-                                    width = 0.5.dp,
-                                    color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                                    shape = menuShape,
-                                )
+                            Modifier.liquidGlassPopupSurface(shape = menuShape)
                         } else {
                             Modifier
                         },
                     ),
+                shape = menuShape,
+                containerColor = if (isGlass) Color.Transparent else androidx.compose.material3.MenuDefaults.containerColor,
+                shadowElevation = if (isGlass) 14.dp else androidx.compose.material3.MenuDefaults.ShadowElevation,
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
                 filteredValues.fastForEach {
                     DropdownMenuItem(
-                        text = { Text(it) },
+                        text = {
+                            Text(
+                                text = it,
+                                color = if (isGlass) LiquidGlassDefaults.popupTextColor(isDark) else Color.Unspecified,
+                            )
+                        },
                         onClick = {
                             value = TextFieldValue(it, TextRange(it.length))
                             submit()

@@ -544,19 +544,7 @@ fun CupertinoActionSheetCard(
     val cardModifier = if (isGlass) {
         modifier
             .fillMaxWidth()
-            .liquidGlassSurface(
-                shape = sheetShape,
-                blurRadius = 18.dp,
-                refractionHeight = 18.dp,
-                refractionAmount = 26.dp,
-                tintColor = Color.Unspecified,
-                surfaceColor = if (isDark) Color(0xEA202024) else Color(0xF4FAFAFC),
-            )
-            .border(
-                width = 0.5.dp,
-                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                shape = sheetShape,
-            )
+            .liquidGlassPopupSurface(shape = sheetShape)
     } else {
         modifier
             .fillMaxWidth()
@@ -587,19 +575,7 @@ fun CupertinoCancelPill(
         modifier
             .fillMaxWidth()
             .height(54.dp)
-            .liquidGlassSurface(
-                shape = pillShape,
-                blurRadius = 18.dp,
-                refractionHeight = 18.dp,
-                refractionAmount = 26.dp,
-                tintColor = Color.Unspecified,
-                surfaceColor = if (isDark) Color(0xEA202024) else Color(0xF4FAFAFC),
-            )
-            .border(
-                width = 0.5.dp,
-                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                shape = pillShape,
-            )
+            .liquidGlassPopupSurface(shape = pillShape)
     } else {
         modifier
             .fillMaxWidth()

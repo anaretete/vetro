@@ -61,6 +61,7 @@ import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
@@ -144,25 +145,21 @@ fun ReaderTopBar(
                     )
                     .then(
                         if (isGlass) {
-                            Modifier.liquidGlassSurface(
+                            Modifier.liquidGlassPopupSurface(
                                 shape = RoundedCornerShape(28.dp),
-                                blurRadius = 18.dp,
-                                refractionHeight = 22.dp,
-                                refractionAmount = 30.dp,
-                                tintColor = Color.Unspecified,
-                                surfaceColor = overviewSurfaceColor,
                             )
                         } else {
-                            Modifier.background(
-                                color = overviewSurfaceColor,
-                                shape = RoundedCornerShape(28.dp),
-                            )
+                            Modifier
+                                .background(
+                                    color = overviewSurfaceColor,
+                                    shape = RoundedCornerShape(28.dp),
+                                )
+                                .border(
+                                    width = 0.5.dp,
+                                    color = pillBorderColor,
+                                    shape = RoundedCornerShape(28.dp),
+                                )
                         },
-                    )
-                    .border(
-                        width = 0.5.dp,
-                        color = pillBorderColor,
-                        shape = RoundedCornerShape(28.dp),
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,

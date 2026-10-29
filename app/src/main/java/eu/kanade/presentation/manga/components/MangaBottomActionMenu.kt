@@ -73,6 +73,7 @@ import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.LocalInGlassBar
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.MoreHoriz
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.i18n.stringResource
 import kotlin.time.Duration.Companion.seconds
@@ -99,12 +100,7 @@ fun MangaBottomActionMenu(
         val menuModifier = if (isGlass) {
             modifier
                 .padding(horizontal = 14.dp, vertical = 6.dp)
-                .liquidGlassSurface(
-                    shape = Capsule(),
-                    blurRadius = 14.dp,
-                    refractionHeight = 16.dp,
-                    refractionAmount = 24.dp,
-                )
+                .liquidGlassPopupSurface(shape = Capsule())
         } else {
             modifier
         }
