@@ -65,6 +65,20 @@ class ConnectionsPreferences(
 
     fun discordAccounts() = preferenceStore.getString("discord_accounts", "")
 
+    fun enableWebhooks() = preferenceStore.getBoolean("pref_enable_webhooks", false)
+
+    fun webhookUrl() = preferenceStore.getString("pref_webhook_url", "")
+
+    fun webhookBotName() = preferenceStore.getString("pref_webhook_bot_name", "Vetro")
+
+    fun webhookBotAvatar() = preferenceStore.getString("pref_webhook_bot_avatar", "")
+
+    fun webhookNotifyChapterRead() = preferenceStore.getBoolean("pref_webhook_notify_chapter_read", true)
+
+    fun webhookNotifyLibraryUpdate() = preferenceStore.getBoolean("pref_webhook_notify_library_update", true)
+
+    fun webhookNotifyDownload() = preferenceStore.getBoolean("pref_webhook_notify_download", true)
+
     companion object {
 
         fun connectionsUsername(syncId: Long) = "pref_connections_username_$syncId"

@@ -82,6 +82,7 @@ object SettingsConnectionScreen : SearchableSettings {
         }
 
         val isLoggedIn by connectionsManager.discord.isLoggedInFlow.collectAsState(connectionsManager.discord.isLogged)
+        val isWebhookEnabled by connectionsManager.webhook.connectionsPreferences.enableWebhooks().collectAsState()
 
         return listOf(
             Preference.PreferenceGroup(
@@ -96,8 +97,27 @@ object SettingsConnectionScreen : SearchableSettings {
                         },
                         openSettings = { navigator.push(SettingsDiscordScreen) },
                     ),
+                    Preference.PreferenceItem.ConnectionPreference(
+                        title = stringResource(connectionsManager.webhook.nameStrRes()),
+                        subtitle = stringResource(KMR.strings.pref_webhook_configuration).takeIf { isWebhookEnabled },
+                        service = connectionsManager.webhook,
+                        login = {
+                            navigator.push(SettingsWebhookScreen)
+                        },
+                        openSettings = { navigator.push(SettingsWebhookScreen) },
+                    ),
                     Preference.PreferenceItem.InfoPreference(
                         stringResource(KMR.strings.connections_discord_info, stringResource(MR.strings.app_name)),
+                    ),
+                ),
+            ),
+            Preference.PreferenceGroup(
+                title = stringResource(KMR.strings.pref_tracking_services),
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.TextPreference(
+                        title = stringResource(MR.strings.pref_category_tracking),
+                        subtitle = stringResource(KMR.strings.pref_tracking_services_summary),
+                        onClick = { navigator.push(SettingsTrackingScreen) },
                     ),
                 ),
             ),

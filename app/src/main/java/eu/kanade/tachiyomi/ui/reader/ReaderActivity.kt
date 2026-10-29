@@ -230,6 +230,10 @@ class ReaderActivity : BaseActivity() {
     var isScrollingThroughPages = false
         private set
 
+    private var readingSessionStartTime: Long = System.currentTimeMillis()
+    private var pagesTurnedInSession: Int = 0
+    private var showBreakReminder: Boolean by mutableStateOf(false)
+
     /**
      * Called when the activity is created. Initializes the presenter and configuration.
      */
@@ -998,6 +1002,18 @@ class ReaderActivity : BaseActivity() {
             onClickShiftPage = ::shiftDoublePages,
             isTopLight = isTopLight,
             isBottomLight = isBottomLight,
+            showBreakReminder = showBreakReminder,
+            onDismissBreakReminder = {
+                showBreakReminder = false
+                readingSessionStartTime = System.currentTimeMillis()
+            },
+            onSnoozeBreakReminder = {
+                showBreakReminder = false
+                val breakInterval = readerPreferences.breakReminderInterval().get()
+                readingSessionStartTime = System.currentTimeMillis() - ((breakInterval - 10).coerceAtLeast(0) * 60000L)
+            },
+            pagesTurnedInSession = pagesTurnedInSession,
+            sessionDurationSeconds = (System.currentTimeMillis() - readingSessionStartTime).coerceAtLeast(0) / 1000L,
             // SY <--
         )
     }
@@ -1486,6 +1502,14 @@ class ReaderActivity : BaseActivity() {
         }
         // SY <--
         viewModel.onPageSelected(page, /* SY --> */ currentPageText, hasExtraPage /* SY <-- */)
+        pagesTurnedInSession++
+        val breakInterval = readerPreferences.breakReminderInterval().get()
+        if (breakInterval > 0 && !showBreakReminder) {
+            val elapsedMin = (System.currentTimeMillis() - readingSessionStartTime) / 60000L
+            if (elapsedMin >= breakInterval) {
+                showBreakReminder = true
+            }
+        }
         if (readerPreferences.pageTurnHaptics().get()) {
             binding.root.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
         }

@@ -177,6 +177,16 @@ class LibraryUpdateNotifier(
      * @param updates a list of manga with new updates.
      */
     fun showUpdateNotifications(updates: List<Pair<Manga, Array<Chapter>>>) {
+        if (updates.isNotEmpty()) {
+            val sampleTitles = updates.map { it.first.title }
+            tachiyomi.core.common.util.lang.launchIO {
+                eu.kanade.tachiyomi.data.connections.webhook.WebhookService.notifyLibraryUpdate(
+                    updatedCount = updates.size,
+                    sampleTitles = sampleTitles,
+                )
+            }
+        }
+
         // Parent group notification
         context.notify(
             Notifications.ID_NEW_CHAPTERS,

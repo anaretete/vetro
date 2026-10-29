@@ -238,4 +238,31 @@
     <string name="pref_discord_show_download_button_summary">Displays a button to download the app</string>
     <string name="pref_discord_show_discord_button">Show Discord Button</string>
     <string name="pref_discord_show_discord_button_summary">Displays a button to join the Discord server</string>
+    <!-- Webhooks section -->
+    <string name="connections_webhook">Webhooks</string>
+    <string name="pref_webhook_configuration">Open to configure Webhooks</string>
+    <string name="pref_webhook_info">Send automated reading, update, and download notifications to Discord, Telegram, Slack, or any HTTP webhook endpoint.</string>
+    <string name="pref_enable_webhooks">Enable Webhooks</string>
+    <string name="pref_webhook_url">Webhook URL</string>
+    <string name="pref_webhook_url_summary">Discord, Slack, or generic HTTP POST endpoint</string>
+    <string name="pref_webhook_bot_name">Bot Name</string>
+    <string name="pref_webhook_bot_avatar">Bot Avatar URL</string>
+    <string name="pref_webhook_notify_chapter">Notify on Chapter Read</string>
+    <string name="pref_webhook_notify_chapter_summary">Broadcast when a chapter is completed</string>
+    <string name="pref_webhook_notify_update">Notify on Library Update</string>
+    <string name="pref_webhook_notify_update_summary">Broadcast when new chapters are found</string>
+    <string name="pref_webhook_notify_download">Notify on Download Complete</string>
+    <string name="pref_webhook_notify_download_summary">Broadcast when queued downloads finish</string>
+    <string name="pref_webhook_test">Send Test Webhook</string>
+    <string name="pref_webhook_test_summary">Sends an instant sample notification to your configured webhook URL</string>
+    <string name="pref_webhook_test_success">Test webhook sent successfully!</string>
+    <string name="pref_webhook_test_error">Failed to send test webhook: %s</string>
+    <string name="pref_tracking_services">Tracking Services</string>
+    <string name="pref_tracking_services_summary">Track manga reading progress across AniList, MyAnimeList, Kitsu, and more</string>
+    <string name="pref_reading_speed_title">Reading Insights</string>
+    <string name="pref_reading_break_title">Smart Eye Break Reminder</string>
+    <string name="pref_reading_break_summary">Remind to rest eyes after continuous reading</string>
+    <string name="pref_reading_break_alert">Time for a quick eye break! Look 20 feet away for 20 seconds.</string>
+    <string name="action_snooze">Snooze 10m</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>

@@ -39,6 +39,10 @@ class ReaderPreferences(
 
     fun showReadingMode() = preferenceStore.getBoolean("pref_show_reading_mode", true)
 
+    fun readingSpeedInsights() = preferenceStore.getBoolean("pref_reader_reading_speed_insights", true)
+
+    fun breakReminderInterval() = preferenceStore.getInt("pref_reader_break_reminder_interval", 0)
+
     fun fullscreen() = preferenceStore.getBoolean("fullscreen", true)
 
     fun drawUnderCutout() = preferenceStore.getBoolean("cutout_short", true)

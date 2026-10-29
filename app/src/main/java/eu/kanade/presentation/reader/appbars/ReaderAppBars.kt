@@ -9,12 +9,17 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -113,6 +118,11 @@ fun ReaderAppBars(
     onClickShiftPage: () -> Unit,
     isTopLight: Boolean = true,
     isBottomLight: Boolean = true,
+    showBreakReminder: Boolean = false,
+    onDismissBreakReminder: () -> Unit = {},
+    onSnoozeBreakReminder: () -> Unit = {},
+    pagesTurnedInSession: Int = 0,
+    sessionDurationSeconds: Long = 0L,
     // SY <--
 ) {
     val isRtl = viewer is R2LPagerViewer
@@ -167,7 +177,99 @@ fun ReaderAppBars(
                 onClickOrientation = onClickOrientation,
                 onClickChapterList = onClickChapterList,
                 isTopLight = isTopLight,
+                pagesTurnedInSession = pagesTurnedInSession,
+                sessionDurationSeconds = sessionDurationSeconds,
             )
+        }
+
+        // Smart Eye Rest Break Reminder Floating Banner
+        AnimatedVisibility(
+            visible = showBreakReminder,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+        ) {
+            val isDark = isSystemInDarkTheme()
+            val bannerBg = if (isGlass) {
+                if (isDark) Color(0xDC202024) else Color(0xF4FAFAFC)
+            } else {
+                if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
+            }
+            val textColor = if (isDark) Color.White else Color(0xFF111113)
+
+            Row(
+                modifier = Modifier
+                    .clip(Capsule())
+                    .then(
+                        if (isGlass) {
+                            Modifier.liquidGlassSurface(
+                                shape = Capsule(),
+                                blurRadius = 14.dp,
+                                surfaceColor = bannerBg,
+                            )
+                        } else {
+                            Modifier.background(bannerBg)
+                        },
+                    )
+                    .border(
+                        0.5.dp,
+                        if (isDark) Color(0x35FFFFFF) else Color(0x25000000),
+                        Capsule(),
+                    )
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(
+                    text = "👀 Eye Break",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = textColor,
+                    ),
+                )
+                Text(
+                    text = "Rest eyes for 20s",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = textColor.copy(alpha = 0.8f),
+                    ),
+                )
+                Box(
+                    modifier = Modifier
+                        .clip(Capsule())
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable { onDismissBreakReminder() }
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    val primary = MaterialTheme.colorScheme.primary
+                    val lum = 0.299f * primary.red + 0.587f * primary.green + 0.114f * primary.blue
+                    val btnCol = if (lum > 0.45f) Color(0xFF111113) else Color.White
+                    Text(
+                        text = "Dismiss",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            color = btnCol,
+                        ),
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(Capsule())
+                        .background(if (isDark) Color(0x25FFFFFF) else Color(0x15000000))
+                        .clickable { onSnoozeBreakReminder() }
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        text = "10m",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            color = textColor,
+                        ),
+                    )
+                }
+            }
         }
 
         // KMK -->

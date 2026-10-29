@@ -91,6 +91,8 @@ fun ReaderTopBar(
     onClickOrientation: (() -> Unit)? = null,
     onClickChapterList: (() -> Unit)? = null,
     isTopLight: Boolean = true,
+    pagesTurnedInSession: Int = 0,
+    sessionDurationSeconds: Long = 0L,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
@@ -406,23 +408,33 @@ fun ReaderTopBar(
 
                         if (totalPages > 0 && currentPage > 0) {
                             val remainingPages = (totalPages - currentPage).coerceAtLeast(0)
-                            val etaMin = ceil(remainingPages / 2.2f).toInt()
-                            if (etaMin > 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(Capsule())
-                                        .background(surfacePillBg)
-                                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                                ) {
-                                    Text(
-                                        text = "⚡ ~${etaMin}m left",
-                                        style = MaterialTheme.typography.labelSmall.copy(
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 11.sp,
-                                            color = activePillText,
-                                        ),
-                                    )
-                                }
+                            val ppm = if (sessionDurationSeconds >= 20L && pagesTurnedInSession > 0) {
+                                (pagesTurnedInSession * 60f) / sessionDurationSeconds
+                            } else {
+                                2.2f
+                            }
+                            val etaMin = ceil(remainingPages / ppm).toInt()
+                            val paceText = if (sessionDurationSeconds >= 30L && pagesTurnedInSession > 0) {
+                                "⚡ %.1f p/m • ~%dm left".format(ppm, etaMin)
+                            } else if (etaMin > 0) {
+                                "⚡ ~${etaMin}m left"
+                            } else {
+                                "⚡ Final page"
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(Capsule())
+                                    .background(surfacePillBg)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                            ) {
+                                Text(
+                                    text = paceText,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 11.sp,
+                                        color = activePillText,
+                                    ),
+                                )
                             }
                         }
 

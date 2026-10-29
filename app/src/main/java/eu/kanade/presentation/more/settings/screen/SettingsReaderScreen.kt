@@ -215,6 +215,18 @@ object SettingsReaderScreen : SearchableSettings {
                     title = "Seekbar Haptic Feedback",
                     subtitle = "Vibrate subtly as pages tick by on the reader progress slider",
                 ),
+                Preference.PreferenceItem.ListPreference(
+                    preference = readerPreferences.breakReminderInterval(),
+                    entries = persistentMapOf(
+                        0 to stringResource(MR.strings.off),
+                        20 to "20 minutes (20-20-20 Rule)",
+                        30 to "30 minutes",
+                        45 to "45 minutes",
+                        60 to "60 minutes",
+                    ),
+                    title = stringResource(KMR.strings.pref_reading_break_title),
+                    subtitle = stringResource(KMR.strings.pref_reading_break_summary),
+                ),
             ),
         )
     }

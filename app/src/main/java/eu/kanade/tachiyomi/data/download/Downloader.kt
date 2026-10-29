@@ -448,6 +448,12 @@ class Downloader(
             DiskUtil.createNoMediaFile(tmpDir, context)
 
             download.status = Download.State.DOWNLOADED
+            scope.launch {
+                eu.kanade.tachiyomi.data.connections.webhook.WebhookService.notifyDownloadComplete(
+                    mangaTitle = download.manga.title,
+                    chapterName = download.chapter.name,
+                )
+            }
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
             // If the page list threw, it will resume here

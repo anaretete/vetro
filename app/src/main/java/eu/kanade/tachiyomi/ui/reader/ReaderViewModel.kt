@@ -1425,10 +1425,19 @@ class ReaderViewModel @JvmOverloads constructor(
      */
     private fun updateTrackChapterRead(readerChapter: ReaderChapter) {
         if (incognitoMode) return
-        if (!trackPreferences.autoUpdateTrack().get()) return
 
         val manga = manga ?: return
         val context = Injekt.get<Application>()
+
+        viewModelScope.launchNonCancellable {
+            eu.kanade.tachiyomi.data.connections.webhook.WebhookService.notifyChapterRead(
+                mangaTitle = manga.title,
+                chapterName = readerChapter.chapter.name,
+                coverUrl = manga.thumbnailUrl,
+            )
+        }
+
+        if (!trackPreferences.autoUpdateTrack().get()) return
 
         viewModelScope.launchNonCancellable {
             trackChapter.await(context, manga.id, readerChapter.chapter.chapter_number.toDouble())
