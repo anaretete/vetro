@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
@@ -302,7 +303,19 @@ class MainActivity : BaseActivity() {
 
                 val scaffoldInsets = WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal)
                 Scaffold(
-                    topBar = {
+                    contentWindowInsets = scaffoldInsets,
+                ) { contentPadding ->
+                    // Consume insets already used by app state banners
+                    Box {
+                        // Shows current screen
+                        DefaultNavigatorScreenTransition(
+                            navigator = navigator,
+                            modifier = Modifier
+                                .padding(contentPadding)
+                                .consumeWindowInsets(contentPadding),
+                        )
+
+                        // Floating Cupertino Island Pills
                         AppStateBanners(
                             downloadedOnlyMode = downloadOnly,
                             incognitoMode = incognito,
@@ -315,19 +328,10 @@ class MainActivity : BaseActivity() {
                                 ?: syncingProgress.takeIf { syncing }
                                 ?: restoringProgress.takeIf { restoring },
                             // KMK <--
-                            modifier = Modifier.windowInsetsPadding(scaffoldInsets),
-                        )
-                    },
-                    contentWindowInsets = scaffoldInsets,
-                ) { contentPadding ->
-                    // Consume insets already used by app state banners
-                    Box {
-                        // Shows current screen
-                        DefaultNavigatorScreenTransition(
-                            navigator = navigator,
                             modifier = Modifier
-                                .padding(contentPadding)
-                                .consumeWindowInsets(contentPadding),
+                                .align(Alignment.TopCenter)
+                                .statusBarsPadding()
+                                .padding(top = 8.dp),
                         )
 
                         // Draw navigation bar scrim when needed

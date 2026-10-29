@@ -1,7 +1,12 @@
 package eu.kanade.presentation.more.settings.screen
 
 import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import java.io.File
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -91,6 +96,42 @@ object SettingsAppearanceScreen : SearchableSettings {
         val lensHeight by lensHeightPref.collectAsState()
         val tintAlphaPref = uiPreferences.liquidGlassTintAlpha()
         val tintAlpha by tintAlphaPref.collectAsState()
+
+        val fontPicker = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument(),
+        ) { uri: Uri? ->
+            if (uri != null) {
+                try {
+                    val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    context.contentResolver.takePersistableUriPermission(uri, flags)
+                } catch (_: Throwable) {}
+
+                try {
+                    val fontsDir = File(context.filesDir, "fonts").apply { mkdirs() }
+                    val destFile = File(fontsDir, "custom_font.ttf")
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        destFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    uiPreferences.customFontPath().set(destFile.absolutePath)
+                    uiPreferences.appFont().set(AppFont.CUSTOM)
+                    context.toast("Custom font loaded successfully!")
+                } catch (e: Throwable) {
+                    uiPreferences.customFontPath().set(uri.toString())
+                    uiPreferences.appFont().set(AppFont.CUSTOM)
+                    context.toast("Custom font applied")
+                }
+            }
+        }
+        val customFontPath by uiPreferences.customFontPath().collectAsState()
+        val activeFontName = remember(customFontPath, appFont) {
+            if (appFont == AppFont.CUSTOM && customFontPath.isNotBlank()) {
+                File(customFontPath).name.takeIf { it.isNotBlank() } ?: "Custom font active"
+            } else {
+                null
+            }
+        }
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
@@ -235,11 +276,26 @@ object SettingsAppearanceScreen : SearchableSettings {
                     title = "App Font & Typography",
                     subtitle = "Select system font preset or load an external font file",
                 ),
-                Preference.PreferenceItem.EditTextPreference(
-                    preference = uiPreferences.customFontPath(),
-                    title = "Custom Font File Path",
-                    subtitle = "Full path to .ttf or .otf file on storage (e.g. /storage/emulated/0/Download/font.ttf)",
-                    enabled = appFont == AppFont.CUSTOM,
+                Preference.PreferenceItem.TextPreference(
+                    title = "Choose Custom Font File",
+                    subtitle = if (activeFontName != null) {
+                        "Active font: $activeFontName • Tap to pick another font file"
+                    } else {
+                        "Tap to browse storage and load any .ttf or .otf font"
+                    },
+                    onClick = {
+                        fontPicker.launch(
+                            arrayOf(
+                                "font/*",
+                                "font/ttf",
+                                "font/otf",
+                                "application/x-font-ttf",
+                                "application/x-font-opentype",
+                                "application/octet-stream",
+                                "*/*",
+                            ),
+                        )
+                    },
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     preference = uiPreferences.floatingNavBar(),

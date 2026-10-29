@@ -153,6 +153,10 @@ fun ReaderAppBars(
                 onShare = onShare,
                 // SY <--
                 onClickTopAppBar = onClickTopAppBar,
+                currentPage = currentPage,
+                totalPages = totalPages,
+                readingModeName = stringResource(currentReadingMode.stringRes),
+                orientationName = stringResource(orientation.stringRes),
             )
         }
 

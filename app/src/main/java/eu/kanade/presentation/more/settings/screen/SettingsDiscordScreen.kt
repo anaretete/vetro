@@ -267,9 +267,24 @@ object SettingsDiscordScreen : SearchableSettings {
                     subtitle = stringResource(KMR.strings.pref_discord_incognito_summary),
                 ),
                 Preference.PreferenceItem.SwitchPreference(
+                    preference = connectionsPreferences.discordUseAppIconOnly(),
+                    title = "Clean Vetro Logo Only (No AI Photos)",
+                    subtitle = "Always display the clean Vetro logo on Discord without cycling screen AI photos",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
                     preference = connectionsPreferences.discordCensorCover(),
                     title = "Censor Manga Cover",
                     subtitle = "Hide the manga cover art on Discord and display the default Vetro logo instead",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = connectionsPreferences.discordHideChapter(),
+                    title = "Hide Chapter Number",
+                    subtitle = "Prevent chapter spoilers in Discord activity status",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = connectionsPreferences.discordHideMangaTitle(),
+                    title = "Hide Manga Title",
+                    subtitle = "Display generic 'Manga' instead of the series title for extra privacy",
                 ),
                 Preference.PreferenceItem.MultiSelectListPreference(
                     preference = discordRPCIncognitoCategoriesPref,

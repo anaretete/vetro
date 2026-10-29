@@ -187,13 +187,13 @@ enum class DiscordScreen(
     val imageUrl: String,
 ) {
     APP(R.string.app_name, R.string.discord_status_using, KOMIKKU_IMAGE),
-    LIBRARY(R.string.label_library, R.string.discord_status_browsing, LIBRARY_IMAGE_URL),
-    UPDATES(R.string.label_recent_updates, R.string.discord_status_scrolling, UPDATES_IMAGE_URL),
-    HISTORY(R.string.label_recent_manga, R.string.discord_status_scrolling, HISTORY_IMAGE_URL),
-    BROWSE(R.string.label_sources, R.string.discord_status_browsing, BROWSE_IMAGE_URL),
-    MORE(R.string.label_settings, R.string.discord_status_messing, MORE_IMAGE_URL),
-    WEBVIEW(R.string.action_web_view, R.string.discord_status_browsing, WEBVIEW_IMAGE_URL),
-    MANGA(R.string.manga, R.string.reading, MANGA_IMAGE_URL),
+    LIBRARY(R.string.label_library, R.string.discord_status_browsing, KOMIKKU_IMAGE),
+    UPDATES(R.string.label_recent_updates, R.string.discord_status_scrolling, KOMIKKU_IMAGE),
+    HISTORY(R.string.label_recent_manga, R.string.discord_status_scrolling, KOMIKKU_IMAGE),
+    BROWSE(R.string.label_sources, R.string.discord_status_browsing, KOMIKKU_IMAGE),
+    MORE(R.string.label_settings, R.string.discord_status_messing, KOMIKKU_IMAGE),
+    WEBVIEW(R.string.action_web_view, R.string.discord_status_browsing, KOMIKKU_IMAGE),
+    MANGA(R.string.manga, R.string.reading, KOMIKKU_IMAGE),
 }
 
 // Constants for standard Rich Presence image urls
@@ -201,11 +201,4 @@ private const val KOMIKKU_IMAGE_URL = "emojis/1365538288894738532.webp?quality=l
 private const val KOMIKKU_PREVIEW_IMAGE_URL = "emojis/1365538288894738532.webp?quality=lossless"
 
 private val KOMIKKU_IMAGE = if (isPreviewBuildType) KOMIKKU_PREVIEW_IMAGE_URL else KOMIKKU_IMAGE_URL
-private const val LIBRARY_IMAGE_URL = "emojis/1365262809050644591.webp?quality=lossless"
-private const val UPDATES_IMAGE_URL = "emojis/1365261957883625492.webp?quality=lossless"
-private const val HISTORY_IMAGE_URL = "emojis/1365262076787949598.webp?quality=lossless"
-private const val BROWSE_IMAGE_URL = "emojis/1365263374992146576.webp?quality=lossless"
-private const val MORE_IMAGE_URL = "emojis/1365261438276599849.webp?quality=lossless"
-private const val WEBVIEW_IMAGE_URL = "emojis/1365262268811579443.webp?quality=lossless"
-private const val MANGA_IMAGE_URL = "emojis/1365263962622529576.webp?quality=lossless"
 // <-- AM (DISCORD)

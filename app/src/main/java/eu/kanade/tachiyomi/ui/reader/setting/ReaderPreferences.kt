@@ -104,6 +104,12 @@ class ReaderPreferences(
 
     // KMK -->
     fun pagedDisableZoomIn() = preferenceStore.getBoolean("paged_disable_zoom_in", false)
+
+    fun readerEyeCareFilter() = preferenceStore.getInt("reader_eye_care_filter", 0)
+
+    fun readerInvertColors() = preferenceStore.getBoolean("reader_invert_colors", false)
+
+    fun autoJoinDoublePages() = preferenceStore.getBoolean("auto_join_double_pages", false)
     // KMK <--
 
     // endregion

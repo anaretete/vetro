@@ -36,6 +36,12 @@ class ConnectionsPreferences(
 
     fun discordCensorCover() = preferenceStore.getBoolean("pref_discord_censor_cover", false)
 
+    fun discordUseAppIconOnly() = preferenceStore.getBoolean("pref_discord_use_app_icon_only", true)
+
+    fun discordHideChapter() = preferenceStore.getBoolean("pref_discord_hide_chapter", false)
+
+    fun discordHideMangaTitle() = preferenceStore.getBoolean("pref_discord_hide_manga_title", false)
+
     fun discordRPCIncognitoCategories() = preferenceStore.getStringSet(
         "discord_rpc_incognito_categories",
         emptySet(),

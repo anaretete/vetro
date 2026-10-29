@@ -163,6 +163,27 @@ object SettingsReaderScreen : SearchableSettings {
                     preference = readerPreferences.showPageNumber(),
                     title = stringResource(MR.strings.pref_show_page_number),
                 ),
+                Preference.PreferenceItem.ListPreference(
+                    preference = readerPreferences.readerEyeCareFilter(),
+                    entries = persistentMapOf(
+                        0 to "None (Standard)",
+                        1 to "Warm Amber / Sepia Comfort",
+                        2 to "Cool Indigo / Night",
+                        3 to "AMOLED Pure Black",
+                    ),
+                    title = "Eye Care Reading Filter",
+                    subtitle = "Reduce blue light fatigue and strain during late night reading",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.readerInvertColors(),
+                    title = "Invert Reader Colors",
+                    subtitle = "Display negative colors (white ink on black pages) for low-light comfort",
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    preference = readerPreferences.autoJoinDoublePages(),
+                    title = "Auto-Join Landscape Spreads",
+                    subtitle = "Seamlessly join adjacent portrait pages into two-page spreads in landscape orientation",
+                ),
             ),
         )
     }

@@ -269,16 +269,21 @@ class DiscordRPCService : Service() {
             val showProgress = connectionsPreferences.discordShowProgress().get()
             val showTimestamp = connectionsPreferences.discordShowTimestamp().get()
 
+            val useAppIconOnly = connectionsPreferences.discordUseAppIconOnly().get()
             val (title, state, imageUrl) = when (discordScreen) {
                 DiscordScreen.MANGA -> Triple(
                     readerData.mangaTitle,
                     readerData.chapterNumber.takeIf { showProgress },
-                    readerData.thumbnailUrl ?: discordScreen.imageUrl,
+                    if (useAppIconOnly && connectionsPreferences.discordCensorCover().get()) {
+                        DiscordScreen.APP.imageUrl
+                    } else {
+                        readerData.thumbnailUrl ?: discordScreen.imageUrl
+                    },
                 )
                 else -> Triple(
                     null,
                     context.getString(discordScreen.text),
-                    discordScreen.imageUrl,
+                    if (useAppIconOnly) DiscordScreen.APP.imageUrl else discordScreen.imageUrl,
                 )
             }
 
@@ -391,9 +396,19 @@ class DiscordRPCService : Service() {
             try {
                 val categories = getCategories(readerData.mangaId)
                 val discordIncognito = isIncognito(categories, readerData.incognitoMode)
+                val hideTitle = connectionsPreferences.discordHideMangaTitle().get()
+                val hideChapter = connectionsPreferences.discordHideChapter().get()
 
-                val mangaTitle = readerData.mangaTitle.takeUnless { discordIncognito }
-                val chapterNumber = getFormattedChapterNumber(context, readerData, discordIncognito)
+                val mangaTitle = if (hideTitle) {
+                    context.getString(R.string.manga)
+                } else {
+                    readerData.mangaTitle.takeUnless { discordIncognito }
+                }
+                val chapterNumber = if (hideChapter) {
+                    null
+                } else {
+                    getFormattedChapterNumber(context, readerData, discordIncognito)
+                }
                 val (startTime, _) = getTimestamps(readerData)
 
                 withIOContext {

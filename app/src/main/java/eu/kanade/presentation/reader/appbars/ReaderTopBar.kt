@@ -1,23 +1,31 @@
 package eu.kanade.presentation.reader.appbars
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,6 +70,10 @@ fun ReaderTopBar(
     onShare: (() -> Unit)?,
     modifier: Modifier = Modifier,
     onClickTopAppBar: (() -> Unit)? = null,
+    currentPage: Int = 0,
+    totalPages: Int = 0,
+    readingModeName: String? = null,
+    orientationName: String? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
@@ -69,6 +82,7 @@ fun ReaderTopBar(
         val glassTintColor = if (isDark) Color(0x1218181A) else Color(0x12FFFFFF)
         val pillBorderColor = if (isDark) Color(0x22FFFFFF) else Color(0x18000000)
         var showOverflow by remember { mutableStateOf(false) }
+        var isExpanded by remember { mutableStateOf(false) }
         val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
 
         Row(
@@ -101,24 +115,38 @@ fun ReaderTopBar(
                 )
             }
 
-            // Apple HIG Centered Frosted Glass Pill for Title/Chapter
+            // Apple HIG Smoothly Expandable Frosted Glass Bubble
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),
                 contentAlignment = Alignment.Center,
             ) {
+                val bubbleShape = if (isExpanded) RoundedCornerShape(20.dp) else Capsule()
                 Column(
                     modifier = Modifier
+                        .animateContentSize(
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessMediumLow,
+                            ),
+                        )
                         .liquidGlassSurface(
-                            shape = Capsule(),
-                            blurRadius = 3.dp,
-                            refractionHeight = 16.dp,
-                            refractionAmount = 26.dp,
+                            shape = bubbleShape,
+                            blurRadius = if (isExpanded) 5.dp else 3.dp,
+                            refractionHeight = if (isExpanded) 20.dp else 16.dp,
+                            refractionAmount = if (isExpanded) 32.dp else 26.dp,
                             tintColor = glassTintColor,
                         )
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                        .then(if (onClickTopAppBar != null) Modifier.clickable(onClick = onClickTopAppBar) else Modifier),
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = true),
+                            onClick = { isExpanded = !isExpanded },
+                        )
+                        .padding(
+                            horizontal = if (isExpanded) 18.dp else 16.dp,
+                            vertical = if (isExpanded) 10.dp else 6.dp,
+                        ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     if (!mangaTitle.isNullOrEmpty()) {
@@ -126,23 +154,93 @@ fun ReaderTopBar(
                             text = mangaTitle,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 14.sp,
+                                fontSize = if (isExpanded) 14.5.sp else 14.sp,
                                 color = if (isDark) Color.White else Color.Black,
                             ),
-                            maxLines = 1,
+                            maxLines = if (isExpanded) 2 else 1,
                             overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
                         )
                     }
                     if (!chapterTitle.isNullOrEmpty()) {
                         Text(
                             text = chapterTitle,
                             style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 11.sp,
-                                color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.7f),
+                                fontSize = if (isExpanded) 11.5.sp else 11.sp,
+                                color = (if (isDark) Color.White else Color.Black).copy(alpha = if (isExpanded) 0.85f else 0.7f),
                             ),
-                            maxLines = 1,
+                            maxLines = if (isExpanded) 2 else 1,
                             overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
                         )
+                    }
+
+                    if (isExpanded) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.15f),
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // Live statistics row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            if (totalPages > 0) {
+                                val percent = if (totalPages > 0) (currentPage * 100 / totalPages.coerceAtLeast(1)) else 0
+                                Text(
+                                    text = "Page $currentPage / $totalPages ($percent%)",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 11.sp,
+                                    ),
+                                )
+                            }
+                            if (!readingModeName.isNullOrEmpty()) {
+                                Text(
+                                    text = "•",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.4f),
+                                    ),
+                                )
+                                Text(
+                                    text = readingModeName,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.75f),
+                                        fontSize = 11.sp,
+                                    ),
+                                )
+                            }
+                            if (!orientationName.isNullOrEmpty()) {
+                                Text(
+                                    text = "•",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.4f),
+                                    ),
+                                )
+                                Text(
+                                    text = orientationName,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.75f),
+                                        fontSize = 11.sp,
+                                    ),
+                                )
+                            }
+                        }
+
+                        if (onClickTopAppBar != null) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Tap again to collapse",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 9.5.sp,
+                                    color = (if (isDark) Color.White else Color.Black).copy(alpha = 0.45f),
+                                ),
+                            )
+                        }
                     }
                 }
             }
