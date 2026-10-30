@@ -48,6 +48,7 @@ import eu.kanade.tachiyomi.ui.reader.viewer.Viewer
 import eu.kanade.tachiyomi.ui.reader.viewer.pager.R2LPagerViewer
 import kotlinx.collections.immutable.ImmutableSet
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
@@ -193,31 +194,24 @@ fun ReaderAppBars(
                 .padding(horizontal = 20.dp, vertical = 10.dp),
         ) {
             val isDark = isSystemInDarkTheme()
-            val bannerBg = if (isGlass) {
-                if (isDark) Color(0xDC202024) else Color(0xF4FAFAFC)
-            } else {
-                if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
-            }
             val textColor = if (isDark) Color.White else Color(0xFF111113)
 
             Row(
                 modifier = Modifier
-                    .clip(Capsule())
                     .then(
                         if (isGlass) {
-                            Modifier.liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 14.dp,
-                                surfaceColor = bannerBg,
-                            )
+                            Modifier.liquidGlassPopupSurface(shape = Capsule())
                         } else {
-                            Modifier.background(bannerBg)
+                            val bannerBg = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
+                            Modifier
+                                .clip(Capsule())
+                                .background(bannerBg)
+                                .border(
+                                    0.5.dp,
+                                    if (isDark) Color(0x35FFFFFF) else Color(0x25000000),
+                                    Capsule(),
+                                )
                         },
-                    )
-                    .border(
-                        0.5.dp,
-                        if (isDark) Color(0x35FFFFFF) else Color(0x25000000),
-                        Capsule(),
                     )
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,

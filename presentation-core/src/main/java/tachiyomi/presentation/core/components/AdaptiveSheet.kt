@@ -80,7 +80,7 @@ fun AdaptiveSheet(
     val existingBackdrop = LocalLayerBackdrop.current
     val sheetBg = if (isDark) Color(0x2416161A) else Color(0x24F2F2F6)
     val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
-        val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
+        val baseColor = if (isDark) Color(0x3016161A) else Color(0x45F2F2F6)
         drawRect(baseColor)
     }
     val sheetExportedBackdrop = rememberLayerBackdrop()

@@ -128,7 +128,7 @@ fun Modifier.liquidGlassSurface(
         candidateBackdrop
     } else {
         rememberCanvasBackdrop {
-            val baseColor = if (isDark) Color(0xFF16161A) else Color(0xFFF2F2F6)
+            val baseColor = if (isDark) Color(0x3016161A) else Color(0x45F2F2F6)
             drawRect(baseColor)
         }
     }
@@ -197,17 +197,18 @@ fun Modifier.liquidGlassSurface(
  */
 object LiquidGlassDefaults {
     /**
-     * Exact unified liquid glass background surface color for all popup menus,
+     * Exact unified liquid glass translucent surface color for all popup menus,
      * bottom cards/sheets, dialogs, and popup selectors.
+     * Translucent tint that lets the backdrop blur and refraction shine through.
      */
     fun popupSurfaceColor(isDark: Boolean): Color =
-        if (isDark) Color(0xDC202024) else Color(0xF4FAFAFC)
+        if (isDark) Color(0x3816161A) else Color(0x55FFFFFF)
 
     /**
      * Exact unified hair-line border color.
      */
     fun popupBorderColor(isDark: Boolean): Color =
-        if (isDark) Color(0x35FFFFFF) else Color(0x22000000)
+        if (isDark) Color(0x30FFFFFF) else Color(0x18000000)
 
     val PopupBorderWidth: Dp = 0.5.dp
 
@@ -230,6 +231,8 @@ fun Modifier.liquidGlassPopupSurface(
     shape: Shape = RoundedCornerShape(16.dp),
     backdrop: Backdrop? = null,
     exportedBackdrop: LayerBackdrop? = null,
+    surfaceColor: Color = Color.Unspecified,
+    tintColor: Color = Color.Unspecified,
     borderWidth: Dp = LiquidGlassDefaults.PopupBorderWidth,
     hasBorder: Boolean = true,
 ): Modifier = composed {
@@ -237,8 +240,12 @@ fun Modifier.liquidGlassPopupSurface(
     if (!isGlass) return@composed this
 
     val isDark = isSystemInDarkTheme()
-    val surfaceColor = LiquidGlassDefaults.popupSurfaceColor(isDark)
-    val borderColor = LiquidGlassDefaults.popupBorderColor(isDark)
+    val effectiveSurfaceColor = if (surfaceColor.isSpecified) {
+        surfaceColor
+    } else {
+        LiquidGlassDefaults.popupSurfaceColor(isDark)
+    }
+    val effectiveBorderColor = LiquidGlassDefaults.popupBorderColor(isDark)
 
     this
         .liquidGlassSurface(
@@ -246,8 +253,8 @@ fun Modifier.liquidGlassPopupSurface(
             blurRadius = LiquidGlassDefaults.PopupBlurRadius,
             refractionHeight = LiquidGlassDefaults.PopupRefractionHeight,
             refractionAmount = LiquidGlassDefaults.PopupRefractionAmount,
-            tintColor = Color.Unspecified,
-            surfaceColor = surfaceColor,
+            tintColor = tintColor,
+            surfaceColor = effectiveSurfaceColor,
             backdrop = backdrop,
             exportedBackdrop = exportedBackdrop,
             depthEffect = true,
@@ -256,7 +263,7 @@ fun Modifier.liquidGlassPopupSurface(
             if (hasBorder) {
                 Modifier.border(
                     width = borderWidth,
-                    color = borderColor,
+                    color = effectiveBorderColor,
                     shape = shape,
                 )
             } else {

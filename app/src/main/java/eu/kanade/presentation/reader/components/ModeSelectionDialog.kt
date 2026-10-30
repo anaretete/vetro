@@ -51,17 +51,6 @@ fun ModeSelectionDialog(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (isGlass) {
-                // Apple HIG sheet drag handle
-                Box(
-                    modifier = Modifier
-                        .padding(bottom = 12.dp)
-                        .size(36.dp, 5.dp)
-                        .clip(Capsule())
-                        .background(if (isDark) Color(0x44FFFFFF) else Color(0x33000000)),
-                )
-            }
-
             content()
 
             Row(
@@ -75,17 +64,12 @@ fun ModeSelectionDialog(
             ) {
                 if (isGlass) {
                     onUseDefault?.let {
-                        Button(
+                        OutlinedButton(
                             onClick = it,
-                            modifier = Modifier
-                                .height(44.dp)
-                                .liquidGlassPopupSurface(
-                                    shape = Capsule(),
-                                ),
+                            modifier = Modifier.height(44.dp),
                         ) {
                             Text(
                                 text = stringResource(MR.strings.action_revert_to_default),
-                                color = if (isDark) Color.White else Color(0xFF1C1C1E),
                             )
                         }
                     }
@@ -94,15 +78,7 @@ fun ModeSelectionDialog(
 
                     Button(
                         onClick = onApply,
-                        modifier = Modifier
-                            .height(44.dp)
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 6.dp,
-                                refractionHeight = 16.dp,
-                                refractionAmount = 24.dp,
-                                tintColor = MaterialTheme.colorScheme.primary,
-                            ),
+                        modifier = Modifier.height(44.dp),
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
@@ -111,11 +87,9 @@ fun ModeSelectionDialog(
                             Icon(
                                 imageVector = Icons.Outlined.Check,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
                             )
                             Text(
                                 text = stringResource(MR.strings.action_apply),
-                                color = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
                     }

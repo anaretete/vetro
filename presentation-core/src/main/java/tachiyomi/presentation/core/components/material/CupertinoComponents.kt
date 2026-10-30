@@ -93,20 +93,7 @@ fun CupertinoAlertDialog(
     val dialogModifier = if (isGlass) {
         modifier
             .widthIn(min = 270.dp, max = 320.dp)
-            .liquidGlassSurface(
-                shape = dialogShape,
-                blurRadius = 18.dp,
-                refractionHeight = 18.dp,
-                refractionAmount = 26.dp,
-                tintColor = Color.Unspecified,
-                surfaceColor = if (isDark) Color(0xEA202024) else Color(0xF4FAFAFC),
-                depthEffect = true,
-            )
-            .border(
-                width = 0.5.dp,
-                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
-                shape = dialogShape,
-            )
+            .liquidGlassPopupSurface(shape = dialogShape)
     } else {
         modifier
             .widthIn(min = 270.dp, max = 320.dp)
@@ -792,13 +779,7 @@ fun <T> CupertinoGroupedSelectionCard(
     val cardModifier = if (isGlass) {
         Modifier
             .fillMaxWidth()
-            .liquidGlassSurface(
-                shape = shape,
-                blurRadius = 6.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 24.dp,
-                tintColor = cardBg,
-            )
+            .liquidGlassPopupSurface(shape = shape)
     } else {
         Modifier
             .fillMaxWidth()
@@ -891,13 +872,7 @@ fun CupertinoGroupedCard(
     val cardModifier = if (isGlass) {
         Modifier
             .fillMaxWidth()
-            .liquidGlassSurface(
-                shape = shape,
-                blurRadius = 6.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 24.dp,
-                tintColor = cardBg,
-            )
+            .liquidGlassPopupSurface(shape = shape)
     } else {
         Modifier
             .fillMaxWidth()

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -137,6 +138,7 @@ fun ReaderTopBar(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 280.dp)
                     .animateContentSize(
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioLowBouncy,
@@ -147,6 +149,7 @@ fun ReaderTopBar(
                         if (isGlass) {
                             Modifier.liquidGlassPopupSurface(
                                 shape = RoundedCornerShape(28.dp),
+                                surfaceColor = if (isTopLight) Color(0x55FFFFFF) else Color(0x3816161A),
                             )
                         } else {
                             Modifier
@@ -161,7 +164,7 @@ fun ReaderTopBar(
                                 )
                         },
                     )
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                     // Top drag grabber handle
@@ -667,6 +670,20 @@ fun ReaderTopBar(
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Bottom grabber handle
+                    Box(
+                        modifier = Modifier
+                            .size(width = 44.dp, height = 4.5.dp)
+                            .clip(Capsule())
+                            .background(secondaryTextColor.copy(alpha = 0.35f))
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                isExpanded = false
+                            },
+                    )
                 }
             }
         } else {
