@@ -20,7 +20,7 @@ const val RICH_PRESENCE_TAG = "discord_rpc"
 internal const val RICH_PRESENCE_APPLICATION_ID = "1424627741256585271"
 
 val DOWNLOAD_BUTTON_LABEL_RES = R.string.discord_download_button
-const val DOWNLOAD_BUTTON_URL = "https://komikku-app.github.io/download/"
+const val DOWNLOAD_BUTTON_URL = "https://github.com/anaretete/komikku-liquid-glass/releases/latest"
 const val DISCORD_BUTTON_LABEL = "Discord"
 const val DISCORD_BUTTON_URL = "https://discord.gg/85jB7V5AJR"
 
@@ -186,20 +186,21 @@ enum class DiscordScreen(
     @StringRes val details: Int,
     val imageUrl: String,
 ) {
-    APP(R.string.app_name, R.string.discord_status_using, KOMIKKU_IMAGE),
-    LIBRARY(R.string.label_library, R.string.discord_status_browsing, KOMIKKU_IMAGE),
-    UPDATES(R.string.label_recent_updates, R.string.discord_status_scrolling, KOMIKKU_IMAGE),
-    HISTORY(R.string.label_recent_manga, R.string.discord_status_scrolling, KOMIKKU_IMAGE),
-    BROWSE(R.string.label_sources, R.string.discord_status_browsing, KOMIKKU_IMAGE),
-    MORE(R.string.label_settings, R.string.discord_status_messing, KOMIKKU_IMAGE),
-    WEBVIEW(R.string.action_web_view, R.string.discord_status_browsing, KOMIKKU_IMAGE),
-    MANGA(R.string.manga, R.string.reading, KOMIKKU_IMAGE),
+    APP(R.string.app_name, R.string.discord_status_using, VETRO_IMAGE),
+    LIBRARY(R.string.label_library, R.string.discord_status_browsing, VETRO_IMAGE),
+    UPDATES(R.string.label_recent_updates, R.string.discord_status_scrolling, VETRO_IMAGE),
+    HISTORY(R.string.label_recent_manga, R.string.discord_status_scrolling, VETRO_IMAGE),
+    BROWSE(R.string.label_sources, R.string.discord_status_browsing, VETRO_IMAGE),
+    MORE(R.string.label_settings, R.string.discord_status_messing, VETRO_IMAGE),
+    WEBVIEW(R.string.action_web_view, R.string.discord_status_browsing, VETRO_IMAGE),
+    MANGA(R.string.manga, R.string.reading, VETRO_IMAGE),
 }
 
 // Constants for standard Rich Presence image urls
-const val VETRO_IMAGE_URL = "https://raw.githubusercontent.com/anaretete/komikku-liquid-glass/liquid-glass-main/app/src/main/res/drawable/komikku.png"
+const val VETRO_IMAGE_URL = "https://raw.githubusercontent.com/anaretete/komikku-liquid-glass/liquid-glass-main/app/src/main/res/drawable/vetro.png"
 private const val KOMIKKU_IMAGE_URL = VETRO_IMAGE_URL
 private const val KOMIKKU_PREVIEW_IMAGE_URL = VETRO_IMAGE_URL
 
-private val KOMIKKU_IMAGE = if (isPreviewBuildType) KOMIKKU_PREVIEW_IMAGE_URL else KOMIKKU_IMAGE_URL
+private val VETRO_IMAGE = if (isPreviewBuildType) KOMIKKU_PREVIEW_IMAGE_URL else KOMIKKU_IMAGE_URL
+private val KOMIKKU_IMAGE = VETRO_IMAGE
 // <-- AM (DISCORD)

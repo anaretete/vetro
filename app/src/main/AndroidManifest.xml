@@ -199,6 +199,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="vetro" />
                 <data android:scheme="komikku" />
                 <data android:scheme="mihon" />
 
