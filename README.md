@@ -4,10 +4,10 @@
   <p><strong>The Liquid Glass Manga & Comic Reader for Android</strong></p>
 
   <p>
-    <a href="https://github.com/anaretete/komikku-liquid-glass/releases/latest">
+    <a href="https://github.com/anaretete/vetro/releases/latest">
       <img src="https://img.shields.io/badge/Latest_Release-v1.14.70-0A84FF?style=for-the-badge&logo=android&logoColor=white" alt="Latest Release" />
     </a>
-    <a href="https://github.com/anaretete/komikku-liquid-glass/actions">
+    <a href="https://github.com/anaretete/vetro/actions">
       <img src="https://img.shields.io/badge/Build-Passing-30D158?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build Status" />
     </a>
     <a href="LICENSE">
@@ -52,12 +52,12 @@ Whether browsing expansive libraries, tracking reading progress, or immersing yo
 
 ## Downloads
 
-Download the latest APK releases directly from [GitHub Releases](https://github.com/anaretete/komikku-liquid-glass/releases/latest):
+Download the latest APK releases directly from [GitHub Releases](https://github.com/anaretete/vetro/releases/latest):
 
 | Architecture | Description | Download |
 |:---|:---|:---:|
-| **ARM64-v8a** | Optimized for modern 64-bit Android smartphones & tablets *(Recommended)* | [Download APK](https://github.com/anaretete/komikku-liquid-glass/releases/latest) |
-| **Universal** | Contains binaries for all CPU architectures (ARM64, ARMv7, x86_64, x86) | [Download APK](https://github.com/anaretete/komikku-liquid-glass/releases/latest) |
+| **ARM64-v8a** | Optimized for modern 64-bit Android smartphones & tablets *(Recommended)* | [Download APK](https://github.com/anaretete/vetro/releases/latest) |
+| **Universal** | Contains binaries for all CPU architectures (ARM64, ARMv7, x86_64, x86) | [Download APK](https://github.com/anaretete/vetro/releases/latest) |
 
 *System Requirements: Android 8.0 (Oreo) or higher. Android 13+ recommended for full AGSL hardware shader acceleration.*
 
@@ -73,8 +73,8 @@ Download the latest APK releases directly from [GitHub Releases](https://github.
 ### Clone & Compile
 ```bash
 # Clone the repository
-git clone https://github.com/anaretete/komikku-liquid-glass.git
-cd komikku-liquid-glass
+git clone https://github.com/anaretete/vetro.git
+cd vetro
 
 # Build the release APK
 ./gradlew assembleStandardRelease

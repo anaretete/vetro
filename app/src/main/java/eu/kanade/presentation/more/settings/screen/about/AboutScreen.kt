@@ -493,7 +493,7 @@ class AboutScreen : Screen() {
                         LinkIcon(
                             label = "GitHub",
                             icon = CustomIcons.Github,
-                            url = "https://github.com/anaretete/komikku-liquid-glass",
+                            url = "https://github.com/anaretete/vetro",
                         )
                     }
                 }

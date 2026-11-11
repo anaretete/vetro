@@ -20,7 +20,7 @@ const val RICH_PRESENCE_TAG = "discord_rpc"
 internal const val RICH_PRESENCE_APPLICATION_ID = "1424627741256585271"
 
 val DOWNLOAD_BUTTON_LABEL_RES = R.string.discord_download_button
-const val DOWNLOAD_BUTTON_URL = "https://github.com/anaretete/komikku-liquid-glass/releases/latest"
+const val DOWNLOAD_BUTTON_URL = "https://github.com/anaretete/vetro/releases/latest"
 const val DISCORD_BUTTON_LABEL = "Discord"
 const val DISCORD_BUTTON_URL = "https://discord.gg/85jB7V5AJR"
 
@@ -197,7 +197,7 @@ enum class DiscordScreen(
 }
 
 // Constants for standard Rich Presence image urls
-const val VETRO_IMAGE_URL = "https://raw.githubusercontent.com/anaretete/komikku-liquid-glass/liquid-glass-main/app/src/main/res/drawable/vetro.png"
+const val VETRO_IMAGE_URL = "https://raw.githubusercontent.com/anaretete/vetro/liquid-glass-main/app/src/main/res/drawable/vetro.png"
 private const val KOMIKKU_IMAGE_URL = VETRO_IMAGE_URL
 private const val KOMIKKU_PREVIEW_IMAGE_URL = VETRO_IMAGE_URL
 
