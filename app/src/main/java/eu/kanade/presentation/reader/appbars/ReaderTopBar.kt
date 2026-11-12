@@ -108,7 +108,8 @@ fun ReaderTopBar(
     sessionDurationSeconds: Long = 0L,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
+    val useNativeGlass = false
+    val useNativeGlassMenu = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
 
     // When Liquid Glass is enabled, follow the system Dark/Light recipe (Expo GlassRecipe.MenuDark / MenuLight)
@@ -420,7 +421,7 @@ fun ReaderTopBar(
                     if (hasOverflow) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Box {
-                            if (useNativeGlass) {
+                            if (useNativeGlassMenu) {
                                 GlassMenuAnchor(
                                     expanded = showOverflow,
                                     onDismissRequest = { showOverflow = false },
@@ -448,7 +449,7 @@ fun ReaderTopBar(
                                 )
                             }
 
-                            if (!useNativeGlass) {
+                            if (!useNativeGlassMenu) {
                                 CupertinoFrostedPopup(
                                     expanded = showOverflow,
                                     onDismissRequest = { showOverflow = false },
@@ -554,7 +555,7 @@ fun ReaderTopBar(
 
                     if (!readingModeName.isNullOrEmpty()) {
                         Box {
-                            if (useNativeGlass && readingModeGlassItems.isNotEmpty()) {
+                            if (useNativeGlassMenu && readingModeGlassItems.isNotEmpty()) {
                                 GlassMenuAnchor(
                                     expanded = showReadingModeMenu,
                                     onDismissRequest = { showReadingModeMenu = false },
@@ -567,7 +568,7 @@ fun ReaderTopBar(
                                     .clip(Capsule())
                                     .background(surfacePillBg)
                                     .clickable(enabled = onClickReadingMode != null || onSelectReadingMode != null) {
-                                        if (useNativeGlass && readingModeGlassItems.isNotEmpty()) {
+                                        if (useNativeGlassMenu && readingModeGlassItems.isNotEmpty()) {
                                             showReadingModeMenu = true
                                         } else {
                                             onClickReadingMode?.invoke()
@@ -589,7 +590,7 @@ fun ReaderTopBar(
 
                     if (!orientationName.isNullOrEmpty()) {
                         Box {
-                            if (useNativeGlass && orientationGlassItems.isNotEmpty()) {
+                            if (useNativeGlassMenu && orientationGlassItems.isNotEmpty()) {
                                 GlassMenuAnchor(
                                     expanded = showOrientationMenu,
                                     onDismissRequest = { showOrientationMenu = false },
@@ -602,7 +603,7 @@ fun ReaderTopBar(
                                     .clip(Capsule())
                                     .background(surfacePillBg)
                                     .clickable(enabled = onClickOrientation != null || onSelectOrientation != null) {
-                                        if (useNativeGlass && orientationGlassItems.isNotEmpty()) {
+                                        if (useNativeGlassMenu && orientationGlassItems.isNotEmpty()) {
                                             showOrientationMenu = true
                                         } else {
                                             onClickOrientation?.invoke()
@@ -1042,7 +1043,7 @@ fun ReaderTopBar(
 
                 if (hasOverflow) {
                     Box {
-                        if (useNativeGlass) {
+                        if (useNativeGlassMenu) {
                             GlassMenuAnchor(
                                 expanded = showOverflow,
                                 onDismissRequest = { showOverflow = false },
@@ -1104,7 +1105,7 @@ fun ReaderTopBar(
                             )
                         }
 
-                        if (!useNativeGlass) {
+                        if (!useNativeGlassMenu) {
                             CupertinoFrostedPopup(
                                 expanded = showOverflow,
                                 onDismissRequest = { showOverflow = false },

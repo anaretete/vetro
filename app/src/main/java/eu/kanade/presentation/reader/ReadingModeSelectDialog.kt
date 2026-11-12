@@ -75,7 +75,7 @@ private fun DialogContent(
                     selected = isSelected,
                     leadingIcon = {
                         Icon(
-                            imageVector = ImageVector.vectorResource(mode.iconRes),
+                            painter = androidx.compose.ui.res.painterResource(mode.iconRes),
                             contentDescription = null,
                             modifier = Modifier.size(20.dp),
                         )

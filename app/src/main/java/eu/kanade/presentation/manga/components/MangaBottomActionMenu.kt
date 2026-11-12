@@ -103,7 +103,7 @@ fun MangaBottomActionMenu(
     ) {
         val scope = rememberCoroutineScope()
         val isGlass = LocalLiquidGlassConfig.current.enabled
-        val useNativeGlass = isGlass && supportsNativeGlassMenu
+        val useNativeGlass = false
         val menuModifier = if (useNativeGlass) {
             modifier.padding(horizontal = 14.dp, vertical = 6.dp)
         } else if (isGlass) {
@@ -319,7 +319,7 @@ fun LibraryBottomActionMenu(
     ) {
         val scope = rememberCoroutineScope()
         val isGlass = LocalLiquidGlassConfig.current.enabled
-        val useNativeGlass = isGlass && supportsNativeGlassMenu
+        val useNativeGlass = false
         val menuModifier = if (useNativeGlass) {
             modifier.padding(horizontal = 14.dp, vertical = 6.dp)
         } else if (isGlass) {

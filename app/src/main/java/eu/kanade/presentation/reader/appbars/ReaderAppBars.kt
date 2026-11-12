@@ -136,7 +136,7 @@ fun ReaderAppBars(
         .copy(alpha = if (isSystemInDarkTheme()) 0.9f else 0.95f)
 
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
+    val useNativeGlass = false
     val topBarModifier = if (isGlass) {
         Modifier
             .statusBarsPadding()

@@ -45,7 +45,7 @@ fun NavigationBar(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
+    val useNativeGlass = false
     if (isGlass) {
         val navBarExportedBackdrop = rememberLayerBackdrop()
         Box(

@@ -81,7 +81,8 @@ fun ReaderBottomBar(
     modifier: Modifier = Modifier,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
+    val useNativeGlass = false
+    val useNativeGlassMenu = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
     val targetContainerBorder = if (isGlass) {
         if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
@@ -219,7 +220,7 @@ fun ReaderBottomBar(
 
             if (ReaderBottomButton.ReadingMode.isIn(enabledButtons)) {
                 Box {
-                    if (useNativeGlass && readingModeGlassItems.isNotEmpty()) {
+                    if (useNativeGlassMenu && readingModeGlassItems.isNotEmpty()) {
                         GlassMenuAnchor(
                             expanded = showReadingModeMenu,
                             onDismissRequest = { showReadingModeMenu = false },
@@ -229,7 +230,7 @@ fun ReaderBottomBar(
                     }
                     ReaderBottomBarItem(
                         onClick = {
-                            if (useNativeGlass && readingModeGlassItems.isNotEmpty()) {
+                            if (useNativeGlassMenu && readingModeGlassItems.isNotEmpty()) {
                                 showReadingModeMenu = true
                             } else {
                                 onClickReadingMode()
@@ -248,7 +249,7 @@ fun ReaderBottomBar(
 
             if (ReaderBottomButton.Rotation.isIn(enabledButtons)) {
                 Box {
-                    if (useNativeGlass && orientationGlassItems.isNotEmpty()) {
+                    if (useNativeGlassMenu && orientationGlassItems.isNotEmpty()) {
                         GlassMenuAnchor(
                             expanded = showOrientationMenu,
                             onDismissRequest = { showOrientationMenu = false },
@@ -258,7 +259,7 @@ fun ReaderBottomBar(
                     }
                     ReaderBottomBarItem(
                         onClick = {
-                            if (useNativeGlass && orientationGlassItems.isNotEmpty()) {
+                            if (useNativeGlassMenu && orientationGlassItems.isNotEmpty()) {
                                 showOrientationMenu = true
                             } else {
                                 onClickOrientation()

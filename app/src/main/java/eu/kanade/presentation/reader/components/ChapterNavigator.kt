@@ -108,7 +108,7 @@ fun ChapterNavigator(
     val haptic = LocalHapticFeedback.current
 
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
+    val useNativeGlass = false
     val isDark = isSystemInDarkTheme()
     val backgroundColor = MaterialTheme.colorScheme
         .surfaceColorAtElevation(3.dp)
@@ -402,7 +402,7 @@ fun ChapterNavigatorVert(
 ) {
     val isTabletUi = isTabletUi()
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
+    val useNativeGlass = false
     val verticalPadding = if (isTabletUi) 24.dp else 8.dp
     val topPadding = if (isGlass) 92.dp else verticalPadding
     val bottomPadding = if (isGlass) 108.dp else verticalPadding

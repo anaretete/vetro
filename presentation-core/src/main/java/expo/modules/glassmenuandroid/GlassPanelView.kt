@@ -398,11 +398,25 @@ open class GlassPanelView @JvmOverloads constructor(
     val offsetY = (viewLoc[1] - rootLoc[1]).toFloat()
 
     if (capturingMenuDepth > 0) {
-      val cachedRenderer = glassRenderer as? GlassRenderer ?: return
-      val save = canvas.save()
-      canvas.translate(-offsetX, -offsetY)
-      cachedRenderer.drawCachedGlass(canvas)
-      canvas.restoreToCount(save)
+      // If this GlassPanelView is inside the same window as actRoot, never draw glassNode into
+      // GlassMenuOverlay.backdrop because glassNode references sharedBackdrop which could create
+      // a cyclic RenderNode graph.
+      if (rootView === actRoot.rootView) {
+        drawFallback(canvas)
+        return
+      }
+      // If this GlassPanelView is inside a separate Dialog/Popup window (e.g. AdaptiveSheet),
+      // cachedRenderer's glassNode only references sharedBackdrop (which recorded actRoot, NOT the
+      // Dialog's GlassMenuOverlay.backdrop), so drawing cachedGlass is acyclic!
+      val cachedRenderer = glassRenderer as? GlassRenderer
+      if (cachedRenderer != null) {
+        val save = canvas.save()
+        canvas.translate(-offsetX, -offsetY)
+        cachedRenderer.drawCachedGlass(canvas)
+        canvas.restoreToCount(save)
+      } else {
+        drawFallback(canvas)
+      }
       return
     }
 
@@ -466,14 +480,51 @@ open class GlassPanelView @JvmOverloads constructor(
     canvas.restoreToCount(save)
   }
 
+  private fun containsGlassView(view: View): Boolean {
+    if (view === this || view is GlassPanelView || view is GlassMenuOverlay) return true
+    if (view is ViewGroup) {
+      for (i in 0 until view.childCount) {
+        val child = view.getChildAt(i)
+        if (child.visibility == VISIBLE && containsGlassView(child)) return true
+      }
+    }
+    return false
+  }
+
+  private fun drawBackdropSubtree(view: View, recording: Canvas) {
+    if (view === this || view is GlassPanelView || view is GlassMenuOverlay || view.visibility != VISIBLE) return
+    if (view.id == android.R.id.statusBarBackground || view.id == android.R.id.navigationBarBackground) return
+    if (!containsGlassView(view)) {
+      view.draw(recording)
+      return
+    }
+    // View is an ancestor of a GlassPanelView/GlassMenuOverlay (e.g. binding.root or AndroidComposeView
+    // when GlassPanelView is used in-window). Never call view.draw(recording) on it, because that
+    // would record its RenderNode into sharedBackdrop while it is currently mid-draw or create a
+    // cyclic RenderNode reference (Ancestor -> GlassPanelView -> glassNode -> sharedBackdrop -> Ancestor)!
+    // Instead, if it is a regular ViewGroup (not a ComposeView), traverse its non-glass sibling children.
+    if (view is ViewGroup && !view.javaClass.name.contains("ComposeView")) {
+      val save = recording.save()
+      recording.translate(view.left.toFloat() + view.translationX, view.top.toFloat() + view.translationY)
+      recording.translate(-view.scrollX.toFloat(), -view.scrollY.toFloat())
+      view.background?.draw(recording)
+      for (i in 0 until view.childCount) {
+        drawBackdropSubtree(view.getChildAt(i), recording)
+      }
+      recording.restoreToCount(save)
+    }
+  }
+
   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   private fun captureActivityBackdrop(actRoot: ViewGroup, rootW: Int, rootH: Int, dark: Boolean): RenderNode {
+    val inActivityWindow = rootView === actRoot.rootView
     val shared = sharedBackdrops.getOrPut(actRoot) { SharedBackdrop() }
     val node = shared.node as? RenderNode ?: RenderNode("GlassPanel.sharedBackdrop").also { shared.node = it }
     val now = SystemClock.elapsedRealtimeNanos()
     if (shared.width == rootW &&
       shared.height == rootH &&
       shared.dark == dark &&
+      shared.inActivityWindow == inActivityWindow &&
       now - shared.lastRecordNanos < SharedCaptureReuseNanos &&
       node.hasDisplayList()
     ) {
@@ -489,17 +540,23 @@ open class GlassPanelView @JvmOverloads constructor(
       actRoot.background?.draw(recording)
       for (i in 0 until actRoot.childCount) {
         val child = actRoot.getChildAt(i)
-        if (child !is GlassMenuOverlay && child !is GlassPanelView && child.visibility == VISIBLE &&
+        if (inActivityWindow) {
+          drawBackdropSubtree(child, recording)
+        } else if (
+          child !is GlassMenuOverlay &&
+          child !is GlassPanelView &&
+          child.visibility == VISIBLE &&
           child.id != android.R.id.statusBarBackground &&
           child.id != android.R.id.navigationBarBackground
         ) {
-          child.draw(recording)
+          drawBackdropSubtree(child, recording)
         }
       }
       node.endRecording()
       shared.width = rootW
       shared.height = rootH
       shared.dark = dark
+      shared.inActivityWindow = inActivityWindow
       shared.lastRecordNanos = now
     } finally {
       capturingPanelDepth--
@@ -514,11 +571,13 @@ open class GlassPanelView @JvmOverloads constructor(
     var width: Int = 0
     var height: Int = 0
     var dark: Boolean = true
+    var inActivityWindow: Boolean = false
   }
 
   companion object {
     internal var capturingPanelDepth = 0
     internal var capturingMenuDepth = 0
+    internal var capturingMenuBackdrop: Any? = null
     private val sharedBackdrops = WeakHashMap<ViewGroup, SharedBackdrop>()
     private const val SharedCaptureReuseNanos = 4_000_000L
     private const val WarmupFrames = 45

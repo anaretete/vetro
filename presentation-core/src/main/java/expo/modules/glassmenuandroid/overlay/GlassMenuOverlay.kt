@@ -136,6 +136,7 @@ internal class GlassMenuOverlay private constructor(
   private fun drawGlass(canvas: Canvas, active: GlassMenuSession?) {
     val node = backdrop ?: return
     node.setPosition(limits)
+    GlassPanelView.capturingMenuBackdrop = node
     GlassPanelView.capturingMenuDepth++
     try {
       val recording = node.beginRecording(width, height)
@@ -151,10 +152,12 @@ internal class GlassMenuOverlay private constructor(
         actRoot.background?.draw(recording)
         for (i in 0 until actRoot.childCount) {
           val child = actRoot.getChildAt(i)
-          if (child !is GlassMenuOverlay && child.visibility == VISIBLE &&
+          if (child !is GlassMenuOverlay && child !is GlassPanelView && child.visibility == VISIBLE &&
             child.id != android.R.id.statusBarBackground &&
             child.id != android.R.id.navigationBarBackground
           ) {
+            // If actRoot contains in-window GlassPanelViews (like Reader bars), skip ComposeView subtrees
+            // that contain GlassPanelView, or let GlassPanelView skip itself when capturingMenuDepth > 0.
             child.draw(recording)
           }
         }
@@ -170,6 +173,9 @@ internal class GlassMenuOverlay private constructor(
       node.endRecording()
     } finally {
       GlassPanelView.capturingMenuDepth--
+      if (GlassPanelView.capturingMenuDepth == 0) {
+        GlassPanelView.capturingMenuBackdrop = null
+      }
     }
 
     for (anchor in anchors) {
