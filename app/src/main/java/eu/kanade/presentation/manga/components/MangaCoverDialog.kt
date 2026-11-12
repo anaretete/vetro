@@ -21,7 +21,8 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
@@ -167,23 +168,15 @@ fun MangaCoverDialog(
                                             onEditClick(EditCoverAction.EDIT)
                                             expanded = false
                                         },
-                                        // KMK -->
-                                        colors = MenuDefaults.itemColors().copy(
-                                            textColor = contentColorFor(dropdownBgColor),
-                                        ),
-                                        // KMK <--
                                     )
+                                    DropdownMenuSeparator()
                                     DropdownMenuItem(
                                         text = { Text(text = stringResource(MR.strings.action_delete)) },
+                                        destructive = true,
                                         onClick = {
                                             onEditClick(EditCoverAction.DELETE)
                                             expanded = false
                                         },
-                                        // KMK -->
-                                        colors = MenuDefaults.itemColors().copy(
-                                            textColor = contentColorFor(dropdownBgColor),
-                                        ),
-                                        // KMK <--
                                     )
                                 }
                             }

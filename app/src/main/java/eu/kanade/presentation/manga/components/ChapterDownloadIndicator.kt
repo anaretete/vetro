@@ -11,7 +11,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
@@ -171,8 +172,10 @@ private fun DownloadingIndicator(
                     isMenuExpanded = false
                 },
             )
+            DropdownMenuSeparator()
             DropdownMenuItem(
                 text = { Text(text = stringResource(MR.strings.action_cancel)) },
+                destructive = true,
                 onClick = {
                     onClick(ChapterDownloadAction.CANCEL)
                     isMenuExpanded = false
@@ -215,6 +218,7 @@ private fun DownloadedIndicator(
         DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(MR.strings.action_delete)) },
+                destructive = true,
                 onClick = {
                     onClick(ChapterDownloadAction.DELETE)
                     isMenuExpanded = false

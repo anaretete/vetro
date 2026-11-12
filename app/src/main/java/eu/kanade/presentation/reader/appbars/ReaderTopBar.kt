@@ -31,7 +31,8 @@ import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -330,39 +331,26 @@ fun ReaderTopBar(
                                     onOpenInWebView?.let {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(MR.strings.action_open_in_web_view), color = primaryTextColor) },
-                                            colors = androidx.compose.material3.MenuDefaults.itemColors(
-                                                textColor = primaryTextColor,
-                                                leadingIconColor = primaryTextColor,
-                                                trailingIconColor = primaryTextColor,
-                                            ),
                                             onClick = {
                                                 showOverflow = false
                                                 it()
                                             },
                                         )
+                                        DropdownMenuSeparator()
                                     }
                                     onOpenInBrowser?.let {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(MR.strings.action_open_in_browser), color = primaryTextColor) },
-                                            colors = androidx.compose.material3.MenuDefaults.itemColors(
-                                                textColor = primaryTextColor,
-                                                leadingIconColor = primaryTextColor,
-                                                trailingIconColor = primaryTextColor,
-                                            ),
                                             onClick = {
                                                 showOverflow = false
                                                 it()
                                             },
                                         )
+                                        DropdownMenuSeparator()
                                     }
                                     onShare?.let {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(MR.strings.action_share), color = primaryTextColor) },
-                                            colors = androidx.compose.material3.MenuDefaults.itemColors(
-                                                textColor = primaryTextColor,
-                                                leadingIconColor = primaryTextColor,
-                                                trailingIconColor = primaryTextColor,
-                                            ),
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -893,39 +881,26 @@ fun ReaderTopBar(
                                 onOpenInWebView?.let {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(MR.strings.action_open_in_web_view), color = primaryTextColor) },
-                                        colors = androidx.compose.material3.MenuDefaults.itemColors(
-                                            textColor = primaryTextColor,
-                                            leadingIconColor = primaryTextColor,
-                                            trailingIconColor = primaryTextColor,
-                                        ),
                                         onClick = {
                                             showOverflow = false
                                             it()
                                         },
                                     )
+                                    DropdownMenuSeparator()
                                 }
                                 onOpenInBrowser?.let {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(MR.strings.action_open_in_browser), color = primaryTextColor) },
-                                        colors = androidx.compose.material3.MenuDefaults.itemColors(
-                                            textColor = primaryTextColor,
-                                            leadingIconColor = primaryTextColor,
-                                            trailingIconColor = primaryTextColor,
-                                        ),
                                         onClick = {
                                             showOverflow = false
                                             it()
                                         },
                                     )
+                                    DropdownMenuSeparator()
                                 }
                                 onShare?.let {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(MR.strings.action_share), color = primaryTextColor) },
-                                        colors = androidx.compose.material3.MenuDefaults.itemColors(
-                                            textColor = primaryTextColor,
-                                            leadingIconColor = primaryTextColor,
-                                            trailingIconColor = primaryTextColor,
-                                        ),
                                         onClick = {
                                             showOverflow = false
                                             it()

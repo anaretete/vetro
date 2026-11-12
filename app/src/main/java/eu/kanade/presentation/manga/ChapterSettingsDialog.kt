@@ -11,7 +11,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PeopleAlt
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -83,6 +84,7 @@ fun ChapterSettingsDialog(
                     closeMenu()
                 },
             )
+            DropdownMenuSeparator()
             DropdownMenuItem(
                 text = { Text(stringResource(MR.strings.action_reset)) },
                 onClick = {

@@ -18,7 +18,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -216,7 +217,7 @@ fun AutoCompleteTextField(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
-                filteredValues.fastForEach {
+                filteredValues.forEachIndexed { index, it ->
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -229,6 +230,9 @@ fun AutoCompleteTextField(
                             submit()
                         },
                     )
+                    if (index < filteredValues.lastIndex) {
+                        DropdownMenuSeparator()
+                    }
                 }
             }
         }

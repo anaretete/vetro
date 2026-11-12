@@ -65,6 +65,8 @@ import tachiyomi.core.common.preference.Preference
 import tachiyomi.core.common.preference.TriState
 import tachiyomi.core.common.preference.toggle
 import tachiyomi.presentation.core.components.material.CupertinoCheckmark
+import tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem
+import tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator
 import tachiyomi.presentation.core.components.material.CupertinoSwitch
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.LiquidGlassDefaults
@@ -388,19 +390,37 @@ fun SelectItem(
             onDismissRequest = { expanded = false },
         ) {
             options.forEachIndexed { index, text ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = text.toString(),
-                            color = if (isGlass) LiquidGlassDefaults.popupTextColor(isDark) else Color.Unspecified,
-                        )
-                    },
-                    onClick = {
-                        onSelect(index)
-                        expanded = false
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                )
+                if (isGlass) {
+                    CupertinoGlassMenuItem(
+                        text = {
+                            Text(
+                                text = text.toString(),
+                                color = LiquidGlassDefaults.popupTextColor(isDark),
+                            )
+                        },
+                        onClick = {
+                            onSelect(index)
+                            expanded = false
+                        },
+                        selected = index == selectedIndex,
+                    )
+                    if (index < options.lastIndex) {
+                        CupertinoGlassMenuSeparator()
+                    }
+                } else {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = text.toString(),
+                            )
+                        },
+                        onClick = {
+                            onSelect(index)
+                            expanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    )
+                }
             }
         }
     }

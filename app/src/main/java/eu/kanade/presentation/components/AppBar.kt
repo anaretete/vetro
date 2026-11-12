@@ -29,7 +29,6 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -435,7 +434,7 @@ fun AppBarActions(
             expanded = showMenu,
             onDismissRequest = { showMenu = false },
         ) {
-            overflowActions.forEach {
+            overflowActions.forEachIndexed { index, it ->
                 DropdownMenuItem(
                     onClick = {
                         it.onClick()
@@ -443,6 +442,9 @@ fun AppBarActions(
                     },
                     text = { Text(it.title, fontWeight = FontWeight.Normal) },
                 )
+                if (index < overflowActions.lastIndex) {
+                    DropdownMenuSeparator()
+                }
             }
         }
     }

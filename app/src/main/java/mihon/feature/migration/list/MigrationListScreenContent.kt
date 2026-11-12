@@ -27,7 +27,8 @@ import androidx.compose.material.icons.outlined.DoneAll
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import eu.kanade.presentation.components.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -363,6 +364,7 @@ private fun MigrationListItemAction(
                             onSearchManually()
                         },
                     )
+                    DropdownMenuSeparator()
                     DropdownMenuItem(
                         text = { Text(stringResource(MR.strings.migrationListScreen_skipActionLabel)) },
                         onClick = {
@@ -371,6 +373,7 @@ private fun MigrationListItemAction(
                         },
                     )
                     if (result is MigratingManga.SearchResult.Success) {
+                        DropdownMenuSeparator()
                         DropdownMenuItem(
                             text = { Text(stringResource(MR.strings.migrationListScreen_migrateNowActionLabel)) },
                             onClick = {
@@ -378,6 +381,7 @@ private fun MigrationListItemAction(
                                 onMigrate()
                             },
                         )
+                        DropdownMenuSeparator()
                         DropdownMenuItem(
                             text = { Text(stringResource(MR.strings.migrationListScreen_copyNowActionLabel)) },
                             onClick = {

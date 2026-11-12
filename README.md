@@ -5,7 +5,7 @@
 
   <p>
     <a href="https://github.com/anaretete/vetro/releases/latest">
-      <img src="https://img.shields.io/badge/Latest_Release-v1.14.71-0A84FF?style=for-the-badge&logo=android&logoColor=white" alt="Latest Release" />
+      <img src="https://img.shields.io/badge/Latest_Release-v1.14.72-0A84FF?style=for-the-badge&logo=android&logoColor=white" alt="Latest Release" />
     </a>
     <a href="https://github.com/anaretete/vetro/actions">
       <img src="https://img.shields.io/badge/Build-Passing-30D158?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build Status" />

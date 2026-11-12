@@ -10,7 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Pause
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallExtendedFloatingActionButton
@@ -150,6 +151,7 @@ object DownloadQueueScreen : Screen() {
                                                 closeMenu()
                                             },
                                         )
+                                        DropdownMenuSeparator()
                                         DropdownMenuItem(
                                             text = { Text(text = stringResource(MR.strings.action_oldest)) },
                                             onClick = {
@@ -162,6 +164,7 @@ object DownloadQueueScreen : Screen() {
                                         )
                                     },
                                 )
+                                DropdownMenuSeparator()
                                 NestedMenuItem(
                                     text = { Text(text = stringResource(MR.strings.action_order_by_chapter_number)) },
                                     children = { closeMenu ->
@@ -175,6 +178,7 @@ object DownloadQueueScreen : Screen() {
                                                 closeMenu()
                                             },
                                         )
+                                        DropdownMenuSeparator()
                                         DropdownMenuItem(
                                             text = { Text(text = stringResource(MR.strings.action_desc)) },
                                             onClick = {

@@ -26,7 +26,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -345,6 +346,7 @@ private fun TrackInfoItemMenu(
                     expanded = false
                 },
             )
+            DropdownMenuSeparator()
             DropdownMenuItem(
                 text = { Text(stringResource(MR.strings.action_copy_link)) },
                 onClick = {
@@ -353,6 +355,7 @@ private fun TrackInfoItemMenu(
                 },
             )
             if (onTogglePrivate != null) {
+                DropdownMenuSeparator()
                 DropdownMenuItem(
                     text = {
                         Text(
@@ -371,8 +374,10 @@ private fun TrackInfoItemMenu(
                     },
                 )
             }
+            DropdownMenuSeparator()
             DropdownMenuItem(
                 text = { Text(stringResource(MR.strings.action_remove)) },
+                destructive = true,
                 onClick = {
                     onRemoved()
                     expanded = false

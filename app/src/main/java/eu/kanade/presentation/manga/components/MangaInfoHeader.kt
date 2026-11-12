@@ -46,7 +46,8 @@ import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Sync
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -475,6 +476,7 @@ fun ExpandableMangaDescription(
                             showMenu = false
                         },
                     )
+                    DropdownMenuSeparator()
                     // SY -->
                     DropdownMenuItem(
                         text = { Text(text = stringResource(MR.strings.action_global_search)) },
@@ -484,6 +486,7 @@ fun ExpandableMangaDescription(
                         },
                     )
                     // SY <--
+                    DropdownMenuSeparator()
                     DropdownMenuItem(
                         text = { Text(text = stringResource(MR.strings.action_copy_to_clipboard)) },
                         onClick = {
@@ -763,6 +766,7 @@ private fun ColumnScope.MangaContentInfo(
                 showMenu = false
             },
         )
+        DropdownMenuSeparator()
         DropdownMenuItem(
             text = { Text(text = stringResource(MR.strings.action_global_search)) },
             onClick = {
@@ -770,6 +774,7 @@ private fun ColumnScope.MangaContentInfo(
                 showMenu = false
             },
         )
+        DropdownMenuSeparator()
         DropdownMenuItem(
             text = { Text(text = stringResource(MR.strings.action_copy_to_clipboard)) },
             onClick = {

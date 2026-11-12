@@ -1,6 +1,5 @@
 package eu.kanade.presentation.components
 
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,7 +46,7 @@ private fun DownloadDropdownMenuItems(
         DownloadAction.BOOKMARKED_CHAPTERS to stringResource(MR.strings.download_bookmarked),
     )
 
-    options.forEach { (downloadAction, string) ->
+    options.forEachIndexed { index, (downloadAction, string) ->
         DropdownMenuItem(
             text = { Text(text = string) },
             onClick = {
@@ -55,5 +54,8 @@ private fun DownloadDropdownMenuItems(
                 onDismissRequest()
             },
         )
+        if (index < options.lastIndex) {
+            DropdownMenuSeparator()
+        }
     }
 }

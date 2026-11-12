@@ -202,22 +202,22 @@ object LiquidGlassDefaults {
      * Translucent tint that lets the backdrop blur and refraction shine through.
      */
     fun popupSurfaceColor(isDark: Boolean): Color =
-        if (isDark) Color(0xB30B0B0D) else Color(0x80F8F8FA)
+        if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
 
     /**
      * Exact unified hair-line border color.
      */
     fun popupBorderColor(isDark: Boolean): Color =
-        if (isDark) Color(0x28FFFFFF) else Color(0x1A000000)
+        if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
 
-    val PopupBorderWidth: Dp = 0.5.dp
+    val PopupBorderWidth: Dp = 0.75.dp
 
     val PopupBlurRadius: Dp = 24.dp
     val PopupRefractionHeight: Dp = 18.dp
     val PopupRefractionAmount: Dp = 24.dp
 
     fun popupTextColor(isDark: Boolean): Color =
-        if (isDark) Color.White else Color(0xFF111113)
+        if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
 
     fun popupSecondaryTextColor(isDark: Boolean): Color =
         if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113)

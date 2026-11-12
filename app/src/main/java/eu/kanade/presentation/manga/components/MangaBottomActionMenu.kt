@@ -33,7 +33,8 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.RemoveDone
 import androidx.compose.material.icons.outlined.SwapCalls
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -407,15 +408,18 @@ fun LibraryBottomActionMenu(
                                     text = { Text(stringResource(KMR.strings.action_update)) },
                                     onClick = onSelectionUpdateClicked,
                                 )
+                                DropdownMenuSeparator()
                             }
                             // KMK <--
                             DropdownMenuItem(
                                 text = { Text(stringResource(MR.strings.migrate)) },
                                 onClick = onMigrateClicked,
                             )
+                            DropdownMenuSeparator()
                         }
                         DropdownMenuItem(
                             text = { Text(stringResource(MR.strings.action_delete)) },
+                            destructive = true,
                             onClick = onDeleteClicked,
                         )
                         // KMK -->

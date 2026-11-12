@@ -36,7 +36,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuItem
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -410,6 +411,7 @@ private fun SearchResultItemDropDownMenu(
                 onCollapseMenu()
             },
         )
+        DropdownMenuSeparator()
         DropdownMenuItem(
             text = { Text(stringResource(MR.strings.action_open_in_browser)) },
             onClick = {
