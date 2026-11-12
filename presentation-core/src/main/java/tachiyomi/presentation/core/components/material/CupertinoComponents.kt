@@ -125,76 +125,141 @@ fun CupertinoAlertDialog(
             .background(if (isDark) Color(0xFF252528) else Color(0xFFFFFFFF))
     }
 
+    val effectiveProperties = if (useNativeGlass) {
+        DialogProperties(
+            dismissOnBackPress = properties.dismissOnBackPress,
+            dismissOnClickOutside = properties.dismissOnClickOutside,
+            securePolicy = properties.securePolicy,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = properties.decorFitsSystemWindows,
+        )
+    } else {
+        properties
+    }
+
     BasicAlertDialog(
         onDismissRequest = onDismissRequest,
-        modifier = dialogModifier,
-        properties = properties,
+        modifier = if (useNativeGlass) Modifier.fillMaxSize() else dialogModifier,
+        properties = effectiveProperties,
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            if (useNativeGlass) {
-                NativeGlassSurface(
-                    modifier = Modifier.matchParentSize(),
-                    cornerRadius = 22.dp,
-                    topCornersOnly = false,
-                )
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth(),
+        Box(
+            modifier = if (useNativeGlass) {
+                Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        if (properties.dismissOnClickOutside) onDismissRequest()
+                    }
+                    .padding(horizontal = 24.dp)
+            } else {
+                Modifier.fillMaxWidth()
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = if (useNativeGlass) {
+                    dialogModifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = {},
+                    )
+                } else {
+                    Modifier.fillMaxWidth()
+                },
             ) {
+                if (useNativeGlass) {
+                    NativeGlassSurface(
+                        modifier = Modifier.matchParentSize(),
+                        cornerRadius = 22.dp,
+                        topCornersOnly = false,
+                    )
+                }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    if (icon != null) {
-                        Box(modifier = Modifier.padding(bottom = 6.dp)) {
-                            icon()
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        if (icon != null) {
+                            Box(modifier = Modifier.padding(bottom = 6.dp)) {
+                                icon()
+                            }
                         }
-                    }
-                    if (title != null) {
-                        ProvideTextStyle(
-                            value = MaterialTheme.typography.titleMedium.copy(
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                textAlign = TextAlign.Center,
-                                color = popupTextColor,
-                                letterSpacing = (-0.3).sp,
-                            ),
-                        ) {
-                            title()
+                        if (title != null) {
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.titleMedium.copy(
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    textAlign = TextAlign.Center,
+                                    color = popupTextColor,
+                                    letterSpacing = (-0.3).sp,
+                                ),
+                            ) {
+                                title()
+                            }
                         }
-                    }
-                    if (text != null) {
-                        ProvideTextStyle(
-                            value = MaterialTheme.typography.bodyMedium.copy(
-                                fontSize = 13.5.sp,
-                                textAlign = TextAlign.Center,
-                                color = if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113),
-                                lineHeight = 18.sp,
-                            ),
-                        ) {
-                            Box(modifier = Modifier.weight(1f, fill = false)) {
-                                text()
+                        if (text != null) {
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 13.5.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113),
+                                    lineHeight = 18.sp,
+                                ),
+                            ) {
+                                Box(modifier = Modifier.weight(1f, fill = false)) {
+                                    text()
+                                }
                             }
                         }
                     }
-                }
 
-                HorizontalDivider(
-                    thickness = 0.5.dp,
-                    color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                )
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (dismissButton != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (dismissButton != null) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(46.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CompositionLocalProvider(
+                                    LocalContentColor provides MaterialTheme.colorScheme.primary,
+                                ) {
+                                    ProvideTextStyle(
+                                        value = MaterialTheme.typography.labelLarge.copy(
+                                            fontSize = 17.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = MaterialTheme.colorScheme.primary,
+                                        ),
+                                    ) {
+                                        dismissButton()
+                                    }
+                                }
+                            }
+
+                            VerticalDivider(
+                                thickness = 0.5.dp,
+                                color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                            )
+                        }
+
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -207,38 +272,12 @@ fun CupertinoAlertDialog(
                                 ProvideTextStyle(
                                     value = MaterialTheme.typography.labelLarge.copy(
                                         fontSize = 17.sp,
-                                        fontWeight = FontWeight.Normal,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary,
                                     ),
                                 ) {
-                                    dismissButton()
+                                    confirmButton()
                                 }
-                            }
-                        }
-
-                        VerticalDivider(
-                            thickness = 0.5.dp,
-                            color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides MaterialTheme.colorScheme.primary,
-                        ) {
-                            ProvideTextStyle(
-                                value = MaterialTheme.typography.labelLarge.copy(
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                ),
-                            ) {
-                                confirmButton()
                             }
                         }
                     }

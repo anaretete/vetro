@@ -58,13 +58,19 @@ import androidx.compose.ui.unit.sp
 import com.kyant.shapes.Capsule
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
 import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
+import eu.kanade.tachiyomi.ui.reader.setting.ReadingMode
+import expo.modules.glassmenuandroid.records.GlassMenuItemRecord
 import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
+import tachiyomi.presentation.core.components.material.GlassMenuAnchor
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.NativeGlassSurface
 import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
+import tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
@@ -92,20 +98,42 @@ fun ReaderTopBar(
     onClickCropBorder: (() -> Unit)? = null,
     onClickReadingMode: (() -> Unit)? = null,
     onClickOrientation: (() -> Unit)? = null,
+    readingMode: ReadingMode? = null,
+    onSelectReadingMode: ((ReadingMode) -> Unit)? = null,
+    orientation: ReaderOrientation? = null,
+    onSelectOrientation: ((ReaderOrientation) -> Unit)? = null,
     onClickChapterList: (() -> Unit)? = null,
     isTopLight: Boolean = true,
     pagesTurnedInSession: Int = 0,
     sessionDurationSeconds: Long = 0L,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
 
-    // Dynamic contrast based on sampled background luminance:
-    val targetPrimary = if (isTopLight) Color(0xFF111113) else Color.White
-    val targetSecondary = if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
-    val targetPillBorder = if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
-    val targetSurfacePillBg = if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
-    val targetGlassTint = if (isTopLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
+    // When Liquid Glass is enabled, follow the system Dark/Light recipe (Expo GlassRecipe.MenuDark / MenuLight)
+    // so the glass surface and text contrast always match the Expo popup menu.
+    val targetPrimary = if (isGlass) {
+        if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
+    } else {
+        if (isTopLight) Color(0xFF111113) else Color.White
+    }
+    val targetSecondary = if (isGlass) {
+        if (isDark) Color(0x99EBEBF5) else Color(0x993C3C43)
+    } else {
+        if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
+    }
+    val targetPillBorder = if (isGlass) {
+        if (isDark) Color(0x16FFFFFF) else Color(0x1A000000)
+    } else {
+        if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
+    }
+    val targetSurfacePillBg = if (isGlass) {
+        if (isDark) Color(0x1EFFFFFF) else Color(0x12000000)
+    } else {
+        if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
+    }
+    val targetGlassTint = if (isDark) Color(0xFF0B0B0D).copy(alpha = 0.68f) else Color(0xFFFAFBFD).copy(alpha = 0.62f)
     val targetOverviewSurface = if (isTopLight) Color(0xEEFFFFFF) else Color(0xD81C1C20)
     val solidBackingBg = if (isTopLight) Color(0xF4FAFAFC) else Color(0xEA202024)
 
@@ -128,14 +156,101 @@ fun ReaderTopBar(
     val invertColorsPref = remember { readerPreferences.readerInvertColors() }
     val invertColors by invertColorsPref.collectAsState()
     var showOverflow by remember { mutableStateOf(false) }
+    var showReadingModeMenu by remember { mutableStateOf(false) }
+    var showOrientationMenu by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
     val hasOverflow = onOpenInWebView != null || onOpenInBrowser != null || onShare != null
+
+    val webViewLabel = stringResource(MR.strings.action_open_in_web_view)
+    val browserLabel = stringResource(MR.strings.action_open_in_browser)
+    val shareLabel = stringResource(MR.strings.action_share)
+    val overflowGlassItems = remember(onOpenInWebView, onOpenInBrowser, onShare, webViewLabel, browserLabel, shareLabel) {
+        buildList {
+            onOpenInWebView?.let { action ->
+                add(
+                    GlassMenuItemRecord(
+                        id = "open_in_web_view",
+                        title = webViewLabel,
+                        onClick = {
+                            showOverflow = false
+                            action()
+                        },
+                    ),
+                )
+            }
+            onOpenInBrowser?.let { action ->
+                add(
+                    GlassMenuItemRecord(
+                        id = "open_in_browser",
+                        title = browserLabel,
+                        onClick = {
+                            showOverflow = false
+                            action()
+                        },
+                    ),
+                )
+            }
+            onShare?.let { action ->
+                add(
+                    GlassMenuItemRecord(
+                        id = "share",
+                        title = shareLabel,
+                        onClick = {
+                            showOverflow = false
+                            action()
+                        },
+                    ),
+                )
+            }
+        }
+    }
+
+    val readingModeGlassItems = if (onSelectReadingMode != null) {
+        ReadingMode.entries.map { mode ->
+            val label = stringResource(mode.stringRes)
+            GlassMenuItemRecord(
+                id = mode.name,
+                title = label,
+                checked = if (mode == readingMode) true else null,
+                onClick = {
+                    showReadingModeMenu = false
+                    onSelectReadingMode(mode)
+                },
+            )
+        }
+    } else {
+        emptyList()
+    }
+
+    val orientationGlassItems = if (onSelectOrientation != null) {
+        ReaderOrientation.entries.map { mode ->
+            val label = stringResource(mode.stringRes)
+            GlassMenuItemRecord(
+                id = mode.name,
+                title = label,
+                checked = if (mode == orientation) true else null,
+                onClick = {
+                    showOrientationMenu = false
+                    onSelectOrientation(mode)
+                },
+            )
+        }
+    } else {
+        emptyList()
+    }
 
     if (isExpanded) {
         // Full-Width Apple Cupertino Overview Sheet (occupies top 1/3 to 1/2 of screen)
         Box(
             modifier = modifier.fillMaxWidth(),
         ) {
+            if (useNativeGlass) {
+                NativeGlassSurface(
+                    modifier = Modifier.matchParentSize(),
+                    cornerRadius = 26.dp,
+                    topCornersOnly = false,
+                )
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,190 +262,200 @@ fun ReaderTopBar(
                         ),
                     )
                     .then(
-                        if (isGlass) {
+                        if (useNativeGlass) {
+                            Modifier
+                        } else if (isGlass) {
                             Modifier.liquidGlassPopupSurface(
-                                shape = RoundedCornerShape(28.dp),
-                                surfaceColor = if (isTopLight) Color(0x55FFFFFF) else Color(0x3816161A),
+                                shape = RoundedCornerShape(26.dp),
                             )
                         } else {
                             Modifier
                                 .background(
                                     color = overviewSurfaceColor,
-                                    shape = RoundedCornerShape(28.dp),
+                                    shape = RoundedCornerShape(26.dp),
                                 )
                                 .border(
                                     width = 0.5.dp,
                                     color = pillBorderColor,
-                                    shape = RoundedCornerShape(28.dp),
+                                    shape = RoundedCornerShape(26.dp),
                                 )
                         },
                     )
                     .padding(horizontal = 18.dp, vertical = 14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                    // Top drag grabber handle
+                // Top drag grabber handle
+                Box(
+                    modifier = Modifier
+                        .size(width = 40.dp, height = 4.5.dp)
+                        .clip(Capsule())
+                        .background(secondaryTextColor.copy(alpha = 0.35f))
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            isExpanded = false
+                        },
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Header row: Back button, Title & Chapter, Bookmark, Collapse, Overflow
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // Back button
                     Box(
                         modifier = Modifier
-                            .size(width = 40.dp, height = 4.5.dp)
-                            .clip(Capsule())
-                            .background(secondaryTextColor.copy(alpha = 0.35f))
-                            .clickable {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                isExpanded = false
-                            },
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Header row: Back button, Title & Chapter, Bookmark, Collapse, Overflow
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(surfacePillBg)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = true, radius = 19.dp),
+                                onClick = navigateUp,
+                            ),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        // Back button
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(surfacePillBg)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 19.dp),
-                                    onClick = navigateUp,
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                            contentDescription = stringResource(MR.strings.action_bar_up_description),
+                            tint = primaryTextColor,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onClickTopAppBar?.invoke()
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        if (!mangaTitle.isNullOrEmpty()) {
+                            Text(
+                                text = mangaTitle,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    color = primaryTextColor,
                                 ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                                contentDescription = stringResource(MR.strings.action_bar_up_description),
-                                tint = primaryTextColor,
-                                modifier = Modifier.size(20.dp),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
                             )
                         }
+                        if (!chapterTitle.isNullOrEmpty()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = chapterTitle,
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 12.sp,
+                                    color = secondaryTextColor,
+                                ),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
 
-                        Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
 
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    onClickTopAppBar?.invoke()
+                    // Bookmark toggle
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(if (bookmarked) activePillBg else surfacePillBg)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = true, radius = 19.dp),
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onToggleBookmarked()
                                 },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            if (!mangaTitle.isNullOrEmpty()) {
-                                Text(
-                                    text = mangaTitle,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 15.sp,
-                                        color = primaryTextColor,
-                                    ),
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                            if (!chapterTitle.isNullOrEmpty()) {
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = chapterTitle,
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = 12.sp,
-                                        color = secondaryTextColor,
-                                    ),
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                        }
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
+                            contentDescription = stringResource(
+                                if (bookmarked) MR.strings.action_remove_bookmark else MR.strings.action_bookmark,
+                            ),
+                            tint = if (bookmarked) activePillText else primaryTextColor,
+                            modifier = Modifier.size(19.dp),
+                        )
+                    }
 
-                        Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
-                        // Bookmark toggle
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(if (bookmarked) activePillBg else surfacePillBg)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 19.dp),
-                                    onClick = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onToggleBookmarked()
-                                    },
-                                ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
-                                contentDescription = stringResource(
-                                    if (bookmarked) MR.strings.action_remove_bookmark else MR.strings.action_bookmark,
-                                ),
-                                tint = if (bookmarked) activePillText else primaryTextColor,
-                                modifier = Modifier.size(19.dp),
-                            )
-                        }
+                    // Collapse overview button
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(surfacePillBg)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = true, radius = 19.dp),
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    isExpanded = false
+                                },
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowUp,
+                            contentDescription = "Collapse overview",
+                            tint = primaryTextColor,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
 
+                    if (hasOverflow) {
                         Spacer(modifier = Modifier.width(6.dp))
+                        Box {
+                            if (useNativeGlass) {
+                                GlassMenuAnchor(
+                                    expanded = showOverflow,
+                                    onDismissRequest = { showOverflow = false },
+                                    items = overflowGlassItems,
+                                    modifier = Modifier.size(38.dp),
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(surfacePillBg)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = ripple(bounded = true, radius = 19.dp),
+                                        onClick = { showOverflow = true },
+                                    ),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.MoreHoriz,
+                                    contentDescription = stringResource(MR.strings.label_more),
+                                    tint = primaryTextColor,
+                                    modifier = Modifier.size(19.dp),
+                                )
+                            }
 
-                        // Collapse overview button
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(surfacePillBg)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = ripple(bounded = true, radius = 19.dp),
-                                    onClick = {
-                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                        isExpanded = false
-                                    },
-                                ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.KeyboardArrowUp,
-                                contentDescription = "Collapse overview",
-                                tint = primaryTextColor,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-
-                        if (hasOverflow) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box {
-                                Box(
-                                    modifier = Modifier
-                                        .size(38.dp)
-                                        .clip(CircleShape)
-                                        .background(surfacePillBg)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = ripple(bounded = true, radius = 19.dp),
-                                            onClick = { showOverflow = true },
-                                        ),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.MoreHoriz,
-                                        contentDescription = stringResource(MR.strings.label_more),
-                                        tint = primaryTextColor,
-                                        modifier = Modifier.size(19.dp),
-                                    )
-                                }
-
+                            if (!useNativeGlass) {
                                 CupertinoFrostedPopup(
                                     expanded = showOverflow,
                                     onDismissRequest = { showOverflow = false },
                                 ) {
                                     onOpenInWebView?.let {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(MR.strings.action_open_in_web_view), color = primaryTextColor) },
+                                            text = { Text(webViewLabel, color = primaryTextColor) },
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -340,7 +465,7 @@ fun ReaderTopBar(
                                     }
                                     onOpenInBrowser?.let {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(MR.strings.action_open_in_browser), color = primaryTextColor) },
+                                            text = { Text(browserLabel, color = primaryTextColor) },
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -350,7 +475,7 @@ fun ReaderTopBar(
                                     }
                                     onShare?.let {
                                         DropdownMenuItem(
-                                            text = { Text(stringResource(MR.strings.action_share), color = primaryTextColor) },
+                                            text = { Text(shareLabel, color = primaryTextColor) },
                                             onClick = {
                                                 showOverflow = false
                                                 it()
@@ -361,78 +486,92 @@ fun ReaderTopBar(
                             }
                         }
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(
-                        thickness = 0.5.dp,
-                        color = pillBorderColor,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = pillBorderColor,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    // Reading session metadata badges
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (totalPages > 0) {
-                            val percent = (currentPage * 100 / totalPages.coerceAtLeast(1))
-                            Box(
-                                modifier = Modifier
-                                    .clip(Capsule())
-                                    .background(surfacePillBg)
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                            ) {
-                                Text(
-                                    text = "📄 $currentPage / $totalPages ($percent%)",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 11.sp,
-                                        color = primaryTextColor,
-                                    ),
+                // Reading session metadata badges
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (totalPages > 0) {
+                        val percent = (currentPage * 100 / totalPages.coerceAtLeast(1))
+                        Box(
+                            modifier = Modifier
+                                .clip(Capsule())
+                                .background(surfacePillBg)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = "📄 $currentPage / $totalPages ($percent%)",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp,
+                                    color = primaryTextColor,
+                                ),
+                            )
+                        }
+                    }
+
+                    if (totalPages > 0 && currentPage > 0) {
+                        val remainingPages = (totalPages - currentPage).coerceAtLeast(0)
+                        val ppm = if (sessionDurationSeconds >= 20L && pagesTurnedInSession > 0) {
+                            (pagesTurnedInSession * 60f) / sessionDurationSeconds
+                        } else {
+                            2.2f
+                        }
+                        val etaMin = ceil(remainingPages / ppm).toInt()
+                        val paceText = if (sessionDurationSeconds >= 30L && pagesTurnedInSession > 0) {
+                            "⚡ %.1f p/m • ~%dm left".format(ppm, etaMin)
+                        } else if (etaMin > 0) {
+                            "⚡ ~${etaMin}m left"
+                        } else {
+                            "⚡ Final page"
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(Capsule())
+                                .background(surfacePillBg)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = paceText,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp,
+                                    color = activePillText,
+                                ),
+                            )
+                        }
+                    }
+
+                    if (!readingModeName.isNullOrEmpty()) {
+                        Box {
+                            if (useNativeGlass && readingModeGlassItems.isNotEmpty()) {
+                                GlassMenuAnchor(
+                                    expanded = showReadingModeMenu,
+                                    onDismissRequest = { showReadingModeMenu = false },
+                                    items = readingModeGlassItems,
+                                    modifier = Modifier.matchParentSize(),
                                 )
                             }
-                        }
-
-                        if (totalPages > 0 && currentPage > 0) {
-                            val remainingPages = (totalPages - currentPage).coerceAtLeast(0)
-                            val ppm = if (sessionDurationSeconds >= 20L && pagesTurnedInSession > 0) {
-                                (pagesTurnedInSession * 60f) / sessionDurationSeconds
-                            } else {
-                                2.2f
-                            }
-                            val etaMin = ceil(remainingPages / ppm).toInt()
-                            val paceText = if (sessionDurationSeconds >= 30L && pagesTurnedInSession > 0) {
-                                "⚡ %.1f p/m • ~%dm left".format(ppm, etaMin)
-                            } else if (etaMin > 0) {
-                                "⚡ ~${etaMin}m left"
-                            } else {
-                                "⚡ Final page"
-                            }
                             Box(
                                 modifier = Modifier
                                     .clip(Capsule())
                                     .background(surfacePillBg)
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                            ) {
-                                Text(
-                                    text = paceText,
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 11.sp,
-                                        color = activePillText,
-                                    ),
-                                )
-                            }
-                        }
-
-                        if (!readingModeName.isNullOrEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(Capsule())
-                                    .background(surfacePillBg)
-                                    .clickable(enabled = onClickReadingMode != null) {
-                                        onClickReadingMode?.invoke()
+                                    .clickable(enabled = onClickReadingMode != null || onSelectReadingMode != null) {
+                                        if (useNativeGlass && readingModeGlassItems.isNotEmpty()) {
+                                            showReadingModeMenu = true
+                                        } else {
+                                            onClickReadingMode?.invoke()
+                                        }
                                     }
                                     .padding(horizontal = 8.dp, vertical = 4.dp),
                             ) {
@@ -446,14 +585,28 @@ fun ReaderTopBar(
                                 )
                             }
                         }
+                    }
 
-                        if (!orientationName.isNullOrEmpty()) {
+                    if (!orientationName.isNullOrEmpty()) {
+                        Box {
+                            if (useNativeGlass && orientationGlassItems.isNotEmpty()) {
+                                GlassMenuAnchor(
+                                    expanded = showOrientationMenu,
+                                    onDismissRequest = { showOrientationMenu = false },
+                                    items = orientationGlassItems,
+                                    modifier = Modifier.matchParentSize(),
+                                )
+                            }
                             Box(
                                 modifier = Modifier
                                     .clip(Capsule())
                                     .background(surfacePillBg)
-                                    .clickable(enabled = onClickOrientation != null) {
-                                        onClickOrientation?.invoke()
+                                    .clickable(enabled = onClickOrientation != null || onSelectOrientation != null) {
+                                        if (useNativeGlass && orientationGlassItems.isNotEmpty()) {
+                                            showOrientationMenu = true
+                                        } else {
+                                            onClickOrientation?.invoke()
+                                        }
                                     }
                                     .padding(horizontal = 8.dp, vertical = 4.dp),
                             ) {
@@ -468,287 +621,323 @@ fun ReaderTopBar(
                             }
                         }
                     }
+                }
 
-                    // Interactive chapter page scrubber slider
-                    if (totalPages > 1 && onPageIndexChange != null) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = "$currentPage",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = primaryTextColor,
-                                    fontSize = 11.sp,
-                                ),
-                            )
-                            val safeTotalPages = maxOf(1, totalPages)
-                            val safeCurrentPageFloat = currentPage.toFloat().coerceIn(1f, safeTotalPages.toFloat())
-                            Slider(
-                                value = safeCurrentPageFloat,
-                                onValueChange = { nextVal ->
-                                    val targetPage = nextVal.toInt().coerceIn(1, safeTotalPages)
-                                    if (targetPage != currentPage) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                        onPageIndexChange(targetPage)
-                                    }
-                                },
-                                valueRange = 1f..safeTotalPages.toFloat(),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 8.dp),
-                            )
-                            Text(
-                                text = "$totalPages",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = secondaryTextColor,
-                                    fontSize = 11.sp,
-                                ),
-                            )
-                        }
-                    }
-
-                    // Quick action pills row
+                // Interactive chapter page scrubber slider
+                if (totalPages > 1 && onPageIndexChange != null) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        // Eye Care Mode Cycler
-                        val eyeComfortLabel = when (eyeCareFilter) {
-                            1 -> "Sepia"
-                            2 -> "Night"
-                            3 -> "OLED"
-                            else -> "Eye Care: Off"
-                        }
+                        Text(
+                            text = "$currentPage",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = primaryTextColor,
+                                fontSize = 11.sp,
+                            ),
+                        )
+                        val safeTotalPages = maxOf(1, totalPages)
+                        val safeCurrentPageFloat = currentPage.toFloat().coerceIn(1f, safeTotalPages.toFloat())
+                        Slider(
+                            value = safeCurrentPageFloat,
+                            onValueChange = { nextVal ->
+                                val targetPage = nextVal.toInt().coerceIn(1, safeTotalPages)
+                                if (targetPage != currentPage) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onPageIndexChange(targetPage)
+                                }
+                            },
+                            valueRange = 1f..safeTotalPages.toFloat(),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 8.dp),
+                        )
+                        Text(
+                            text = "$totalPages",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = secondaryTextColor,
+                                fontSize = 11.sp,
+                            ),
+                        )
+                    }
+                }
+
+                // Quick action pills row
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // Eye Care Mode Cycler
+                    val eyeComfortLabel = when (eyeCareFilter) {
+                        1 -> "Sepia"
+                        2 -> "Night"
+                        3 -> "OLED"
+                        else -> "Eye Care: Off"
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(Capsule())
+                            .background(if (eyeCareFilter > 0) activePillBg else surfacePillBg)
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                eyeCareFilterPref.set((eyeCareFilter + 1) % 4)
+                            }
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = "🌙 $eyeComfortLabel",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 11.sp,
+                                fontWeight = if (eyeCareFilter > 0) FontWeight.Bold else FontWeight.Medium,
+                                color = if (eyeCareFilter > 0) activePillText else primaryTextColor,
+                            ),
+                        )
+                    }
+
+                    // Reading Ruler Toggle
+                    Box(
+                        modifier = Modifier
+                            .clip(Capsule())
+                            .background(if (readingRulerEnabled) activePillBg else surfacePillBg)
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                readingRulerPref.set(!readingRulerEnabled)
+                            }
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = if (readingRulerEnabled) "📏 Ruler: On" else "📏 Ruler",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 11.sp,
+                                fontWeight = if (readingRulerEnabled) FontWeight.Bold else FontWeight.Medium,
+                                color = if (readingRulerEnabled) activePillText else primaryTextColor,
+                            ),
+                        )
+                    }
+
+                    // Invert Colors Toggle
+                    Box(
+                        modifier = Modifier
+                            .clip(Capsule())
+                            .background(if (invertColors) activePillBg else surfacePillBg)
+                            .clickable {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                invertColorsPref.set(!invertColors)
+                            }
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = if (invertColors) "🌓 Invert: On" else "🌓 Invert",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 11.sp,
+                                fontWeight = if (invertColors) FontWeight.Bold else FontWeight.Medium,
+                                color = if (invertColors) activePillText else primaryTextColor,
+                            ),
+                        )
+                    }
+
+                    // Crop Borders Toggle
+                    if (onClickCropBorder != null) {
                         Box(
                             modifier = Modifier
                                 .clip(Capsule())
-                                .background(if (eyeCareFilter > 0) activePillBg else surfacePillBg)
+                                .background(if (cropEnabled) activePillBg else surfacePillBg)
                                 .clickable {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    eyeCareFilterPref.set((eyeCareFilter + 1) % 4)
+                                    onClickCropBorder()
                                 }
                                 .padding(horizontal = 10.dp, vertical = 6.dp),
                         ) {
                             Text(
-                                text = "🌙 $eyeComfortLabel",
+                                text = if (cropEnabled) "✂️ Crop: On" else "✂️ Crop",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontSize = 11.sp,
-                                    fontWeight = if (eyeCareFilter > 0) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (eyeCareFilter > 0) activePillText else primaryTextColor,
+                                    fontWeight = if (cropEnabled) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (cropEnabled) activePillText else primaryTextColor,
                                 ),
                             )
-                        }
-
-                        // Reading Ruler Toggle
-                        Box(
-                            modifier = Modifier
-                                .clip(Capsule())
-                                .background(if (readingRulerEnabled) activePillBg else surfacePillBg)
-                                .clickable {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    readingRulerPref.set(!readingRulerEnabled)
-                                }
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                        ) {
-                            Text(
-                                text = if (readingRulerEnabled) "📏 Ruler: On" else "📏 Ruler",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 11.sp,
-                                    fontWeight = if (readingRulerEnabled) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (readingRulerEnabled) activePillText else primaryTextColor,
-                                ),
-                            )
-                        }
-
-                        // Invert Colors Toggle
-                        Box(
-                            modifier = Modifier
-                                .clip(Capsule())
-                                .background(if (invertColors) activePillBg else surfacePillBg)
-                                .clickable {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    invertColorsPref.set(!invertColors)
-                                }
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                        ) {
-                            Text(
-                                text = if (invertColors) "🌓 Invert: On" else "🌓 Invert",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 11.sp,
-                                    fontWeight = if (invertColors) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (invertColors) activePillText else primaryTextColor,
-                                ),
-                            )
-                        }
-
-                        // Crop Borders Toggle
-                        if (onClickCropBorder != null) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(Capsule())
-                                    .background(if (cropEnabled) activePillBg else surfacePillBg)
-                                    .clickable {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onClickCropBorder()
-                                    }
-                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                            ) {
-                                Text(
-                                    text = if (cropEnabled) "✂️ Crop: On" else "✂️ Crop",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 11.sp,
-                                        fontWeight = if (cropEnabled) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (cropEnabled) activePillText else primaryTextColor,
-                                    ),
-                                )
-                            }
-                        }
-
-                        // Chapter List Drawer
-                        if (onClickChapterList != null) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(Capsule())
-                                    .background(surfacePillBg)
-                                    .clickable {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onClickChapterList()
-                                    }
-                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                            ) {
-                                Text(
-                                    text = "📑 Chapters",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = primaryTextColor,
-                                    ),
-                                )
-                            }
-                        }
-
-                        // Series Details
-                        if (onClickTopAppBar != null) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(Capsule())
-                                    .background(surfacePillBg)
-                                    .clickable {
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onClickTopAppBar()
-                                    }
-                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                            ) {
-                                Text(
-                                    text = "📖 Details",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = primaryTextColor,
-                                    ),
-                                )
-                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    // Chapter List Drawer
+                    if (onClickChapterList != null) {
+                        Box(
+                            modifier = Modifier
+                                .clip(Capsule())
+                                .background(surfacePillBg)
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onClickChapterList()
+                                }
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                text = "📑 Chapters",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = primaryTextColor,
+                                ),
+                            )
+                        }
+                    }
 
-                    // Bottom grabber handle
-                    Box(
-                        modifier = Modifier
-                            .size(width = 44.dp, height = 4.5.dp)
-                            .clip(Capsule())
-                            .background(secondaryTextColor.copy(alpha = 0.35f))
-                            .clickable {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                isExpanded = false
-                            },
-                    )
+                    // Series Details
+                    if (onClickTopAppBar != null) {
+                        Box(
+                            modifier = Modifier
+                                .clip(Capsule())
+                                .background(surfacePillBg)
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onClickTopAppBar()
+                                }
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                text = "📖 Details",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = primaryTextColor,
+                                ),
+                            )
+                        }
+                    }
                 }
-            }
-        } else {
-            // Compact Floating Apple Cupertino Top Bar
-            Row(
-                modifier = modifier,
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                // Frosted Circular Back Button (44dp)
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Bottom grabber handle
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
-                        .then(
-                            if (isGlass) {
-                                Modifier.liquidGlassSurface(
+                        .size(width = 44.dp, height = 4.5.dp)
+                        .clip(Capsule())
+                        .background(secondaryTextColor.copy(alpha = 0.35f))
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            isExpanded = false
+                        },
+                )
+            }
+        }
+    } else {
+        // Compact Floating Apple Cupertino Top Bar
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            // Frosted Circular Back Button (44dp)
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .then(
+                        if (useNativeGlass) {
+                            Modifier
+                        } else if (isGlass) {
+                            Modifier
+                                .liquidGlassSurface(
                                     shape = CircleShape,
-                                    blurRadius = 3.dp,
+                                    blurRadius = 24.dp,
                                     refractionHeight = 16.dp,
                                     refractionAmount = 24.dp,
                                     tintColor = glassTintColor,
                                 )
-                            } else {
-                                Modifier.background(
+                                .border(
+                                    width = 0.5.dp,
+                                    color = pillBorderColor,
+                                    shape = CircleShape,
+                                )
+                        } else {
+                            Modifier
+                                .background(
                                     color = solidBackingBg,
                                     shape = CircleShape,
                                 )
-                            },
-                        )
-                        .border(
-                            width = 0.5.dp,
-                            color = pillBorderColor,
-                            shape = CircleShape,
-                        )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(bounded = true, radius = 22.dp),
-                            onClick = navigateUp,
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                        contentDescription = stringResource(MR.strings.action_bar_up_description),
-                        tint = primaryTextColor,
+                                .border(
+                                    width = 0.5.dp,
+                                    color = pillBorderColor,
+                                    shape = CircleShape,
+                                )
+                        },
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = true, radius = 22.dp),
+                        onClick = navigateUp,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (useNativeGlass) {
+                    NativeGlassSurface(
+                        modifier = Modifier.matchParentSize(),
+                        cornerRadius = 22.dp,
+                        topCornersOnly = false,
                     )
                 }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+                    contentDescription = stringResource(MR.strings.action_bar_up_description),
+                    tint = primaryTextColor,
+                )
+            }
 
-                // Smoothly Clickable Title Capsule (Tap to expand full top overview)
+            // Smoothly Clickable Title Capsule (Tap to expand full top overview)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.Center,
+            ) {
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
                     contentAlignment = Alignment.Center,
                 ) {
+                    if (useNativeGlass) {
+                        NativeGlassSurface(
+                            modifier = Modifier.matchParentSize(),
+                            cornerRadius = 24.dp,
+                            topCornersOnly = false,
+                        )
+                    }
                     Column(
                         modifier = Modifier
                             .then(
-                                if (isGlass) {
-                                    Modifier.liquidGlassSurface(
-                                        shape = Capsule(),
-                                        blurRadius = 3.dp,
-                                        refractionHeight = 16.dp,
-                                        refractionAmount = 26.dp,
-                                        tintColor = glassTintColor,
-                                    )
+                                if (useNativeGlass) {
+                                    Modifier
+                                } else if (isGlass) {
+                                    Modifier
+                                        .liquidGlassSurface(
+                                            shape = Capsule(),
+                                            blurRadius = 24.dp,
+                                            refractionHeight = 16.dp,
+                                            refractionAmount = 26.dp,
+                                            tintColor = glassTintColor,
+                                        )
+                                        .border(
+                                            width = 0.5.dp,
+                                            color = pillBorderColor,
+                                            shape = Capsule(),
+                                        )
                                 } else {
-                                    Modifier.background(
-                                        color = solidBackingBg,
-                                        shape = Capsule(),
-                                    )
+                                    Modifier
+                                        .background(
+                                            color = solidBackingBg,
+                                            shape = Capsule(),
+                                        )
+                                        .border(
+                                            width = 0.5.dp,
+                                            color = pillBorderColor,
+                                            shape = Capsule(),
+                                        )
                                 },
-                            )
-                            .border(
-                                width = 0.5.dp,
-                                color = pillBorderColor,
-                                shape = Capsule(),
                             )
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
@@ -788,99 +977,141 @@ fun ReaderTopBar(
                         }
                     }
                 }
+            }
 
-                // Right Actions: Bookmark & Overflow (44dp)
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .then(
-                                if (isGlass) {
-                                    Modifier.liquidGlassSurface(
+            // Right Actions: Bookmark & Overflow (44dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .then(
+                            if (useNativeGlass) {
+                                Modifier
+                            } else if (isGlass) {
+                                Modifier
+                                    .liquidGlassSurface(
                                         shape = CircleShape,
-                                        blurRadius = 3.dp,
+                                        blurRadius = 24.dp,
                                         refractionHeight = 16.dp,
                                         refractionAmount = 24.dp,
                                         tintColor = glassTintColor,
-                                    )
-                                } else {
-                                    Modifier.background(
-                                        color = solidBackingBg,
-                                        shape = CircleShape,
-                                    )
-                                },
-                            )
-                            .border(
-                                width = 0.5.dp,
-                                color = pillBorderColor,
-                                shape = CircleShape,
-                            )
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = ripple(bounded = true, radius = 22.dp),
-                                onClick = onToggleBookmarked,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
-                            contentDescription = stringResource(
-                                if (bookmarked) MR.strings.action_remove_bookmark else MR.strings.action_bookmark,
-                            ),
-                            tint = if (bookmarked) MaterialTheme.colorScheme.primary else primaryTextColor,
-                        )
-                    }
-
-                    if (hasOverflow) {
-                        Box {
-                            Box(
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .then(
-                                        if (isGlass) {
-                                            Modifier.liquidGlassSurface(
-                                                shape = CircleShape,
-                                                blurRadius = 3.dp,
-                                                refractionHeight = 16.dp,
-                                                refractionAmount = 24.dp,
-                                                tintColor = glassTintColor,
-                                            )
-                                        } else {
-                                            Modifier.background(
-                                                color = solidBackingBg,
-                                                shape = CircleShape,
-                                            )
-                                        },
                                     )
                                     .border(
                                         width = 0.5.dp,
                                         color = pillBorderColor,
                                         shape = CircleShape,
                                     )
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = ripple(bounded = true, radius = 22.dp),
-                                        onClick = { showOverflow = true },
-                                    ),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.MoreHoriz,
-                                    contentDescription = stringResource(MR.strings.label_more),
-                                    tint = primaryTextColor,
+                            } else {
+                                Modifier
+                                    .background(
+                                        color = solidBackingBg,
+                                        shape = CircleShape,
+                                    )
+                                    .border(
+                                        width = 0.5.dp,
+                                        color = pillBorderColor,
+                                        shape = CircleShape,
+                                    )
+                            },
+                        )
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = true, radius = 22.dp),
+                            onClick = onToggleBookmarked,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (useNativeGlass) {
+                        NativeGlassSurface(
+                            modifier = Modifier.matchParentSize(),
+                            cornerRadius = 22.dp,
+                            topCornersOnly = false,
+                        )
+                    }
+                    Icon(
+                        imageVector = if (bookmarked) Icons.Outlined.Bookmark else Icons.Outlined.BookmarkBorder,
+                        contentDescription = stringResource(
+                            if (bookmarked) MR.strings.action_remove_bookmark else MR.strings.action_bookmark,
+                        ),
+                        tint = if (bookmarked) MaterialTheme.colorScheme.primary else primaryTextColor,
+                    )
+                }
+
+                if (hasOverflow) {
+                    Box {
+                        if (useNativeGlass) {
+                            GlassMenuAnchor(
+                                expanded = showOverflow,
+                                onDismissRequest = { showOverflow = false },
+                                items = overflowGlassItems,
+                                modifier = Modifier.size(44.dp),
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .then(
+                                    if (useNativeGlass) {
+                                        Modifier
+                                    } else if (isGlass) {
+                                        Modifier
+                                            .liquidGlassSurface(
+                                                shape = CircleShape,
+                                                blurRadius = 24.dp,
+                                                refractionHeight = 16.dp,
+                                                refractionAmount = 24.dp,
+                                                tintColor = glassTintColor,
+                                            )
+                                            .border(
+                                                width = 0.5.dp,
+                                                color = pillBorderColor,
+                                                shape = CircleShape,
+                                            )
+                                    } else {
+                                        Modifier
+                                            .background(
+                                                color = solidBackingBg,
+                                                shape = CircleShape,
+                                            )
+                                            .border(
+                                                width = 0.5.dp,
+                                                color = pillBorderColor,
+                                                shape = CircleShape,
+                                            )
+                                    },
+                                )
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(bounded = true, radius = 22.dp),
+                                    onClick = { showOverflow = true },
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (useNativeGlass) {
+                                NativeGlassSurface(
+                                    modifier = Modifier.matchParentSize(),
+                                    cornerRadius = 22.dp,
+                                    topCornersOnly = false,
                                 )
                             }
+                            Icon(
+                                imageVector = Icons.Outlined.MoreHoriz,
+                                contentDescription = stringResource(MR.strings.label_more),
+                                tint = primaryTextColor,
+                            )
+                        }
 
+                        if (!useNativeGlass) {
                             CupertinoFrostedPopup(
                                 expanded = showOverflow,
                                 onDismissRequest = { showOverflow = false },
                             ) {
                                 onOpenInWebView?.let {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(MR.strings.action_open_in_web_view), color = primaryTextColor) },
+                                        text = { Text(webViewLabel, color = primaryTextColor) },
                                         onClick = {
                                             showOverflow = false
                                             it()
@@ -890,7 +1121,7 @@ fun ReaderTopBar(
                                 }
                                 onOpenInBrowser?.let {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(MR.strings.action_open_in_browser), color = primaryTextColor) },
+                                        text = { Text(browserLabel, color = primaryTextColor) },
                                         onClick = {
                                             showOverflow = false
                                             it()
@@ -900,7 +1131,7 @@ fun ReaderTopBar(
                                 }
                                 onShare?.let {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(MR.strings.action_share), color = primaryTextColor) },
+                                        text = { Text(shareLabel, color = primaryTextColor) },
                                         onClick = {
                                             showOverflow = false
                                             it()
@@ -913,4 +1144,5 @@ fun ReaderTopBar(
                 }
             }
         }
+    }
 }

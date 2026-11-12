@@ -217,11 +217,18 @@ private fun TrackInfoItem(
             )
         }
 
+        val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+        val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+        val insetBg = if (isGlass) {
+            if (isDark) androidx.compose.ui.graphics.Color(0x18FFFFFF) else androidx.compose.ui.graphics.Color(0x0E000000)
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHighest
+        }
         Box(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .background(insetBg)
                 .padding(8.dp)
                 .clip(RoundedCornerShape(6.dp)),
         ) {

@@ -84,15 +84,24 @@ import kotlin.math.min
  */
 @Composable
 fun EnableWindowBlurBehind(radiusDp: Dp = 28.dp) {
+    val useNativeGlass = LocalLiquidGlassConfig.current.enabled && supportsNativeGlassMenu
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val view = LocalView.current
         val density = LocalDensity.current
-        DisposableEffect(view) {
+        DisposableEffect(view, useNativeGlass) {
             val root = view.rootView
             val params = root.layoutParams as? WindowManager.LayoutParams
             if (params != null) {
-                params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-                params.blurBehindRadius = with(density) { radiusDp.roundToPx() }
+                if (useNativeGlass) {
+                    params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
+                    params.blurBehindRadius = 0
+                    if ((params.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && params.dimAmount > 0.08f) {
+                        params.dimAmount = 0.08f
+                    }
+                } else {
+                    params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+                    params.blurBehindRadius = with(density) { radiusDp.roundToPx() }
+                }
                 val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
                 try {
                     wm?.updateViewLayout(root, params)

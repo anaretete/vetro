@@ -11,7 +11,9 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.RenderNode
 import android.os.Build
+import android.os.SystemClock
 import android.util.AttributeSet
+import android.view.Choreographer
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -23,6 +25,7 @@ import expo.modules.glassmenuandroid.records.GlassMenuConfigRecord
 import expo.modules.glassmenuandroid.records.GlassTriggerConfigRecord
 import expo.modules.glassmenuandroid.render.GlassRenderer
 import expo.modules.glassmenuandroid.render.GlassSurfaceState
+import java.util.WeakHashMap
 import kotlin.math.max
 import kotlin.math.min
 
@@ -47,12 +50,11 @@ open class GlassPanelView @JvmOverloads constructor(
   context: Context,
   attrs: AttributeSet? = null,
   defStyleAttr: Int = 0,
-) : FrameLayout(context, attrs, defStyleAttr), ViewTreeObserver.OnPreDrawListener {
+) : FrameLayout(context, attrs, defStyleAttr), ViewTreeObserver.OnPreDrawListener, Choreographer.FrameCallback {
 
   private val density = resources.displayMetrics.density
   private val supportsGlass = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
   private var glassRenderer: Any? = null
-  private var backdropNode: Any? = null
   private val surfaceState = GlassSurfaceState()
   private val limits = Rect()
   private val viewLoc = IntArray(2)
@@ -63,6 +65,9 @@ open class GlassPanelView @JvmOverloads constructor(
   private var lastH = 0
   private var selfCapturing = false
   private var observedActivityDecor: View? = null
+  private var frameCallbackScheduled = false
+  private var warmupFrames = 0
+  private var movingFrames = 0
 
   private val fallbackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
   private val fallbackRect = RectF()
@@ -139,6 +144,8 @@ open class GlassPanelView @JvmOverloads constructor(
     ) {
       customFrameRect.set(left, top, right, bottom)
       hasCustomFrame = true
+      movingFrames = max(movingFrames, MovingHoldFrames)
+      scheduleFrameTracking()
       invalidate()
     }
   }
@@ -152,7 +159,7 @@ open class GlassPanelView @JvmOverloads constructor(
 
   private val activityPreDrawListener = ViewTreeObserver.OnPreDrawListener {
     val actRoot = resolveActivityRoot()
-    if (actRoot != null && isHierarchyDirty(actRoot)) {
+    if (actRoot != null && isHierarchyDirty(actRoot, 0)) {
       invalidate()
     }
     true
@@ -162,6 +169,72 @@ open class GlassPanelView @JvmOverloads constructor(
     setWillNotDraw(false)
     clipChildren = false
     clipToPadding = false
+  }
+
+  private fun scheduleFrameTracking() {
+    if (!frameCallbackScheduled && isAttachedToWindow) {
+      frameCallbackScheduled = true
+      Choreographer.getInstance().postFrameCallback(this)
+    }
+  }
+
+  override fun doFrame(frameTimeNanos: Long) {
+    frameCallbackScheduled = false
+    if (!isAttachedToWindow) return
+
+    var keepRunning = false
+    if (warmupFrames > 0) {
+      warmupFrames--
+      keepRunning = true
+    }
+
+    if (isShown && width > 0 && height > 0) {
+      getLocationOnScreen(viewLoc)
+      if (viewLoc[0] != lastScreenX || viewLoc[1] != lastScreenY || width != lastW || height != lastH) {
+        lastScreenX = viewLoc[0]
+        lastScreenY = viewLoc[1]
+        lastW = width
+        lastH = height
+        movingFrames = MovingHoldFrames
+      }
+    }
+
+    if (movingFrames > 0) {
+      movingFrames--
+      keepRunning = true
+    }
+
+    if (keepRunning) {
+      invalidate()
+      scheduleFrameTracking()
+    }
+  }
+
+  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+    super.onLayout(changed, left, top, right, bottom)
+    if (changed) {
+      movingFrames = max(movingFrames, MovingHoldFrames)
+      scheduleFrameTracking()
+      invalidate()
+    }
+  }
+
+  override fun offsetTopAndBottom(offset: Int) {
+    super.offsetTopAndBottom(offset)
+    if (offset != 0) {
+      movingFrames = max(movingFrames, MovingHoldFrames)
+      scheduleFrameTracking()
+      invalidate()
+    }
+  }
+
+  override fun offsetLeftAndRight(offset: Int) {
+    super.offsetLeftAndRight(offset)
+    if (offset != 0) {
+      movingFrames = max(movingFrames, MovingHoldFrames)
+      scheduleFrameTracking()
+      invalidate()
+    }
   }
 
   override fun onAttachedToWindow() {
@@ -174,11 +247,16 @@ open class GlassPanelView @JvmOverloads constructor(
       observedActivityDecor = actDecor
       actDecor.viewTreeObserver.addOnPreDrawListener(activityPreDrawListener)
     }
+    warmupFrames = WarmupFrames
+    movingFrames = MovingHoldFrames
+    scheduleFrameTracking()
     invalidate()
   }
 
   override fun onDetachedFromWindow() {
     viewTreeObserver.removeOnPreDrawListener(this)
+    Choreographer.getInstance().removeFrameCallback(this)
+    frameCallbackScheduled = false
     observedActivityDecor?.let { decor ->
       if (decor.viewTreeObserver.isAlive) {
         decor.viewTreeObserver.removeOnPreDrawListener(activityPreDrawListener)
@@ -192,7 +270,7 @@ open class GlassPanelView @JvmOverloads constructor(
   private fun disableParentClipping() {
     var current = parent
     var depth = 0
-    while (current is ViewGroup && depth < 4) {
+    while (current is ViewGroup && depth < 10) {
       if (current.id == android.R.id.content) break
       current.clipChildren = false
       current.clipToPadding = false
@@ -231,8 +309,6 @@ open class GlassPanelView @JvmOverloads constructor(
   private fun releaseGraphics() {
     (glassRenderer as? GlassRenderer)?.release()
     glassRenderer = null
-    (backdropNode as? RenderNode)?.discardDisplayList()
-    backdropNode = null
   }
 
   override fun onPreDraw(): Boolean {
@@ -243,21 +319,26 @@ open class GlassPanelView @JvmOverloads constructor(
       lastScreenY = viewLoc[1]
       lastW = width
       lastH = height
+      movingFrames = max(movingFrames, MovingHoldFrames)
+      scheduleFrameTracking()
       invalidate()
     } else {
       val actRoot = resolveActivityRoot()
-      if (actRoot != null && isHierarchyDirty(actRoot)) {
+      if (actRoot != null && isHierarchyDirty(actRoot, 0)) {
         invalidate()
       }
     }
     return true
   }
 
-  private fun isHierarchyDirty(group: ViewGroup): Boolean {
-    if (group.isDirty) return true
-    for (i in 0 until group.childCount) {
-      val child = group.getChildAt(i)
-      if (child !is GlassMenuOverlay && child.isDirty) return true
+  private fun isHierarchyDirty(view: View, depth: Int): Boolean {
+    if (view === this || view is GlassMenuOverlay || view is GlassPanelView) return false
+    if (view.isDirty) return true
+    if (view is ViewGroup && depth < 6) {
+      for (i in 0 until view.childCount) {
+        val child = view.getChildAt(i)
+        if (child.visibility == VISIBLE && isHierarchyDirty(child, depth + 1)) return true
+      }
     }
     return false
   }
@@ -279,8 +360,13 @@ open class GlassPanelView @JvmOverloads constructor(
   private fun renderer(pixelDensity: Float): GlassRenderer =
     glassRenderer as? GlassRenderer ?: GlassRenderer(pixelDensity, pixelDensity * FieldStep).also { glassRenderer = it }
 
+  override fun draw(canvas: Canvas) {
+    if (selfCapturing || capturingPanelDepth > 0) return
+    super.draw(canvas)
+  }
+
   override fun onDraw(canvas: Canvas) {
-    if (selfCapturing || width <= 0 || height <= 0) return
+    if (selfCapturing || capturingPanelDepth > 0 || width <= 0 || height <= 0) return
     if (!supportsGlass || !canvas.isHardwareAccelerated) {
       drawFallback(canvas)
       return
@@ -311,7 +397,7 @@ open class GlassPanelView @JvmOverloads constructor(
     val offsetX = (viewLoc[0] - rootLoc[0]).toFloat()
     val offsetY = (viewLoc[1] - rootLoc[1]).toFloat()
 
-    if (capturingBackdropDepth > 0) {
+    if (capturingMenuDepth > 0) {
       val cachedRenderer = glassRenderer as? GlassRenderer ?: return
       val save = canvas.save()
       canvas.translate(-offsetX, -offsetY)
@@ -320,36 +406,23 @@ open class GlassPanelView @JvmOverloads constructor(
       return
     }
 
-    val node = backdropNode as? RenderNode ?: RenderNode("GlassPanel.backdrop").also { backdropNode = it }
+    val dark = isDark()
+    val node = captureActivityBackdrop(actRoot, rootW, rootH, dark)
     limits.set(0, 0, rootW, rootH)
-    node.setPosition(limits)
-    selfCapturing = true
-    capturingBackdropDepth++
-    try {
-      val recording = node.beginRecording(rootW, rootH)
-      val dark = isDark()
-      recording.drawColor(if (dark) Color.BLACK else Color.WHITE)
-      actRoot.background?.draw(recording)
-      for (i in 0 until actRoot.childCount) {
-        val child = actRoot.getChildAt(i)
-        if (child !is GlassMenuOverlay && child.visibility == VISIBLE &&
-          child.id != android.R.id.statusBarBackground &&
-          child.id != android.R.id.navigationBarBackground
-        ) {
-          child.draw(recording)
-        }
-      }
-      node.endRecording()
-    } finally {
-      capturingBackdropDepth--
-      selfCapturing = false
-    }
 
-    val left = offsetX + (if (hasCustomFrame) customFrameRect.left else 0f)
-    val top = offsetY + (if (hasCustomFrame) customFrameRect.top else 0f)
-    val right = offsetX + (if (hasCustomFrame) customFrameRect.right else width.toFloat())
-    val bottom = offsetY + (if (hasCustomFrame) customFrameRect.bottom else height.toFloat())
-    if (right <= left || bottom <= top) return
+    val rawLeft = offsetX + (if (hasCustomFrame) customFrameRect.left else 0f)
+    val rawTop = offsetY + (if (hasCustomFrame) customFrameRect.top else 0f)
+    val rawRight = offsetX + (if (hasCustomFrame) customFrameRect.right else width.toFloat())
+    val rawBottom = offsetY + (if (hasCustomFrame) customFrameRect.bottom else height.toFloat())
+    if (rawRight <= rawLeft || rawBottom <= rawTop) return
+
+    // Inset incoming SDF bounds by 1dp so the 0.533dp outer specular rim stroke
+    // (drawn at 0 <= field.x <= 0.533 * density) stays completely inside view & screen bounds.
+    val rimInset = min(1f * density, min(rawRight - rawLeft, rawBottom - rawTop) * 0.1f)
+    val left = rawLeft + rimInset
+    val top = rawTop + rimInset
+    val right = rawRight - rimInset
+    val bottom = if (topCornersOnly) rawBottom else (rawBottom - rimInset)
 
     val boxW = right - left
     val boxH = bottom - top
@@ -359,7 +432,7 @@ open class GlassPanelView @JvmOverloads constructor(
 
     val state = surfaceState
     state.incoming.set(left, top, right, bottom + bottomExtension)
-    state.captureBounds.set(left, top, right, bottom)
+    state.captureBounds.set(rawLeft, rawTop, rawRight, rawBottom)
     state.captureBounds.inset(-CaptureMargin * density, -CaptureMargin * density)
     state.lockedFieldStep = 0f
     state.radiusX = radiusPx
@@ -370,7 +443,7 @@ open class GlassPanelView @JvmOverloads constructor(
     state.lensAmount = FullLensAmount * density
     state.materialProgress = materialProgress.coerceIn(0f, 1f)
     state.surfaceOpacity = surfaceOpacity.coerceIn(0f, 1f)
-    state.dark = isDark()
+    state.dark = dark
     state.config = config
     state.trigger = triggerConfig
     state.pressX = 0f
@@ -393,8 +466,63 @@ open class GlassPanelView @JvmOverloads constructor(
     canvas.restoreToCount(save)
   }
 
+  @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+  private fun captureActivityBackdrop(actRoot: ViewGroup, rootW: Int, rootH: Int, dark: Boolean): RenderNode {
+    val shared = sharedBackdrops.getOrPut(actRoot) { SharedBackdrop() }
+    val node = shared.node as? RenderNode ?: RenderNode("GlassPanel.sharedBackdrop").also { shared.node = it }
+    val now = SystemClock.elapsedRealtimeNanos()
+    if (shared.width == rootW &&
+      shared.height == rootH &&
+      shared.dark == dark &&
+      now - shared.lastRecordNanos < SharedCaptureReuseNanos &&
+      node.hasDisplayList()
+    ) {
+      return node
+    }
+
+    node.setPosition(0, 0, rootW, rootH)
+    selfCapturing = true
+    capturingPanelDepth++
+    try {
+      val recording = node.beginRecording(rootW, rootH)
+      recording.drawColor(if (dark) Color.BLACK else Color.WHITE)
+      actRoot.background?.draw(recording)
+      for (i in 0 until actRoot.childCount) {
+        val child = actRoot.getChildAt(i)
+        if (child !is GlassMenuOverlay && child !is GlassPanelView && child.visibility == VISIBLE &&
+          child.id != android.R.id.statusBarBackground &&
+          child.id != android.R.id.navigationBarBackground
+        ) {
+          child.draw(recording)
+        }
+      }
+      node.endRecording()
+      shared.width = rootW
+      shared.height = rootH
+      shared.dark = dark
+      shared.lastRecordNanos = now
+    } finally {
+      capturingPanelDepth--
+      selfCapturing = false
+    }
+    return node
+  }
+
+  private class SharedBackdrop {
+    var node: Any? = null
+    var lastRecordNanos: Long = 0L
+    var width: Int = 0
+    var height: Int = 0
+    var dark: Boolean = true
+  }
+
   companion object {
-    internal var capturingBackdropDepth = 0
+    internal var capturingPanelDepth = 0
+    internal var capturingMenuDepth = 0
+    private val sharedBackdrops = WeakHashMap<ViewGroup, SharedBackdrop>()
+    private const val SharedCaptureReuseNanos = 4_000_000L
+    private const val WarmupFrames = 45
+    private const val MovingHoldFrames = 15
     private const val FieldStep = 4f
     private const val CaptureMargin = 20f
     private const val FullLensHeight = 16f

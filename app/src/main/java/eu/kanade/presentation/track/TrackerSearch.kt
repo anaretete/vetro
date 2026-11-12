@@ -108,10 +108,16 @@ fun TrackerSearch(
         focusManager.clearFocus()
     }
 
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+
     Scaffold(
+        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
         topBar = {
             Column {
                 TopAppBar(
+                    colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+                    ),
                     navigationIcon = {
                         IconButton(onClick = onDismissRequest) {
                             Icon(
@@ -122,25 +128,18 @@ fun TrackerSearch(
                         }
                     },
                     title = {
-                        val isGlass = LocalLiquidGlassConfig.current.enabled
                         val isDark = androidx.compose.foundation.isSystemInDarkTheme()
                         val searchModifier = if (isGlass) {
                             val searchBg = if (isDark) {
-                                Color(0xFF2C2C2E).copy(alpha = 0.68f)
+                                Color(0x22FFFFFF)
                             } else {
-                                Color(0xFFE5E5EA).copy(alpha = 0.76f)
+                                Color(0x14000000)
                             }
                             Modifier
                                 .fillMaxWidth()
                                 .height(40.dp)
-                                .liquidGlassSurface(
-                                    shape = com.kyant.shapes.Capsule(),
-                                    blurRadius = 10.dp,
-                                    refractionHeight = 8.dp,
-                                    refractionAmount = 14.dp,
-                                    surfaceColor = searchBg,
-                                    depthEffect = false,
-                                )
+                                .clip(com.kyant.shapes.Capsule())
+                                .background(searchBg)
                                 .padding(horizontal = 14.dp)
                         } else {
                             Modifier.fillMaxWidth()
@@ -278,7 +277,14 @@ private fun SearchResultItem(
     val status = trackSearch.publishing_status.toLowerCase(Locale.current).capitalize(Locale.current)
     val description = trackSearch.summary.trim()
     val shape = RoundedCornerShape(16.dp)
-    val borderColor = if (selected) MaterialTheme.colorScheme.outline else Color.Transparent
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val itemBg = if (isGlass) {
+        if (isDark) Color(0x18FFFFFF) else Color(0x0E000000)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val borderColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     var dropDownMenuExpanded by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     Box(
@@ -286,7 +292,7 @@ private fun SearchResultItem(
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
+            .background(itemBg)
             .border(
                 width = 2.dp,
                 color = borderColor,

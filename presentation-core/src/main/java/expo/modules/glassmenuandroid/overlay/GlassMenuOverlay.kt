@@ -136,7 +136,7 @@ internal class GlassMenuOverlay private constructor(
   private fun drawGlass(canvas: Canvas, active: GlassMenuSession?) {
     val node = backdrop ?: return
     node.setPosition(limits)
-    GlassPanelView.capturingBackdropDepth++
+    GlassPanelView.capturingMenuDepth++
     try {
       val recording = node.beginRecording(width, height)
       recording.drawColor(if (anchors.firstOrNull()?.isDark() != false) Color.BLACK else Color.WHITE)
@@ -169,7 +169,7 @@ internal class GlassMenuOverlay private constructor(
       }
       node.endRecording()
     } finally {
-      GlassPanelView.capturingBackdropDepth--
+      GlassPanelView.capturingMenuDepth--
     }
 
     for (anchor in anchors) {

@@ -101,33 +101,11 @@ fun AlertDialogContent(
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
     val dialogShape = RoundedCornerShape(22.dp)
-    val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
-    val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
 
-    val dialogModifier = if (useNativeGlass) {
-        modifier.sizeIn(minWidth = 280.dp, maxWidth = 340.dp)
-    } else if (isGlass) {
-        modifier
-            .sizeIn(minWidth = 280.dp, maxWidth = 340.dp)
-            .shadow(
-                elevation = 24.dp,
-                shape = dialogShape,
-                ambientColor = if (isDark) Color(0x66000000) else Color(0x22000000),
-                spotColor = if (isDark) Color(0x88000000) else Color(0x33000000),
-            )
-            .border(
-                width = 0.75.dp,
-                color = borderColor,
-                shape = dialogShape,
-            )
-            .background(
-                color = surfaceColor,
-                shape = dialogShape,
-            )
-            .clip(dialogShape)
+    val dialogModifier = if (isGlass) {
+        modifier.fillMaxWidth()
     } else {
         modifier
             .sizeIn(minWidth = 280.dp, maxWidth = 340.dp)
@@ -137,13 +115,6 @@ fun AlertDialogContent(
     }
 
     Box(modifier = dialogModifier) {
-        if (useNativeGlass) {
-            NativeGlassSurface(
-                modifier = Modifier.matchParentSize(),
-                cornerRadius = 22.dp,
-                topCornersOnly = false,
-            )
-        }
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,

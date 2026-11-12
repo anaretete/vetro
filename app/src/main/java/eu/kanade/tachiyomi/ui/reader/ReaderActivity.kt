@@ -956,10 +956,22 @@ class ReaderActivity : BaseActivity() {
                 viewModel.getMangaReadingMode(resolveDefault = false),
             ),
             onClickReadingMode = viewModel::openReadingModeSelectDialog,
+            onSelectReadingMode = { mode ->
+                viewModel.setMangaReadingMode(mode)
+                menuToggleToast?.cancel()
+                if (!readerPreferences.showReadingMode().get()) {
+                    menuToggleToast = toast(mode.stringRes)
+                }
+            },
             orientation = ReaderOrientation.fromPreference(
                 viewModel.getMangaOrientation(resolveDefault = false),
             ),
             onClickOrientation = viewModel::openOrientationModeSelectDialog,
+            onSelectOrientation = { mode ->
+                viewModel.setMangaOrientationType(mode)
+                menuToggleToast?.cancel()
+                menuToggleToast = toast(mode.stringRes)
+            },
             cropEnabled = cropEnabled,
             onClickCropBorder = {
                 val enabled = viewModel.toggleCropBorders()

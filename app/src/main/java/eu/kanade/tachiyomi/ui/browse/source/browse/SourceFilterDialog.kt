@@ -61,6 +61,8 @@ fun SourceFilterDialog(
 ) {
     val updateFilters = { onUpdate(filters) }
 
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+
     AdaptiveSheet(onDismissRequest = onDismissRequest) {
         LazyColumn {
             stickyHeader(
@@ -68,7 +70,7 @@ fun SourceFilterDialog(
             ) {
                 Row(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
+                        .background(if (isGlass) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.background)
                         .padding(8.dp),
                 ) {
                     TextButton(onClick = onReset) {

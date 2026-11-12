@@ -45,6 +45,7 @@ fun NavigationBar(
     content: @Composable RowScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     if (isGlass) {
         val navBarExportedBackdrop = rememberLayerBackdrop()
         Box(
@@ -53,20 +54,33 @@ fun NavigationBar(
                 .windowInsetsPadding(windowInsets)
                 .padding(horizontal = 16.dp, vertical = 10.dp)
                 .height(68.dp)
-                .liquidGlassSurface(
-                    shape = com.kyant.shapes.Capsule(),
-                    blurRadius = 18.dp,
-                    refractionHeight = 24.dp,
-                    refractionAmount = 36.dp,
-                    exportedBackdrop = navBarExportedBackdrop,
-                )
-                .padding(horizontal = 8.dp),
+                .then(
+                    if (useNativeGlass) {
+                        Modifier
+                    } else {
+                        Modifier.liquidGlassSurface(
+                            shape = com.kyant.shapes.Capsule(),
+                            blurRadius = 24.dp,
+                            refractionHeight = 16.dp,
+                            refractionAmount = 27.dp,
+                            exportedBackdrop = navBarExportedBackdrop,
+                        )
+                    },
+                ),
             contentAlignment = Alignment.Center,
         ) {
+            if (useNativeGlass) {
+                NativeGlassSurface(
+                    modifier = Modifier.matchParentSize(),
+                    cornerRadius = 34.dp,
+                    topCornersOnly = false,
+                )
+            }
             CompositionLocalProvider(LocalLayerBackdrop provides navBarExportedBackdrop) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
+                        .padding(horizontal = 8.dp)
                         .selectableGroup(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically,

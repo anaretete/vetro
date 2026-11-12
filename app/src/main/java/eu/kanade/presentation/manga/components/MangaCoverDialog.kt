@@ -264,18 +264,29 @@ fun MangaCoverDialog(
 @Composable
 private fun ActionsPill(content: @Composable () -> Unit) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val isDark = isSystemInDarkTheme()
+    val useNativeGlass = isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
     val pillShape = Capsule()
-    val pillModifier = if (isGlass) {
-        Modifier.liquidGlassPopupSurface(shape = pillShape)
-    } else {
-        Modifier
-            .clip(MaterialTheme.shapes.extraLarge)
-            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.95f))
-    }
-    Row(
-        modifier = pillModifier,
-    ) {
-        content()
+    Box {
+        if (useNativeGlass) {
+            tachiyomi.presentation.core.components.material.NativeGlassSurface(
+                modifier = Modifier.matchParentSize(),
+                cornerRadius = 24.dp,
+                topCornersOnly = false,
+            )
+        }
+        val pillModifier = if (useNativeGlass) {
+            Modifier
+        } else if (isGlass) {
+            Modifier.liquidGlassPopupSurface(shape = pillShape)
+        } else {
+            Modifier
+                .clip(MaterialTheme.shapes.extraLarge)
+                .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.95f))
+        }
+        Row(
+            modifier = pillModifier,
+        ) {
+            content()
+        }
     }
 }

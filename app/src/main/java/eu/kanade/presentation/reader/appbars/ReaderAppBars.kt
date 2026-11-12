@@ -48,9 +48,11 @@ import eu.kanade.tachiyomi.ui.reader.viewer.Viewer
 import eu.kanade.tachiyomi.ui.reader.viewer.pager.R2LPagerViewer
 import kotlinx.collections.immutable.ImmutableSet
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.NativeGlassSurface
 import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
 import tachiyomi.presentation.core.i18n.stringResource
 
 private val readerBarsSlideAnimationSpec = tween<IntOffset>(200)
@@ -90,8 +92,10 @@ fun ReaderAppBars(
 
     readingMode: ReadingMode,
     onClickReadingMode: () -> Unit,
+    onSelectReadingMode: ((ReadingMode) -> Unit)? = null,
     orientation: ReaderOrientation,
     onClickOrientation: () -> Unit,
+    onSelectOrientation: ((ReaderOrientation) -> Unit)? = null,
     cropEnabled: Boolean,
     onClickCropBorder: () -> Unit,
     onClickSettings: () -> Unit,
@@ -132,6 +136,7 @@ fun ReaderAppBars(
         .copy(alpha = if (isSystemInDarkTheme()) 0.9f else 0.95f)
 
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val topBarModifier = if (isGlass) {
         Modifier
             .statusBarsPadding()
@@ -176,6 +181,10 @@ fun ReaderAppBars(
                 onClickCropBorder = onClickCropBorder,
                 onClickReadingMode = onClickReadingMode,
                 onClickOrientation = onClickOrientation,
+                readingMode = readingMode,
+                onSelectReadingMode = onSelectReadingMode,
+                orientation = orientation,
+                onSelectOrientation = onSelectOrientation,
                 onClickChapterList = onClickChapterList,
                 isTopLight = isTopLight,
                 pagesTurnedInSession = pagesTurnedInSession,
@@ -194,74 +203,85 @@ fun ReaderAppBars(
                 .padding(horizontal = 20.dp, vertical = 10.dp),
         ) {
             val isDark = isSystemInDarkTheme()
-            val textColor = if (isDark) Color.White else Color(0xFF111113)
+            val textColor = if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
 
-            Row(
-                modifier = Modifier
-                    .then(
-                        if (isGlass) {
-                            Modifier.liquidGlassPopupSurface(shape = Capsule())
-                        } else {
-                            val bannerBg = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
-                            Modifier
-                                .clip(Capsule())
-                                .background(bannerBg)
-                                .border(
-                                    0.5.dp,
-                                    if (isDark) Color(0x35FFFFFF) else Color(0x25000000),
-                                    Capsule(),
-                                )
-                        },
-                    )
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text(
-                    text = "👀 Eye Break",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = textColor,
-                    ),
-                )
-                Text(
-                    text = "Rest eyes for 20s",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = textColor.copy(alpha = 0.8f),
-                    ),
-                )
-                Box(
-                    modifier = Modifier
-                        .clip(Capsule())
-                        .background(MaterialTheme.colorScheme.primary)
-                        .clickable { onDismissBreakReminder() }
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                ) {
-                    val primary = MaterialTheme.colorScheme.primary
-                    val lum = 0.299f * primary.red + 0.587f * primary.green + 0.114f * primary.blue
-                    val btnCol = if (lum > 0.45f) Color(0xFF111113) else Color.White
-                    Text(
-                        text = "Dismiss",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = btnCol,
-                        ),
+            Box {
+                if (useNativeGlass) {
+                    NativeGlassSurface(
+                        modifier = Modifier.matchParentSize(),
+                        cornerRadius = 24.dp,
+                        topCornersOnly = false,
                     )
                 }
-                Box(
+                Row(
                     modifier = Modifier
-                        .clip(Capsule())
-                        .background(if (isDark) Color(0x25FFFFFF) else Color(0x15000000))
-                        .clickable { onSnoozeBreakReminder() }
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                        .then(
+                            if (useNativeGlass) {
+                                Modifier
+                            } else if (isGlass) {
+                                Modifier.liquidGlassPopupSurface(shape = Capsule())
+                            } else {
+                                val bannerBg = if (isDark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
+                                Modifier
+                                    .clip(Capsule())
+                                    .background(bannerBg)
+                                    .border(
+                                        0.5.dp,
+                                        if (isDark) Color(0x35FFFFFF) else Color(0x25000000),
+                                        Capsule(),
+                                    )
+                            },
+                        )
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     Text(
-                        text = "10m",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Medium,
+                        text = "👀 Eye Break",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold,
                             color = textColor,
                         ),
                     )
+                    Text(
+                        text = "Rest eyes for 20s",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = textColor.copy(alpha = 0.8f),
+                        ),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(Capsule())
+                            .background(MaterialTheme.colorScheme.primary)
+                            .clickable { onDismissBreakReminder() }
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                    ) {
+                        val primary = MaterialTheme.colorScheme.primary
+                        val lum = 0.299f * primary.red + 0.587f * primary.green + 0.114f * primary.blue
+                        val btnCol = if (lum > 0.45f) Color(0xFF111113) else Color.White
+                        Text(
+                            text = "Dismiss",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                color = btnCol,
+                            ),
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(Capsule())
+                            .background(if (isDark) Color(0x25FFFFFF) else Color(0x15000000))
+                            .clickable { onSnoozeBreakReminder() }
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                    ) {
+                        Text(
+                            text = "10m",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Medium,
+                                color = textColor,
+                            ),
+                        )
+                    }
                 }
             }
         }
@@ -385,8 +405,10 @@ fun ReaderAppBars(
                     modifier = bottomBarModifier,
                     readingMode = readingMode,
                     onClickReadingMode = onClickReadingMode,
+                    onSelectReadingMode = onSelectReadingMode,
                     orientation = orientation,
                     onClickOrientation = onClickOrientation,
+                    onSelectOrientation = onSelectOrientation,
                     cropEnabled = cropEnabled,
                     onClickCropBorder = onClickCropBorder,
                     onClickSettings = onClickSettings,
