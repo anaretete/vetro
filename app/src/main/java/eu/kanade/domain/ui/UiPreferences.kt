@@ -33,6 +33,7 @@ class UiPreferences(
     fun liquidGlassTintAlpha() = preferenceStore.getFloat("pref_liquid_glass_tint_alpha", 1.0f)
     fun liquidGlassSpringPhysics() = preferenceStore.getBoolean("pref_liquid_glass_spring", true)
     fun liquidGlassDepthEffect() = preferenceStore.getBoolean("pref_liquid_glass_depth", true)
+    fun liquidGlassTintColor() = preferenceStore.getInt("pref_liquid_glass_tint_color_key", 0)
     fun cupertinoHaptics() = preferenceStore.getBoolean("pref_cupertino_haptics", true)
     fun oledPureBlack() = preferenceStore.getBoolean("pref_oled_pure_black", false)
     fun appFont() = preferenceStore.getEnum("pref_app_font_key", AppFont.DEFAULT)

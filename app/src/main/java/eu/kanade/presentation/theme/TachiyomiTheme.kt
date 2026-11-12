@@ -140,6 +140,10 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
     val depthEffect by uiPreferences.liquidGlassDepthEffect().collectAsState()
     val cupertinoHaptics by uiPreferences.cupertinoHaptics().collectAsState()
     val floatingNavBar by uiPreferences.floatingNavBar().collectAsState()
+    val customTintColorInt by uiPreferences.liquidGlassTintColor().collectAsState()
+    val customTintColor = remember(customTintColorInt) {
+        if (customTintColorInt != 0) Color(customTintColorInt) else null
+    }
 
     val glassConfig = remember(
         liquidGlassEnabled,
@@ -150,6 +154,7 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
         tintAlpha,
         springPhysics,
         depthEffect,
+        customTintColor,
     ) {
         LiquidGlassConfig(
             enabled = liquidGlassEnabled,
@@ -160,6 +165,7 @@ private fun LiquidGlassThemeWrapper(content: @Composable () -> Unit) {
             tintAlphaMultiplier = tintAlpha,
             springPhysicsEnabled = springPhysics,
             depthEffect = depthEffect,
+            customTintColor = customTintColor,
         )
     }
 

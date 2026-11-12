@@ -50,6 +50,7 @@ data class LiquidGlassConfig(
     val tintAlphaMultiplier: Float = 1.0f,
     val springPhysicsEnabled: Boolean = true,
     val depthEffect: Boolean = true,
+    val customTintColor: Color? = null,
 )
 
 val LocalLiquidGlassConfig = compositionLocalOf { LiquidGlassConfig() }
@@ -81,9 +82,9 @@ fun sanitizeLensShape(shape: Shape): Shape {
 fun Modifier.liquidGlassSurface(
     shape: Shape = Capsule(),
     interactionSource: InteractionSource? = null,
-    blurRadius: Dp = 10.dp,
-    refractionHeight: Dp = 14.dp,
-    refractionAmount: Dp = 22.dp,
+    blurRadius: Dp = 18.dp,
+    refractionHeight: Dp = 15.dp,
+    refractionAmount: Dp = 24.dp,
     tintColor: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
     backdrop: Backdrop? = null,
@@ -135,11 +136,14 @@ fun Modifier.liquidGlassSurface(
 
     val baseTint = if (tintColor.isSpecified && tintColor != Color.Transparent) {
         tintColor.copy(alpha = (tintColor.alpha * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+    } else if (config.customTintColor != null && config.customTintColor.isSpecified) {
+        val alpha = if (isDark) 0.18f else 0.24f
+        config.customTintColor.copy(alpha = (alpha * config.tintAlphaMultiplier).coerceIn(0f, 1f))
     } else {
         if (isDark) {
-            Color.White.copy(alpha = (0.10f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.13f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         } else {
-            Color.White.copy(alpha = (0.24f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.26f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         }
     }
 
@@ -200,8 +204,16 @@ object LiquidGlassDefaults {
      * bottom cards/sheets, dialogs, and popup selectors.
      * Translucent tint that lets the backdrop blur and refraction shine through.
      */
-    fun popupSurfaceColor(isDark: Boolean): Color =
-        if (isDark) Color(0x381C1C22) else Color(0x55FFFFFF)
+    fun popupSurfaceColor(isDark: Boolean, customTintColor: Color? = null): Color {
+        if (customTintColor != null && customTintColor.isSpecified) {
+            return if (isDark) {
+                customTintColor.copy(alpha = 0.28f)
+            } else {
+                customTintColor.copy(alpha = 0.35f)
+            }
+        }
+        return if (isDark) Color(0x4C181820) else Color(0x66FAFBFD)
+    }
 
     /**
      * Exact unified hair-line border color.
@@ -211,9 +223,9 @@ object LiquidGlassDefaults {
 
     val PopupBorderWidth: Dp = 0.6.dp
 
-    val PopupBlurRadius: Dp = 18.dp
+    val PopupBlurRadius: Dp = 24.dp
     val PopupRefractionHeight: Dp = 16.dp
-    val PopupRefractionAmount: Dp = 24.dp
+    val PopupRefractionAmount: Dp = 26.dp
 
     fun popupTextColor(isDark: Boolean): Color =
         if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
@@ -235,14 +247,14 @@ fun Modifier.liquidGlassPopupSurface(
     borderWidth: Dp = LiquidGlassDefaults.PopupBorderWidth,
     hasBorder: Boolean = true,
 ): Modifier = composed {
-    val isGlass = LocalLiquidGlassConfig.current.enabled
-    if (!isGlass) return@composed this
+    val config = LocalLiquidGlassConfig.current
+    if (!config.enabled) return@composed this
 
     val isDark = isSystemInDarkTheme()
     val effectiveSurfaceColor = if (surfaceColor.isSpecified) {
         surfaceColor
     } else {
-        LiquidGlassDefaults.popupSurfaceColor(isDark)
+        LiquidGlassDefaults.popupSurfaceColor(isDark, config.customTintColor)
     }
     val effectiveBorderColor = LiquidGlassDefaults.popupBorderColor(isDark)
 

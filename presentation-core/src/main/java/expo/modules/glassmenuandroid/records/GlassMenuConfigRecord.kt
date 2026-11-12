@@ -3,7 +3,7 @@ package expo.modules.glassmenuandroid.records
 import android.graphics.Color
 
 data class GlassMenuConfigRecord(
-  val blur: Float = 16f,
+  val blur: Float = 22f,
   val morphBlur: Float = 1f,
   val tintColor: Color? = null,
   val tintOpacity: Float? = null,

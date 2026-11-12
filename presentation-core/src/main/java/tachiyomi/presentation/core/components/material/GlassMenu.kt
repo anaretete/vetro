@@ -42,10 +42,23 @@ fun NativeGlassSurface(
     customCornerRadiusPx: Float? = null,
 ) {
     val isDark = isSystemInDarkTheme()
+    val glassConfigContext = LocalLiquidGlassConfig.current
+    val customTint = glassConfigContext.customTintColor
+    val menuConfig = remember(customTint) {
+        if (customTint != null && customTint != androidx.compose.ui.graphics.Color.Unspecified) {
+            expo.modules.glassmenuandroid.records.GlassMenuConfigRecord(
+                tintColor = android.graphics.Color.valueOf(customTint.red, customTint.green, customTint.blue, customTint.alpha),
+                tintOpacity = 0.35f,
+            )
+        } else {
+            expo.modules.glassmenuandroid.records.GlassMenuConfigRecord()
+        }
+    }
     AndroidView(
         modifier = modifier,
         factory = { context ->
             GlassPanelView(context).apply {
+                this.config = menuConfig
                 this.cornerRadiusDp = cornerRadius.value
                 this.topCornersOnly = topCornersOnly
                 this.colorScheme = if (isDark) "dark" else "light"
@@ -60,6 +73,7 @@ fun NativeGlassSurface(
             }
         },
         update = { view ->
+            if (view.config != menuConfig) view.config = menuConfig
             view.cornerRadiusDp = cornerRadius.value
             view.topCornersOnly = topCornersOnly
             view.colorScheme = if (isDark) "dark" else "light"
@@ -98,6 +112,18 @@ fun GlassMenuAnchor(
     if (!supportsNativeGlassMenu) return
 
     val isDark = isSystemInDarkTheme()
+    val glassConfigContext = LocalLiquidGlassConfig.current
+    val customTint = glassConfigContext.customTintColor
+    val menuConfig = remember(customTint) {
+        if (customTint != null && customTint != androidx.compose.ui.graphics.Color.Unspecified) {
+            expo.modules.glassmenuandroid.records.GlassMenuConfigRecord(
+                tintColor = android.graphics.Color.valueOf(customTint.red, customTint.green, customTint.blue, customTint.alpha),
+                tintOpacity = 0.35f,
+            )
+        } else {
+            expo.modules.glassmenuandroid.records.GlassMenuConfigRecord()
+        }
+    }
     val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
     var anchorView by remember { mutableStateOf<GlassMenuAndroidView?>(null) }
 
@@ -106,6 +132,7 @@ fun GlassMenuAnchor(
         factory = { context ->
             GlassMenuAndroidView(context).apply {
                 glass = false
+                this.config = menuConfig
                 this.alignment = alignment
                 colorScheme = if (isDark) "dark" else "light"
                 this.items = items
@@ -117,6 +144,7 @@ fun GlassMenuAnchor(
         },
         update = { view ->
             view.glass = false
+            if (view.config != menuConfig) view.config = menuConfig
             view.alignment = alignment
             view.colorScheme = if (isDark) "dark" else "light"
             if (view.items != items) view.items = items

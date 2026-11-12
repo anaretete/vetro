@@ -2,6 +2,7 @@ package tachiyomi.presentation.core.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -312,8 +313,11 @@ fun AdaptiveSheet(
                     enabled = enableSwipeDismiss,
                     flingBehavior = flingBehavior,
                 )
-                .then(if (isGlass) Modifier else Modifier.navigationBarsPadding())
                 .statusBarsPadding()
+
+            val maxPos = anchoredDraggableState.anchors.maxPosition().takeIf { it > 0 } ?: 1f
+            val rawOffset = try { anchoredDraggableState.offset } catch (_: Throwable) { 0f }
+            val sheetProgress = (1f - (rawOffset / maxPos)).coerceIn(0f, 1f)
 
             if (useNativeGlass) {
                 Box(modifier = phoneBaseModifier) {
@@ -321,6 +325,7 @@ fun AdaptiveSheet(
                         modifier = Modifier.matchParentSize(),
                         cornerRadius = 24.dp,
                         topCornersOnly = true,
+                        materialProgress = sheetProgress,
                     )
                     CompositionLocalProvider(
                         LocalLayerBackdrop provides sheetBackdrop,
@@ -494,4 +499,7 @@ private fun <T> AnchoredDraggableState<T>.preUpPostDownNestedScrollConnection(
     private fun Offset.toFloat(): Float = this.y
 }
 
-private val sheetAnimationSpec = tween<Float>(durationMillis = 350)
+private val sheetAnimationSpec = spring<Float>(
+    dampingRatio = 0.84f,
+    stiffness = 380f,
+)

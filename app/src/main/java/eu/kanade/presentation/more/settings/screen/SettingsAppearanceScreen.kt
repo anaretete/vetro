@@ -27,6 +27,7 @@ import eu.kanade.domain.ui.model.ThemeMode
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.screen.appearance.AppCustomThemeColorPickerScreen
+import eu.kanade.presentation.more.settings.screen.appearance.LiquidGlassTintColorPickerScreen
 import eu.kanade.presentation.more.settings.screen.appearance.AppLanguageScreen
 import eu.kanade.presentation.more.settings.widget.AppThemeModePreferenceWidget
 import eu.kanade.presentation.more.settings.widget.AppThemePreferenceWidget
@@ -86,16 +87,8 @@ object SettingsAppearanceScreen : SearchableSettings {
         val amoled by amoledPref.collectAsState()
 
         val isLiquidGlassEnabled by uiPreferences.liquidGlassEnabled().collectAsState()
+        val liquidGlassTintInt by uiPreferences.liquidGlassTintColor().collectAsState()
         val appFont by uiPreferences.appFont().collectAsState()
-
-        val refractionStrengthPref = uiPreferences.liquidGlassRefractionStrength()
-        val refractionStrength by refractionStrengthPref.collectAsState()
-        val blurRadiusPref = uiPreferences.liquidGlassBlurRadius()
-        val blurRadius by blurRadiusPref.collectAsState()
-        val lensHeightPref = uiPreferences.liquidGlassLensHeight()
-        val lensHeight by lensHeightPref.collectAsState()
-        val tintAlphaPref = uiPreferences.liquidGlassTintAlpha()
-        val tintAlpha by tintAlphaPref.collectAsState()
 
         val fontPicker = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.OpenDocument(),
@@ -223,37 +216,11 @@ object SettingsAppearanceScreen : SearchableSettings {
                     subtitle = "Viscoelastic squish and stretch velocity deformation",
                     enabled = isLiquidGlassEnabled,
                 ),
-                Preference.PreferenceItem.SliderPreference(
-                    value = (refractionStrength * 100).toInt(),
-                    valueRange = 10..300,
-                    title = "Refraction Index Intensity",
-                    valueString = "${(refractionStrength * 100).toInt()}%",
+                Preference.PreferenceItem.TextPreference(
+                    title = "Liquid Glass Tint Color",
+                    subtitle = if (liquidGlassTintInt != 0) "Custom tint active • Tap to customize or reset" else "Adaptive crystal glass • Tap to customize tint",
                     enabled = isLiquidGlassEnabled,
-                    onValueChanged = { refractionStrengthPref.set(it / 100f) },
-                ),
-                Preference.PreferenceItem.SliderPreference(
-                    value = (blurRadius * 100).toInt(),
-                    valueRange = 0..300,
-                    title = "Frost & Blur Depth",
-                    valueString = "${(blurRadius * 100).toInt()}%",
-                    enabled = isLiquidGlassEnabled,
-                    onValueChanged = { blurRadiusPref.set(it / 100f) },
-                ),
-                Preference.PreferenceItem.SliderPreference(
-                    value = (lensHeight * 100).toInt(),
-                    valueRange = 20..300,
-                    title = "Lens Convexity Thickness",
-                    valueString = "${(lensHeight * 100).toInt()}%",
-                    enabled = isLiquidGlassEnabled,
-                    onValueChanged = { lensHeightPref.set(it / 100f) },
-                ),
-                Preference.PreferenceItem.SliderPreference(
-                    value = (tintAlpha * 100).toInt(),
-                    valueRange = 0..100,
-                    title = "Surface Tint Alpha",
-                    valueString = "${(tintAlpha * 100).toInt()}%",
-                    enabled = isLiquidGlassEnabled,
-                    onValueChanged = { tintAlphaPref.set(it / 100f) },
+                    onClick = { navigator.push(LiquidGlassTintColorPickerScreen()) },
                 ),
                 Preference.PreferenceItem.SwitchPreference(
                     preference = uiPreferences.cupertinoHaptics(),

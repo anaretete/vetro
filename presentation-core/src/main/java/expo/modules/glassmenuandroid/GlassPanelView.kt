@@ -472,7 +472,7 @@ open class GlassPanelView @JvmOverloads constructor(
     val save = canvas.save()
     if (topCornersOnly) {
       val shadowGuard = 64f * density
-      canvas.clipRect(-shadowGuard, -shadowGuard, width.toFloat() + shadowGuard, height.toFloat())
+      canvas.clipRect(-shadowGuard, -shadowGuard, width.toFloat() + shadowGuard, height.toFloat() + bottomExtension + shadowGuard)
     }
     canvas.translate(-offsetX, -offsetY)
     renderer.drawGlass(canvas, node, state, limits)
