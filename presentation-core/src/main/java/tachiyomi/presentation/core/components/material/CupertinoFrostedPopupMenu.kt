@@ -34,8 +34,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -326,7 +329,7 @@ fun <T> CupertinoFrostedPopupMenu(
 
         var anchorView by remember { androidx.compose.runtime.mutableStateOf<expo.modules.glassmenuandroid.GlassMenuAndroidView?>(null) }
 
-        androidx.compose.ui.viewinterop.AndroidView(
+        androidx.compose.ui.viewinterop.AndroidView<expo.modules.glassmenuandroid.GlassMenuAndroidView>(
             modifier = modifier.size(32.dp),
             factory = { context ->
                 expo.modules.glassmenuandroid.GlassMenuAndroidView(context).apply {

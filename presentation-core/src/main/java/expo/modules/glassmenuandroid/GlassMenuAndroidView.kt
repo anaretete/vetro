@@ -22,9 +22,13 @@ import expo.modules.glassmenuandroid.render.GlassRenderer
 import expo.modules.glassmenuandroid.render.GlassSurfaceState
 import kotlin.math.min
 
-class GlassMenuAndroidView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
-  private val onItemSelect by EventDispatcher<Map<String, Any?>>()
-  private val onMenuOpenChange by EventDispatcher<Map<String, Any?>>()
+open class GlassMenuAndroidView @JvmOverloads constructor(
+  context: Context,
+  attrs: AttributeSet? = null,
+  defStyleAttr: Int = 0,
+) : FrameLayout(context, attrs, defStyleAttr) {
+  var onItemSelect: ((Map<String, Any?>) -> Unit)? = null
+  var onMenuOpenChange: ((Map<String, Any?>) -> Unit)? = null
 
   private var overlay: GlassMenuOverlay? = null
   private var glassRenderer: Any? = null
@@ -37,41 +41,41 @@ class GlassMenuAndroidView(context: Context, appContext: AppContext) : ExpoView(
   private var pressTime = 0L
   internal val placement = RectF()
   internal var placementAlpha = -1f
-  internal var triggerConfig = GlassTriggerConfigRecord()
+  var triggerConfig = GlassTriggerConfigRecord()
     set(value) {
       field = value
       overlay?.invalidate()
     }
-  internal var config = GlassMenuConfigRecord()
+  var config = GlassMenuConfigRecord()
     set(value) {
       field = value
       overlay?.invalidate()
     }
 
   internal val surfaceState = GlassSurfaceState()
-  internal var items: List<GlassMenuItemRecord> = emptyList()
+  var items: List<GlassMenuItemRecord> = emptyList()
     set(value) {
       field = value
       overlay?.menuSession?.takeIf { it.anchor === this }?.refreshItems()
     }
-  internal var glass = true
+  var glass = true
     set(value) {
       field = value
       refreshDrawing()
     }
-  internal var cornerRadius: Float? = null
+  var cornerRadius: Float? = null
     set(value) {
       field = value
       overlay?.invalidate()
     }
-  internal var colorScheme = "auto"
+  var colorScheme = "auto"
     set(value) {
       field = value
       overlay?.invalidate()
     }
-  internal var menuWidth: Float? = null
-  internal var fontFamily: String? = null
-  internal var alignment = "auto"
+  var menuWidth: Float? = null
+  var fontFamily: String? = null
+  var alignment = "auto"
 
   private val supportsGlass get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 

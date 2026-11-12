@@ -39,7 +39,7 @@ fun GlassMenuBox(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         var anchorView by remember { mutableStateOf<GlassMenuAndroidView?>(null) }
 
-        AndroidView(
+        AndroidView<GlassMenuAndroidView>(
             modifier = modifier,
             factory = { context ->
                 GlassMenuAndroidView(context).apply {
