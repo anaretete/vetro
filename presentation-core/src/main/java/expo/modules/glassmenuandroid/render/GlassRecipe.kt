@@ -10,9 +10,9 @@ internal class GlassRecipe(
   val tintAlpha: Float = 0f,
 ) {
   companion object {
-    val ControlDark = GlassRecipe(1.3f, .125f, 1.125f, .4f, 0f)
-    val MenuDark = GlassRecipe(1.3f, .125f, 1.125f, .65f, 0f, tint = .042f, tintAlpha = .7f)
-    val ControlLight = GlassRecipe(1.2f, .4f, 1.03f, 0f, .2f)
-    val MenuLight = GlassRecipe(1.2f, .4f, 1.03f, 0f, .2f, tint = .975f, tintAlpha = .5f)
+    val ControlDark = GlassRecipe(1.3f, .14f, 1.125f, .35f, .06f)
+    val MenuDark = GlassRecipe(1.3f, .18f, 1.125f, .38f, .10f, tint = .18f, tintAlpha = .24f)
+    val ControlLight = GlassRecipe(1.2f, .45f, 1.05f, 0f, .22f)
+    val MenuLight = GlassRecipe(1.2f, .48f, 1.05f, 0f, .24f, tint = .98f, tintAlpha = .28f)
   }
 }

@@ -112,29 +112,12 @@ fun ReaderTopBar(
     val useNativeGlassMenu = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
 
-    // When Liquid Glass is enabled, follow the system Dark/Light recipe (Expo GlassRecipe.MenuDark / MenuLight)
-    // so the glass surface and text contrast always match the Expo popup menu.
-    val targetPrimary = if (isGlass) {
-        if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
-    } else {
-        if (isTopLight) Color(0xFF111113) else Color.White
-    }
-    val targetSecondary = if (isGlass) {
-        if (isDark) Color(0x99EBEBF5) else Color(0x993C3C43)
-    } else {
-        if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
-    }
-    val targetPillBorder = if (isGlass) {
-        if (isDark) Color(0x16FFFFFF) else Color(0x1A000000)
-    } else {
-        if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
-    }
-    val targetSurfacePillBg = if (isGlass) {
-        if (isDark) Color(0x1EFFFFFF) else Color(0x12000000)
-    } else {
-        if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
-    }
-    val targetGlassTint = if (isDark) Color(0xFF0B0B0D).copy(alpha = 0.68f) else Color(0xFFFAFBFD).copy(alpha = 0.62f)
+    // Dynamic contrast based on sampled background luminance:
+    val targetPrimary = if (isTopLight) Color(0xFF111113) else Color.White
+    val targetSecondary = if (isTopLight) Color(0xFF3C3C43).copy(alpha = 0.85f) else Color(0xCCFFFFFF)
+    val targetPillBorder = if (isTopLight) Color(0x25000000) else Color(0x35FFFFFF)
+    val targetSurfacePillBg = if (isTopLight) Color(0x18000000) else Color(0x28FFFFFF)
+    val targetGlassTint = if (isTopLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
     val targetOverviewSurface = if (isTopLight) Color(0xEEFFFFFF) else Color(0xD81C1C20)
     val solidBackingBg = if (isTopLight) Color(0xF4FAFAFC) else Color(0xEA202024)
 
@@ -268,6 +251,7 @@ fun ReaderTopBar(
                         } else if (isGlass) {
                             Modifier.liquidGlassPopupSurface(
                                 shape = RoundedCornerShape(26.dp),
+                                surfaceColor = if (isTopLight) Color(0x55FFFFFF) else Color(0x3816161A),
                             )
                         } else {
                             Modifier
@@ -847,7 +831,7 @@ fun ReaderTopBar(
                             Modifier
                                 .liquidGlassSurface(
                                     shape = CircleShape,
-                                    blurRadius = 24.dp,
+                                    blurRadius = 3.dp,
                                     refractionHeight = 16.dp,
                                     refractionAmount = 24.dp,
                                     tintColor = glassTintColor,
@@ -917,7 +901,7 @@ fun ReaderTopBar(
                                     Modifier
                                         .liquidGlassSurface(
                                             shape = Capsule(),
-                                            blurRadius = 24.dp,
+                                            blurRadius = 3.dp,
                                             refractionHeight = 16.dp,
                                             refractionAmount = 26.dp,
                                             tintColor = glassTintColor,
@@ -995,7 +979,7 @@ fun ReaderTopBar(
                                 Modifier
                                     .liquidGlassSurface(
                                         shape = CircleShape,
-                                        blurRadius = 24.dp,
+                                        blurRadius = 3.dp,
                                         refractionHeight = 16.dp,
                                         refractionAmount = 24.dp,
                                         tintColor = glassTintColor,
@@ -1061,7 +1045,7 @@ fun ReaderTopBar(
                                         Modifier
                                             .liquidGlassSurface(
                                                 shape = CircleShape,
-                                                blurRadius = 24.dp,
+                                                blurRadius = 3.dp,
                                                 refractionHeight = 16.dp,
                                                 refractionAmount = 24.dp,
                                                 tintColor = glassTintColor,

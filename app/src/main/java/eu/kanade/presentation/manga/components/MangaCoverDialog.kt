@@ -264,7 +264,7 @@ fun MangaCoverDialog(
 @Composable
 private fun ActionsPill(content: @Composable () -> Unit) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    val useNativeGlass = isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
+    val useNativeGlass = false
     val pillShape = Capsule()
     Box {
         if (useNativeGlass) {

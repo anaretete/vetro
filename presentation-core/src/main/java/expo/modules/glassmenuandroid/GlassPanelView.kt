@@ -292,8 +292,8 @@ open class GlassPanelView @JvmOverloads constructor(
         changed = true
       }
     }
-    if ((params.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && params.dimAmount > 0.08f) {
-      params.dimAmount = 0.08f
+    if ((params.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && params.dimAmount > 0f) {
+      params.dimAmount = 0f
       changed = true
     }
     if (changed) {
@@ -381,7 +381,7 @@ open class GlassPanelView @JvmOverloads constructor(
     val bottom = if (hasCustomFrame) customFrameRect.bottom else height.toFloat()
     val radius = customCornerRadiusPx ?: (cornerRadiusDp * density)
     fallbackRect.set(left, top, right, bottom)
-    fallbackPaint.color = if (isDark()) 0xE61C1C22.toInt() else 0xF0F4F5F8.toInt()
+    fallbackPaint.color = if (isDark()) 0xB824242C.toInt() else 0xCCF4F5F8.toInt()
     canvas.drawRoundRect(fallbackRect, radius, radius, fallbackPaint)
   }
 
@@ -536,7 +536,8 @@ open class GlassPanelView @JvmOverloads constructor(
     capturingPanelDepth++
     try {
       val recording = node.beginRecording(rootW, rootH)
-      recording.drawColor(if (dark) Color.BLACK else Color.WHITE)
+      recording.drawColor(if (dark) 0xFF18181E.toInt() else Color.WHITE)
+      actRoot.rootView?.background?.draw(recording)
       actRoot.background?.draw(recording)
       for (i in 0 until actRoot.childCount) {
         val child = actRoot.getChildAt(i)

@@ -140,7 +140,7 @@ internal class GlassMenuOverlay private constructor(
     GlassPanelView.capturingMenuDepth++
     try {
       val recording = node.beginRecording(width, height)
-      recording.drawColor(if (anchors.firstOrNull()?.isDark() != false) Color.BLACK else Color.WHITE)
+      recording.drawColor(if (anchors.firstOrNull()?.isDark() != false) 0xFF18181E.toInt() else Color.WHITE)
       val actRoot = context.findHostActivity()?.window?.decorView?.findViewById<ViewGroup>(android.R.id.content)
       if (actRoot != null && actRoot !== root && actRoot.rootView !== root.rootView && actRoot.width > 0 && actRoot.height > 0) {
         actRoot.getLocationOnScreen(auxLocation)
@@ -149,6 +149,7 @@ internal class GlassMenuOverlay private constructor(
         val dy = (auxLocation[1] - location[1]).toFloat()
         val save = recording.save()
         recording.translate(dx, dy)
+        actRoot.rootView?.background?.draw(recording)
         actRoot.background?.draw(recording)
         for (i in 0 until actRoot.childCount) {
           val child = actRoot.getChildAt(i)
@@ -163,6 +164,7 @@ internal class GlassMenuOverlay private constructor(
         }
         recording.restoreToCount(save)
       }
+      root.rootView?.background?.draw(recording)
       root.background?.draw(recording)
       for (index in 0 until root.childCount) {
         val child = root.getChildAt(index)

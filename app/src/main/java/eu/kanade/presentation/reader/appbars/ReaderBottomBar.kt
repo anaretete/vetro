@@ -84,12 +84,8 @@ fun ReaderBottomBar(
     val useNativeGlass = false
     val useNativeGlassMenu = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
-    val targetContainerBorder = if (isGlass) {
-        if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-    } else {
-        if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
-    }
-    val targetContainerTint = if (isDark) Color(0xFF0B0B0D).copy(alpha = 0.68f) else Color(0xFFFAFBFD).copy(alpha = 0.62f)
+    val targetContainerBorder = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
+    val targetContainerTint = if (isBottomLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
     val containerBorder by animateColorAsState(targetContainerBorder, animationSpec = tween(250), label = "bottomBarBorder")
     val containerTint by animateColorAsState(targetContainerTint, animationSpec = tween(250), label = "bottomBarTint")
 
@@ -136,9 +132,9 @@ fun ReaderBottomBar(
         modifier
             .liquidGlassSurface(
                 shape = Capsule(),
-                blurRadius = 24.dp,
-                refractionHeight = 16.dp,
-                refractionAmount = 27.dp,
+                blurRadius = 14.dp,
+                refractionHeight = 18.dp,
+                refractionAmount = 26.dp,
                 tintColor = containerTint,
                 surfaceColor = Color.Unspecified,
             )
@@ -349,11 +345,7 @@ private fun ReaderBottomBarItem(
     isGlass: Boolean = true,
     isBottomLight: Boolean = true,
 ) {
-    val targetDefault = if (isGlass) {
-        if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
-    } else {
-        if (isBottomLight) Color(0xFF111113) else Color.White
-    }
+    val targetDefault = if (isBottomLight) Color(0xFF111113) else Color.White
     val defaultColor by animateColorAsState(targetDefault, animationSpec = tween(250), label = "bottomItemColor")
     val tint = if (isActive) activeColor else defaultColor
 

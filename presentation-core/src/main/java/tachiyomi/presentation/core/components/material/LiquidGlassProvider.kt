@@ -43,7 +43,7 @@ import com.kyant.shapes.RoundedRectangularShape
 @Immutable
 data class LiquidGlassConfig(
     val enabled: Boolean = true,
-    val chromaticAberration: Boolean = false,
+    val chromaticAberration: Boolean = true,
     val refractionMultiplier: Float = 1.0f,
     val blurMultiplier: Float = 1.0f,
     val lensHeightMultiplier: Float = 1.0f,
@@ -81,9 +81,9 @@ fun sanitizeLensShape(shape: Shape): Shape {
 fun Modifier.liquidGlassSurface(
     shape: Shape = Capsule(),
     interactionSource: InteractionSource? = null,
-    blurRadius: Dp = 22.dp,
-    refractionHeight: Dp = 16.dp,
-    refractionAmount: Dp = 27.dp,
+    blurRadius: Dp = 10.dp,
+    refractionHeight: Dp = 14.dp,
+    refractionAmount: Dp = 22.dp,
     tintColor: Color = Color.Unspecified,
     surfaceColor: Color = Color.Unspecified,
     backdrop: Backdrop? = null,
@@ -116,7 +116,7 @@ fun Modifier.liquidGlassSurface(
     )
 
     val dynamicRefractionAmount by animateFloatAsState(
-        targetValue = if (isPressed) refractionAmount.value * 1.3f else refractionAmount.value,
+        targetValue = if (isPressed) refractionAmount.value * 1.4f else refractionAmount.value,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "LiquidGlassRefraction",
     )
@@ -128,7 +128,7 @@ fun Modifier.liquidGlassSurface(
         candidateBackdrop
     } else {
         rememberCanvasBackdrop {
-            val baseColor = if (isDark) Color(0xB30B0B0D) else Color(0x9EFAFBFD)
+            val baseColor = if (isDark) Color(0x3016161A) else Color(0x45F2F2F6)
             drawRect(baseColor)
         }
     }
@@ -137,9 +137,9 @@ fun Modifier.liquidGlassSurface(
         tintColor.copy(alpha = (tintColor.alpha * config.tintAlphaMultiplier).coerceIn(0f, 1f))
     } else {
         if (isDark) {
-            Color(0xFF0B0B0D).copy(alpha = (0.68f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.10f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         } else {
-            Color(0xFFFAFBFD).copy(alpha = (0.62f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
+            Color.White.copy(alpha = (0.24f * config.tintAlphaMultiplier).coerceIn(0f, 1f))
         }
     }
 
@@ -151,7 +151,7 @@ fun Modifier.liquidGlassSurface(
         exportedBackdrop = exportedBackdrop,
         effects = {
             vibrancy()
-            val effectiveBlur = (blurRadius.coerceAtLeast(22.dp).toPx() * config.blurMultiplier).coerceAtLeast(0f)
+            val effectiveBlur = (blurRadius.toPx() * config.blurMultiplier).coerceAtLeast(0f)
             if (effectiveBlur > 0.5f) {
                 blur(effectiveBlur)
             }
@@ -160,7 +160,7 @@ fun Modifier.liquidGlassSurface(
                     refractionHeight = (refractionHeight.toPx() * config.refractionMultiplier * config.lensHeightMultiplier).coerceAtLeast(0.1f),
                     refractionAmount = (dynamicRefractionAmount.dp.toPx() * config.refractionMultiplier).coerceAtLeast(0.1f),
                     depthEffect = effectiveDepthEffect,
-                    chromaticAberration = false,
+                    chromaticAberration = config.chromaticAberration,
                 )
             } catch (_: Throwable) {
             }
@@ -201,7 +201,7 @@ object LiquidGlassDefaults {
      * Translucent tint that lets the backdrop blur and refraction shine through.
      */
     fun popupSurfaceColor(isDark: Boolean): Color =
-        if (isDark) Color(0xB30B0B0D) else Color(0x9EFAFBFD)
+        if (isDark) Color(0x381C1C22) else Color(0x55FFFFFF)
 
     /**
      * Exact unified hair-line border color.
@@ -211,9 +211,9 @@ object LiquidGlassDefaults {
 
     val PopupBorderWidth: Dp = 0.6.dp
 
-    val PopupBlurRadius: Dp = 26.dp
+    val PopupBlurRadius: Dp = 18.dp
     val PopupRefractionHeight: Dp = 16.dp
-    val PopupRefractionAmount: Dp = 27.dp
+    val PopupRefractionAmount: Dp = 24.dp
 
     fun popupTextColor(isDark: Boolean): Color =
         if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)

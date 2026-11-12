@@ -125,26 +125,14 @@ fun ChapterNavigator(
             contentColor = MaterialTheme.colorScheme.primary,
         )
     }
-    val targetTextColor = if (isGlass) {
-        if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
-    } else {
-        if (isBottomLight) Color(0xFF111113) else Color.White
-    }
-    val targetPillBorder = if (isGlass) {
-        if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-    } else {
-        if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
-    }
-    val targetPillBg = if (isDark) Color(0xFF0B0B0D).copy(alpha = 0.68f) else Color(0xFFFAFBFD).copy(alpha = 0.62f)
+    val targetTextColor = if (isBottomLight) Color(0xFF111113) else Color.White
+    val targetPillBorder = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
+    val targetPillBg = if (isBottomLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
     val textColor by animateColorAsState(targetTextColor, animationSpec = tween(250), label = "chapNavText")
     val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "chapNavBorder")
     val pillBgColor by animateColorAsState(targetPillBg, animationSpec = tween(250), label = "chapNavBg")
     val skipIconTint = targetTextColor
-    val disabledSkipTint = if (isGlass) {
-        if (isDark) Color(0x52EBEBF5) else Color(0x473C3C43)
-    } else {
-        Color.Gray.copy(alpha = 0.6f)
-    }
+    val disabledSkipTint = Color.Gray.copy(alpha = 0.6f)
 
     // We explicitly handle direction based on the reader viewer rather than the system direction
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -166,7 +154,7 @@ fun ChapterNavigator(
                             } else {
                                 Modifier.liquidGlassSurface(
                                     shape = CircleShape,
-                                    blurRadius = 24.dp,
+                                    blurRadius = 3.dp,
                                     refractionHeight = 16.dp,
                                     refractionAmount = 24.dp,
                                     tintColor = pillBgColor,
@@ -236,7 +224,7 @@ fun ChapterNavigator(
                             .fillMaxWidth()
                             .liquidGlassSurface(
                                 shape = Capsule(),
-                                blurRadius = 24.dp,
+                                blurRadius = 3.dp,
                                 refractionHeight = 16.dp,
                                 refractionAmount = 26.dp,
                                 tintColor = pillBgColor,
@@ -291,11 +279,7 @@ fun ChapterNavigator(
                                     colors = androidx.compose.material3.SliderDefaults.colors(
                                         thumbColor = MaterialTheme.colorScheme.primary,
                                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                                        inactiveTrackColor = if (isGlass) {
-                                            if (isDark) Color(0x35FFFFFF) else Color(0x25000000)
-                                        } else {
-                                            if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
-                                        },
+                                        inactiveTrackColor = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF),
                                     ),
                                     onValueChange = f@{ nextVal ->
                                         val floatIdx = (nextVal - 1f).coerceIn(0f, (safeTotalPages - 1).toFloat())
@@ -336,7 +320,7 @@ fun ChapterNavigator(
                             } else {
                                 Modifier.liquidGlassSurface(
                                     shape = CircleShape,
-                                    blurRadius = 24.dp,
+                                    blurRadius = 3.dp,
                                     refractionHeight = 16.dp,
                                     refractionAmount = 24.dp,
                                     tintColor = pillBgColor,
@@ -423,26 +407,14 @@ fun ChapterNavigatorVert(
             disabledContainerColor = if (isGlass) Color.Transparent else (if (isDark) Color(0x441C1C1E) else Color(0x66FFFFFF)),
             disabledContentColor = Color.Gray,
         )
-        val targetTextColor = if (isGlass) {
-            if (isDark) Color(0xF5FFFFFF) else Color(0xEB000000)
-        } else {
-            if (isBottomLight) Color(0xFF111113) else Color.White
-        }
-        val targetPillBorder = if (isGlass) {
-            if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-        } else {
-            if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
-        }
-        val targetPillBg = if (isDark) Color(0xFF0B0B0D).copy(alpha = 0.68f) else Color(0xFFFAFBFD).copy(alpha = 0.62f)
+        val targetTextColor = if (isBottomLight) Color(0xFF111113) else Color.White
+        val targetPillBorder = if (isBottomLight) Color(0x25000000) else Color(0x35FFFFFF)
+        val targetPillBg = if (isBottomLight) Color.Black.copy(alpha = 0.06f) else Color.White.copy(alpha = 0.12f)
         val textColor by animateColorAsState(targetTextColor, animationSpec = tween(250), label = "chapNavVertText")
         val pillBorderColor by animateColorAsState(targetPillBorder, animationSpec = tween(250), label = "chapNavVertBorder")
         val pillBgColor by animateColorAsState(targetPillBg, animationSpec = tween(250), label = "chapNavVertBg")
         val skipIconTint = targetTextColor
-        val disabledSkipTint = if (isGlass) {
-            if (isDark) Color(0x52EBEBF5) else Color(0x473C3C43)
-        } else {
-            Color.Gray.copy(alpha = 0.6f)
-        }
+        val disabledSkipTint = Color.Gray.copy(alpha = 0.6f)
 
         if (isGlass) {
             Box(
@@ -454,7 +426,7 @@ fun ChapterNavigatorVert(
                         } else {
                             Modifier.liquidGlassSurface(
                                 shape = CircleShape,
-                                blurRadius = 24.dp,
+                                blurRadius = 3.dp,
                                 refractionHeight = 16.dp,
                                 refractionAmount = 24.dp,
                                 tintColor = pillBgColor,
@@ -523,7 +495,7 @@ fun ChapterNavigatorVert(
                         .fillMaxHeight()
                         .liquidGlassSurface(
                             shape = Capsule(),
-                            blurRadius = 24.dp,
+                            blurRadius = 3.dp,
                             refractionHeight = 16.dp,
                             refractionAmount = 26.dp,
                             tintColor = pillBgColor,
@@ -600,7 +572,7 @@ fun ChapterNavigatorVert(
                         } else {
                             Modifier.liquidGlassSurface(
                                 shape = CircleShape,
-                                blurRadius = 24.dp,
+                                blurRadius = 3.dp,
                                 refractionHeight = 16.dp,
                                 refractionAmount = 24.dp,
                                 tintColor = pillBgColor,

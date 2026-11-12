@@ -49,15 +49,16 @@ fun ReaderSettingsDialog(
             pagerState = pagerState,
         ) { page ->
             val window = (LocalView.current.parent as? DialogWindowProvider)?.window
+            val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
 
             if (page == pagerState.currentPage) {
-                LaunchedEffect(pagerState.currentPage) {
+                LaunchedEffect(pagerState.currentPage, isGlass) {
                     if (pagerState.currentPage == 2) {
                         window?.setDimAmount(0f)
                         menuHiddenByFilter = true
                         onHideMenus()
                     } else {
-                        window?.setDimAmount(0.5f)
+                        window?.setDimAmount(if (isGlass) 0f else 0.5f)
                         if (menuHiddenByFilter) {
                             menuHiddenByFilter = false
                             onShowMenus()

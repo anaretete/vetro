@@ -95,8 +95,8 @@ fun EnableWindowBlurBehind(radiusDp: Dp = 28.dp) {
                 if (useNativeGlass) {
                     params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
                     params.blurBehindRadius = 0
-                    if ((params.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && params.dimAmount > 0.08f) {
-                        params.dimAmount = 0.08f
+                    if ((params.flags and WindowManager.LayoutParams.FLAG_DIM_BEHIND) != 0 && params.dimAmount > 0f) {
+                        params.dimAmount = 0f
                     }
                 } else {
                     params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
@@ -157,7 +157,7 @@ fun CupertinoFrostedPopup(
     val isDark = isSystemInDarkTheme()
     val density = LocalDensity.current
     val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
-    val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
+    val surfaceColor = if (isDark) Color(0x9922222A) else Color(0xCCFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
     val cornerPx = with(density) { 20.dp.toPx() }
     val borderPx = with(density) { 0.75.dp.toPx() }

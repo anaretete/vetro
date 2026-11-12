@@ -60,9 +60,9 @@ fun NavigationBar(
                     } else {
                         Modifier.liquidGlassSurface(
                             shape = com.kyant.shapes.Capsule(),
-                            blurRadius = 24.dp,
-                            refractionHeight = 16.dp,
-                            refractionAmount = 27.dp,
+                            blurRadius = 18.dp,
+                            refractionHeight = 24.dp,
+                            refractionAmount = 36.dp,
                             exportedBackdrop = navBarExportedBackdrop,
                         )
                     },
