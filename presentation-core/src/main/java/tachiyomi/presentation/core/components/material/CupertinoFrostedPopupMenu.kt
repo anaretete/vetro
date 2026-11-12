@@ -46,7 +46,7 @@ fun CupertinoFrostedPopup(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val isDark = isSystemInDarkTheme()
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(18.dp)
     val popupTextColor = LiquidGlassDefaults.popupTextColor(isDark)
 
     MaterialTheme(
@@ -62,11 +62,11 @@ fun CupertinoFrostedPopup(
                 dismissOnClickOutside = true,
             ),
             modifier = modifier
-                .widthIn(min = 190.dp, max = 280.dp)
+                .widthIn(min = 200.dp, max = 290.dp)
                 .liquidGlassPopupSurface(shape = shape),
             shape = shape,
             containerColor = Color.Transparent,
-            shadowElevation = 14.dp,
+            shadowElevation = 18.dp,
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides popupTextColor,
@@ -84,7 +84,7 @@ fun CupertinoFrostedPopup(
 }
 
 /**
- * A tiny frosted liquid glass popup with selectable options formatted like native Apple iOS pop-up buttons.
+ * A frosted liquid glass popup with selectable options formatted like rit3zh/expo-glass-custom-menu.
  */
 @Composable
 fun <T> CupertinoFrostedPopupMenu(
@@ -97,6 +97,7 @@ fun <T> CupertinoFrostedPopupMenu(
     offset: DpOffset = DpOffset(0.dp, 4.dp),
 ) {
     val isDark = isSystemInDarkTheme()
+    val haptics = rememberCupertinoHaptics()
 
     CupertinoFrostedPopup(
         expanded = expanded,
@@ -111,16 +112,17 @@ fun <T> CupertinoFrostedPopupMenu(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
+                        haptics.selection()
                         onSelect(key)
                         onDismissRequest()
                     }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 13.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = label,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 16.sp,
+                        fontSize = 15.5.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                         color = if (isSelected) {
                             MaterialTheme.colorScheme.primary
@@ -149,8 +151,8 @@ fun <T> CupertinoFrostedPopupMenu(
             if (index < entryList.lastIndex) {
                 HorizontalDivider(
                     thickness = 0.5.dp,
-                    color = if (isDark) Color(0x25FFFFFF) else Color(0x18000000),
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    color = if (isDark) Color(0x20FFFFFF) else Color(0x14000000),
+                    modifier = Modifier.padding(horizontal = 14.dp),
                 )
             }
         }
