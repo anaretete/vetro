@@ -131,6 +131,9 @@ fun <T> TriStateListDialog(
                                     Text(text = itemLabel(item))
                                 }
                             }
+                            if (isGlass && index < items.lastIndex) {
+                                tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                            }
                         }
                     }
 

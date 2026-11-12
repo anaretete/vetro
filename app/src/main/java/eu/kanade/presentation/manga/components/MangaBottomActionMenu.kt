@@ -422,12 +422,14 @@ fun LibraryBottomActionMenu(
                             destructive = true,
                             onClick = onDeleteClicked,
                         )
+                        DropdownMenuSeparator()
                         // KMK -->
                         DropdownMenuItem(
                             text = { Text(stringResource(SYMR.strings.merge)) },
                             onClick = onMergeClicked,
                         )
                         if (onClickCleanTitles != null) {
+                            DropdownMenuSeparator()
                             DropdownMenuItem(
                                 text = { Text(stringResource(SYMR.strings.action_clean_titles)) },
                                 onClick = onClickCleanTitles,

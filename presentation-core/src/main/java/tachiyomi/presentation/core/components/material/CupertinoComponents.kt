@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -90,13 +91,33 @@ fun CupertinoAlertDialog(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val dialogShape = RoundedCornerShape(20.dp)
+    val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
+    val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
+    val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
+    val dividerColor = if (isDark) Color(0x1FFFFFFF) else Color(0x14000000)
+
     val dialogModifier = if (isGlass) {
         modifier
-            .widthIn(min = 270.dp, max = 320.dp)
-            .liquidGlassPopupSurface(shape = dialogShape)
+            .widthIn(min = 280.dp, max = 320.dp)
+            .shadow(
+                elevation = 24.dp,
+                shape = dialogShape,
+                ambientColor = if (isDark) Color(0x66000000) else Color(0x22000000),
+                spotColor = if (isDark) Color(0x88000000) else Color(0x33000000),
+            )
+            .border(
+                width = 0.75.dp,
+                color = borderColor,
+                shape = dialogShape,
+            )
+            .background(
+                color = surfaceColor,
+                shape = dialogShape,
+            )
+            .clip(dialogShape)
     } else {
         modifier
-            .widthIn(min = 270.dp, max = 320.dp)
+            .widthIn(min = 280.dp, max = 320.dp)
             .clip(dialogShape)
             .background(if (isDark) Color(0xFF252528) else Color(0xFFFFFFFF))
     }
@@ -106,6 +127,9 @@ fun CupertinoAlertDialog(
         modifier = dialogModifier,
         properties = properties,
     ) {
+        if (isGlass) {
+            EnableWindowBlurBehind(radiusDp = 28.dp)
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
@@ -114,7 +138,7 @@ fun CupertinoAlertDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 if (icon != null) {
@@ -128,7 +152,8 @@ fun CupertinoAlertDialog(
                             fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Center,
-                            color = if (isDark) Color.White else Color(0xFF111113),
+                            color = popupTextColor,
+                            letterSpacing = (-0.3).sp,
                         ),
                     ) {
                         title()
@@ -137,7 +162,7 @@ fun CupertinoAlertDialog(
                 if (text != null) {
                     ProvideTextStyle(
                         value = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.sp,
+                            fontSize = 13.5.sp,
                             textAlign = TextAlign.Center,
                             color = if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113),
                             lineHeight = 18.sp,
@@ -152,7 +177,7 @@ fun CupertinoAlertDialog(
 
             HorizontalDivider(
                 thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
             )
 
             Row(
@@ -165,7 +190,7 @@ fun CupertinoAlertDialog(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(44.dp),
+                            .height(46.dp),
                         contentAlignment = Alignment.Center,
                     ) {
                         CompositionLocalProvider(
@@ -185,14 +210,14 @@ fun CupertinoAlertDialog(
 
                     VerticalDivider(
                         thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
                     )
                 }
 
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp),
+                        .height(46.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     CompositionLocalProvider(

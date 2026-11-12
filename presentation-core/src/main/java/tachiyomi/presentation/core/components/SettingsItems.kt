@@ -389,6 +389,9 @@ fun SelectItem(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
+            if (isGlass) {
+                tachiyomi.presentation.core.components.material.EnableWindowBlurBehind(radiusDp = 28.dp)
+            }
             options.forEachIndexed { index, text ->
                 if (isGlass) {
                     CupertinoGlassMenuItem(

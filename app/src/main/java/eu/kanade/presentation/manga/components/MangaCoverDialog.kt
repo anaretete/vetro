@@ -158,9 +158,6 @@ fun MangaCoverDialog(
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false },
                                     offset = DpOffset(8.dp, 0.dp),
-                                    // KMK -->
-                                    modifier = Modifier.background(dropdownBgColor),
-                                    // KMK <--
                                 ) {
                                     DropdownMenuItem(
                                         text = { Text(text = stringResource(MR.strings.action_edit)) },

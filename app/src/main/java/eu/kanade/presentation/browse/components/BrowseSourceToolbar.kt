@@ -14,6 +14,7 @@ import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import eu.kanade.presentation.components.AppBarTitle
 import eu.kanade.presentation.components.DropdownMenu
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import eu.kanade.presentation.components.RadioMenuItem
 import eu.kanade.presentation.components.SearchToolbar
 import eu.kanade.tachiyomi.source.Source
@@ -125,6 +126,7 @@ fun BrowseSourceToolbar(
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.ComfortableGrid)
                 }
+                DropdownMenuSeparator()
                 // KMK -->
                 RadioMenuItem(
                     text = { Text(text = stringResource(KMR.strings.action_display_comfortable_grid_panorama)) },
@@ -133,6 +135,7 @@ fun BrowseSourceToolbar(
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.ComfortableGridPanorama)
                 }
+                DropdownMenuSeparator()
                 // KMK <--
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_grid)) },
@@ -141,6 +144,7 @@ fun BrowseSourceToolbar(
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.CompactGrid)
                 }
+                DropdownMenuSeparator()
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_list)) },
                     isChecked = displayMode == LibraryDisplayMode.List,

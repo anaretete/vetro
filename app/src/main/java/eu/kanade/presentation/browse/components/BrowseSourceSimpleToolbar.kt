@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import eu.kanade.presentation.components.DropdownMenu
+import eu.kanade.presentation.components.DropdownMenuSeparator
 import eu.kanade.presentation.components.RadioMenuItem
 import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.domain.library.model.LibraryDisplayMode
@@ -74,6 +75,7 @@ fun BrowseSourceSimpleToolbar(
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.ComfortableGrid)
                 }
+                DropdownMenuSeparator()
                 RadioMenuItem(
                     text = { Text(text = stringResource(KMR.strings.action_display_comfortable_grid_panorama)) },
                     isChecked = displayMode == LibraryDisplayMode.ComfortableGridPanorama,
@@ -81,6 +83,7 @@ fun BrowseSourceSimpleToolbar(
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.ComfortableGridPanorama)
                 }
+                DropdownMenuSeparator()
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_grid)) },
                     isChecked = displayMode == LibraryDisplayMode.CompactGrid,
@@ -88,6 +91,7 @@ fun BrowseSourceSimpleToolbar(
                     selectingDisplayMode = false
                     onDisplayModeChange(LibraryDisplayMode.CompactGrid)
                 }
+                DropdownMenuSeparator()
                 RadioMenuItem(
                     text = { Text(text = stringResource(MR.strings.action_display_list)) },
                     isChecked = displayMode == LibraryDisplayMode.List,
