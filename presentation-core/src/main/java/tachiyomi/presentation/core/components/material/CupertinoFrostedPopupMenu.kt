@@ -294,7 +294,7 @@ fun CupertinoGlassMenuSeparator(
 }
 
 /**
- * A frosted liquid glass popup with selectable options formatted like rit3zh/expo-glass-custom-menu.
+ * A frosted liquid glass popup with selectable options powered by rit3zh/expo-glass-custom-menu.
  */
 @Composable
 fun <T> CupertinoFrostedPopupMenu(
@@ -306,35 +306,92 @@ fun <T> CupertinoFrostedPopupMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 4.dp),
 ) {
-    CupertinoFrostedPopup(
-        expanded = expanded,
-        onDismissRequest = onDismissRequest,
-        offset = offset,
-        modifier = modifier,
-    ) {
-        val entryList = remember(entries) { entries.toList() }
-        entryList.forEachIndexed { index, (key, label) ->
-            val isSelected = key == selectedValue
-            CupertinoGlassMenuItem(
-                text = { Text(text = label) },
-                onClick = {
-                    onSelect(key)
-                    onDismissRequest()
-                },
-                selected = isSelected,
-                trailingIcon = if (isSelected) {
-                    {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp),
-                        )
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val isDark = isSystemInDarkTheme()
+
+    if (isGlass && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val items = remember(entries, selectedValue) {
+            entries.map { (key, label) ->
+                expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                    id = key.toString(),
+                    title = label,
+                    checked = if (key == selectedValue) true else null,
+                    onClick = {
+                        onSelect(key)
+                        onDismissRequest()
+                    },
+                )
+            }
+        }
+
+        var anchorView by remember { androidx.compose.runtime.mutableStateOf<expo.modules.glassmenuandroid.GlassMenuAndroidView?>(null) }
+
+        androidx.compose.ui.viewinterop.AndroidView(
+            modifier = modifier.size(32.dp),
+            factory = { context ->
+                expo.modules.glassmenuandroid.GlassMenuAndroidView(context).apply {
+                    this.colorScheme = if (isDark) "dark" else "light"
+                    this.items = items
+                    this.onMenuOpenChange = { map ->
+                        if (map["open"] == false) {
+                            onDismissRequest()
+                        }
                     }
-                } else null,
-            )
-            if (index < entryList.lastIndex) {
-                CupertinoGlassMenuSeparator()
+                    anchorView = this
+                }
+            },
+            update = { view ->
+                view.colorScheme = if (isDark) "dark" else "light"
+                view.items = items
+                anchorView = view
+            },
+        )
+
+        LaunchedEffect(expanded, anchorView) {
+            val anchor = anchorView ?: return@LaunchedEffect
+            if (expanded) {
+                anchor.post { anchor.open() }
+            } else {
+                anchor.close()
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                anchorView?.close()
+            }
+        }
+    } else {
+        CupertinoFrostedPopup(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest,
+            offset = offset,
+            modifier = modifier,
+        ) {
+            val entryList = remember(entries) { entries.toList() }
+            entryList.forEachIndexed { index, (key, label) ->
+                val isSelected = key == selectedValue
+                CupertinoGlassMenuItem(
+                    text = { Text(text = label) },
+                    onClick = {
+                        onSelect(key)
+                        onDismissRequest()
+                    },
+                    selected = isSelected,
+                    trailingIcon = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    } else null,
+                )
+                if (index < entryList.lastIndex) {
+                    CupertinoGlassMenuSeparator()
+                }
             }
         }
     }

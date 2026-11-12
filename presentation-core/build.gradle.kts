@@ -52,4 +52,6 @@ dependencies {
     api(libs.kyant.shapes)
     implementation(libs.kyant.backdrop)
     implementation(libs.chrisbanes.haze)
+    implementation("androidx.core:core:1.13.1")
+    implementation("androidx.customview:customview:1.1.0")
 }
