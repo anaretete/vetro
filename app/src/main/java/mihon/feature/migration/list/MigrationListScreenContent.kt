@@ -346,50 +346,108 @@ private fun MigrationListItemAction(
                 }
             }
             MigratingManga.SearchResult.NotFound, is MigratingManga.SearchResult.Success -> {
+                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+                val searchManuallyLabel = stringResource(MR.strings.migrationListScreen_searchManuallyActionLabel)
+                val skipLabel = stringResource(MR.strings.migrationListScreen_skipActionLabel)
+                val migrateNowLabel = stringResource(MR.strings.migrationListScreen_migrateNowActionLabel)
+                val copyNowLabel = stringResource(MR.strings.migrationListScreen_copyNowActionLabel)
+                if (isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu) {
+                    val items = buildList {
+                        add(
+                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                id = "search_manually",
+                                title = searchManuallyLabel,
+                                onClick = {
+                                    closeMenu()
+                                    onSearchManually()
+                                },
+                            ),
+                        )
+                        add(
+                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                id = "skip",
+                                title = skipLabel,
+                                onClick = {
+                                    closeMenu()
+                                    onSkip()
+                                },
+                            ),
+                        )
+                        if (result is MigratingManga.SearchResult.Success) {
+                            add(
+                                expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                    id = "migrate_now",
+                                    title = migrateNowLabel,
+                                    onClick = {
+                                        closeMenu()
+                                        onMigrate()
+                                    },
+                                ),
+                            )
+                            add(
+                                expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                    id = "copy_now",
+                                    title = copyNowLabel,
+                                    onClick = {
+                                        closeMenu()
+                                        onCopy()
+                                    },
+                                ),
+                            )
+                        }
+                    }
+                    tachiyomi.presentation.core.components.material.GlassMenuAnchor(
+                        expanded = menuExpanded,
+                        onDismissRequest = closeMenu,
+                        items = items,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                } else {
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = closeMenu,
+                        offset = DpOffset(8.dp, (-56).dp),
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(searchManuallyLabel) },
+                            onClick = {
+                                closeMenu()
+                                onSearchManually()
+                            },
+                        )
+                        DropdownMenuSeparator()
+                        DropdownMenuItem(
+                            text = { Text(skipLabel) },
+                            onClick = {
+                                closeMenu()
+                                onSkip()
+                            },
+                        )
+                        if (result is MigratingManga.SearchResult.Success) {
+                            DropdownMenuSeparator()
+                            DropdownMenuItem(
+                                text = { Text(migrateNowLabel) },
+                                onClick = {
+                                    closeMenu()
+                                    onMigrate()
+                                },
+                            )
+                            DropdownMenuSeparator()
+                            DropdownMenuItem(
+                                text = { Text(copyNowLabel) },
+                                onClick = {
+                                    closeMenu()
+                                    onCopy()
+                                },
+                            )
+                        }
+                    }
+                }
                 IconButton(onClick = { menuExpanded = true }) {
                     Icon(
                         imageVector = Icons.Outlined.MoreHoriz,
                         contentDescription = null,
                     )
-                }
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = closeMenu,
-                    offset = DpOffset(8.dp, (-56).dp),
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(MR.strings.migrationListScreen_searchManuallyActionLabel)) },
-                        onClick = {
-                            closeMenu()
-                            onSearchManually()
-                        },
-                    )
-                    DropdownMenuSeparator()
-                    DropdownMenuItem(
-                        text = { Text(stringResource(MR.strings.migrationListScreen_skipActionLabel)) },
-                        onClick = {
-                            closeMenu()
-                            onSkip()
-                        },
-                    )
-                    if (result is MigratingManga.SearchResult.Success) {
-                        DropdownMenuSeparator()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(MR.strings.migrationListScreen_migrateNowActionLabel)) },
-                            onClick = {
-                                closeMenu()
-                                onMigrate()
-                            },
-                        )
-                        DropdownMenuSeparator()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(MR.strings.migrationListScreen_copyNowActionLabel)) },
-                            onClick = {
-                                closeMenu()
-                                onCopy()
-                            },
-                        )
-                    }
                 }
             }
         }

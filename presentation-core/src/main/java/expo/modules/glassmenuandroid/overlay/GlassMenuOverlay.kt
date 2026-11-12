@@ -24,6 +24,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.customview.widget.ExploreByTouchHelper
 import expo.modules.glassmenuandroid.GlassMenuAndroidView
+import expo.modules.glassmenuandroid.GlassPanelView
+import expo.modules.glassmenuandroid.findHostActivity
 import java.util.WeakHashMap
 import kotlin.math.min
 
@@ -35,6 +37,7 @@ internal class GlassMenuOverlay private constructor(
   private val density = resources.displayMetrics.density
   private val limits = Rect()
   private val location = IntArray(2)
+  private val auxLocation = IntArray(2)
   private val restRect = RectF()
   private val probe = RectF()
   private val supportsGlass = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -133,16 +136,41 @@ internal class GlassMenuOverlay private constructor(
   private fun drawGlass(canvas: Canvas, active: GlassMenuSession?) {
     val node = backdrop ?: return
     node.setPosition(limits)
-    val recording = node.beginRecording(width, height)
-    recording.drawColor(if (anchors.firstOrNull()?.isDark() != false) Color.BLACK else Color.WHITE)
-    root.background?.draw(recording)
-    for (index in 0 until root.childCount) {
-      val child = root.getChildAt(index)
-      if (child !== this && child.visibility == VISIBLE && child.id != android.R.id.statusBarBackground &&
-        child.id != android.R.id.navigationBarBackground
-      ) child.draw(recording)
+    GlassPanelView.capturingBackdropDepth++
+    try {
+      val recording = node.beginRecording(width, height)
+      recording.drawColor(if (anchors.firstOrNull()?.isDark() != false) Color.BLACK else Color.WHITE)
+      val actRoot = context.findHostActivity()?.window?.decorView?.findViewById<ViewGroup>(android.R.id.content)
+      if (actRoot != null && actRoot !== root && actRoot.rootView !== root.rootView && actRoot.width > 0 && actRoot.height > 0) {
+        actRoot.getLocationOnScreen(auxLocation)
+        root.getLocationOnScreen(location)
+        val dx = (auxLocation[0] - location[0]).toFloat()
+        val dy = (auxLocation[1] - location[1]).toFloat()
+        val save = recording.save()
+        recording.translate(dx, dy)
+        actRoot.background?.draw(recording)
+        for (i in 0 until actRoot.childCount) {
+          val child = actRoot.getChildAt(i)
+          if (child !is GlassMenuOverlay && child.visibility == VISIBLE &&
+            child.id != android.R.id.statusBarBackground &&
+            child.id != android.R.id.navigationBarBackground
+          ) {
+            child.draw(recording)
+          }
+        }
+        recording.restoreToCount(save)
+      }
+      root.background?.draw(recording)
+      for (index in 0 until root.childCount) {
+        val child = root.getChildAt(index)
+        if (child !== this && child.visibility == VISIBLE && child.id != android.R.id.statusBarBackground &&
+          child.id != android.R.id.navigationBarBackground
+        ) child.draw(recording)
+      }
+      node.endRecording()
+    } finally {
+      GlassPanelView.capturingBackdropDepth--
     }
-    node.endRecording()
 
     for (anchor in anchors) {
       if (anchor !== active?.anchor && anchor.drawsGlass) drawRestingAnchor(canvas, node, anchor)

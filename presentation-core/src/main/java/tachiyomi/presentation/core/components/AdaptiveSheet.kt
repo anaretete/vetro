@@ -63,9 +63,10 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import tachiyomi.presentation.core.components.material.CupertinoGrabber
-import tachiyomi.presentation.core.components.material.EnableWindowBlurBehind
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.NativeGlassSurface
+import tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
 import kotlin.math.roundToInt
 
 @Composable
@@ -79,21 +80,17 @@ fun AdaptiveSheet(
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
     val existingBackdrop = LocalLayerBackdrop.current
     val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
         val baseColor = if (isDark) Color(0x3016161A) else Color(0x45F2F2F6)
         drawRect(baseColor)
     }
-    val sheetExportedBackdrop = rememberLayerBackdrop()
 
     val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
     val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-
-    if (isGlass) {
-        EnableWindowBlurBehind(radiusDp = 28.dp)
-    }
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -108,8 +105,20 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
-        val tabletShape = RoundedCornerShape(20.dp)
-        val tabletModifier: Modifier = if (isGlass) {
+        val tabletShape = RoundedCornerShape(22.dp)
+        val tabletModifier: Modifier = if (useNativeGlass) {
+            Modifier
+                .requiredWidthIn(max = 460.dp)
+                .heightIn(max = 560.dp)
+                .clickable(
+                    interactionSource = null,
+                    indication = null,
+                    onClick = {},
+                )
+                .systemBarsPadding()
+                .padding(vertical = 16.dp)
+                .then(modifier)
+        } else if (isGlass) {
             Modifier
                 .requiredWidthIn(max = 460.dp)
                 .heightIn(max = 560.dp)
@@ -162,15 +171,17 @@ fun AdaptiveSheet(
                 .alpha(alpha),
             contentAlignment = Alignment.Center,
         ) {
-            Surface(
-                modifier = tabletModifier,
-                shape = tabletShape,
-                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                contentColor = if (isGlass) popupTextColor else MaterialTheme.colorScheme.onSurface,
-                content = {
+            if (useNativeGlass) {
+                Box(modifier = tabletModifier) {
+                    NativeGlassSurface(
+                        modifier = Modifier.matchParentSize(),
+                        cornerRadius = 22.dp,
+                        topCornersOnly = false,
+                        surfaceOpacity = alpha,
+                    )
                     CompositionLocalProvider(
-                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
-                        LocalContentColor provides if (isGlass) popupTextColor else LocalContentColor.current,
+                        LocalLayerBackdrop provides sheetBackdrop,
+                        LocalContentColor provides popupTextColor,
                     ) {
                         BackHandler(
                             enabled = remember { derivedStateOf { alpha > 0f } }.value,
@@ -178,8 +189,27 @@ fun AdaptiveSheet(
                         )
                         content()
                     }
-                },
-            )
+                }
+            } else {
+                Surface(
+                    modifier = tabletModifier,
+                    shape = tabletShape,
+                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor = if (isGlass) popupTextColor else MaterialTheme.colorScheme.onSurface,
+                    content = {
+                        CompositionLocalProvider(
+                            LocalLayerBackdrop provides sheetBackdrop,
+                            LocalContentColor provides if (isGlass) popupTextColor else LocalContentColor.current,
+                        ) {
+                            BackHandler(
+                                enabled = remember { derivedStateOf { alpha > 0f } }.value,
+                                onBack = internalOnDismissRequest,
+                            )
+                            content()
+                        }
+                    },
+                )
+            }
         }
 
         LaunchedEffect(Unit) {
@@ -285,65 +315,100 @@ fun AdaptiveSheet(
                 .then(if (isGlass) Modifier else Modifier.navigationBarsPadding())
                 .statusBarsPadding()
 
-            val phoneModifier: Modifier = if (isGlass) {
-                phoneBaseModifier
-                    .shadow(
-                        elevation = 24.dp,
-                        shape = bottomSheetShape,
-                        ambientColor = if (isDark) Color(0x66000000) else Color(0x22000000),
-                        spotColor = if (isDark) Color(0x88000000) else Color(0x33000000),
+            if (useNativeGlass) {
+                Box(modifier = phoneBaseModifier) {
+                    NativeGlassSurface(
+                        modifier = Modifier.matchParentSize(),
+                        cornerRadius = 24.dp,
+                        topCornersOnly = true,
                     )
-                    .border(
-                        width = 0.75.dp,
-                        color = borderColor,
-                        shape = bottomSheetShape,
-                    )
-                    .background(
-                        color = surfaceColor,
-                        shape = bottomSheetShape,
-                    )
-                    .clip(bottomSheetShape)
-            } else {
-                phoneBaseModifier
-            }
-
-            Surface(
-                modifier = phoneModifier,
-                shape = bottomSheetShape,
-                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
-                contentColor = if (isGlass) popupTextColor else MaterialTheme.colorScheme.onSurface,
-                content = {
                     CompositionLocalProvider(
-                        LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
-                        LocalContentColor provides if (isGlass) popupTextColor else LocalContentColor.current,
+                        LocalLayerBackdrop provides sheetBackdrop,
+                        LocalContentColor provides popupTextColor,
                     ) {
                         BackHandler(
                             enabled = anchoredDraggableState.targetValue == 0,
                             onBack = internalOnDismissRequest,
                         )
-                        if (isGlass) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding(),
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .navigationBarsPadding(),
+                                    .padding(top = 2.dp),
                             ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 2.dp),
-                                ) {
-                                    CupertinoGrabber()
-                                }
-                                content()
+                                CupertinoGrabber()
                             }
-                        } else {
                             content()
                         }
                     }
-                },
-            )
+                }
+            } else {
+                val phoneModifier: Modifier = if (isGlass) {
+                    phoneBaseModifier
+                        .shadow(
+                            elevation = 24.dp,
+                            shape = bottomSheetShape,
+                            ambientColor = if (isDark) Color(0x66000000) else Color(0x22000000),
+                            spotColor = if (isDark) Color(0x88000000) else Color(0x33000000),
+                        )
+                        .border(
+                            width = 0.75.dp,
+                            color = borderColor,
+                            shape = bottomSheetShape,
+                        )
+                        .background(
+                            color = surfaceColor,
+                            shape = bottomSheetShape,
+                        )
+                        .clip(bottomSheetShape)
+                } else {
+                    phoneBaseModifier
+                }
+
+                Surface(
+                    modifier = phoneModifier,
+                    shape = bottomSheetShape,
+                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                    contentColor = if (isGlass) popupTextColor else MaterialTheme.colorScheme.onSurface,
+                    content = {
+                        CompositionLocalProvider(
+                            LocalLayerBackdrop provides sheetBackdrop,
+                            LocalContentColor provides if (isGlass) popupTextColor else LocalContentColor.current,
+                        ) {
+                            BackHandler(
+                                enabled = anchoredDraggableState.targetValue == 0,
+                                onBack = internalOnDismissRequest,
+                            )
+                            if (isGlass) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .navigationBarsPadding(),
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 2.dp),
+                                    ) {
+                                        CupertinoGrabber()
+                                    }
+                                    content()
+                                }
+                            } else {
+                                content()
+                            }
+                        }
+                    },
+                )
+            }
 
             LaunchedEffect(isAnchored) {
                 if (isAnchored) {

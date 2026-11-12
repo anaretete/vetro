@@ -12,14 +12,68 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import expo.modules.glassmenuandroid.GlassMenuAndroidView
+import expo.modules.glassmenuandroid.GlassPanelView
 import expo.modules.glassmenuandroid.records.GlassMenuItemRecord
 
 /** True when the native rit3zh/expo-glass-custom-menu engine can run (AGSL needs Android 13+). */
 val supportsNativeGlassMenu: Boolean
     get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+
+/**
+ * Native liquid glass background surface powered by rit3zh/expo-glass-custom-menu's [GlassRenderer]
+ * (`GlassMaterialShader` + `GlassShadowShader` + `GlassRecipe.MenuDark`/`MenuLight`).
+ *
+ * Place as the first child of a `Box` with `Modifier.matchParentSize()` so foreground content
+ * renders on top of the refracted, blurred liquid glass panel.
+ */
+@Composable
+fun NativeGlassSurface(
+    modifier: Modifier = Modifier,
+    cornerRadius: Dp = 24.dp,
+    topCornersOnly: Boolean = false,
+    materialProgress: Float = 1f,
+    surfaceOpacity: Float = 1f,
+    customFrame: Rect? = null,
+    customCornerRadiusPx: Float? = null,
+) {
+    val isDark = isSystemInDarkTheme()
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+            GlassPanelView(context).apply {
+                this.cornerRadiusDp = cornerRadius.value
+                this.topCornersOnly = topCornersOnly
+                this.colorScheme = if (isDark) "dark" else "light"
+                this.materialProgress = materialProgress
+                this.surfaceOpacity = surfaceOpacity
+                this.customCornerRadiusPx = customCornerRadiusPx
+                if (customFrame != null) {
+                    setCustomFrame(customFrame.left, customFrame.top, customFrame.right, customFrame.bottom)
+                } else {
+                    clearCustomFrame()
+                }
+            }
+        },
+        update = { view ->
+            view.cornerRadiusDp = cornerRadius.value
+            view.topCornersOnly = topCornersOnly
+            view.colorScheme = if (isDark) "dark" else "light"
+            view.materialProgress = materialProgress
+            view.surfaceOpacity = surfaceOpacity
+            view.customCornerRadiusPx = customCornerRadiusPx
+            if (customFrame != null) {
+                view.setCustomFrame(customFrame.left, customFrame.top, customFrame.right, customFrame.bottom)
+            } else {
+                view.clearCustomFrame()
+            }
+        },
+    )
+}
 
 /**
  * Invisible anchor for the native rit3zh/expo-glass-custom-menu engine.

@@ -400,24 +400,55 @@ private fun SearchResultItemDropDownMenu(
     onCopyName: () -> Unit,
     onOpenInBrowser: () -> Unit,
 ) {
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = onCollapseMenu,
-    ) {
-        DropdownMenuItem(
-            text = { Text(stringResource(MR.strings.action_copy_to_clipboard)) },
-            onClick = {
-                onCopyName()
-                onCollapseMenu()
-            },
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+    val copyLabel = stringResource(MR.strings.action_copy_to_clipboard)
+    val openLabel = stringResource(MR.strings.action_open_in_browser)
+    if (isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu) {
+        val items = remember(copyLabel, openLabel) {
+            listOf(
+                expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                    id = "copy",
+                    title = copyLabel,
+                    onClick = {
+                        onCopyName()
+                        onCollapseMenu()
+                    },
+                ),
+                expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                    id = "open",
+                    title = openLabel,
+                    onClick = {
+                        onOpenInBrowser()
+                        onCollapseMenu()
+                    },
+                ),
+            )
+        }
+        tachiyomi.presentation.core.components.material.GlassMenuAnchor(
+            expanded = expanded,
+            onDismissRequest = onCollapseMenu,
+            items = items,
         )
-        DropdownMenuSeparator()
-        DropdownMenuItem(
-            text = { Text(stringResource(MR.strings.action_open_in_browser)) },
-            onClick = {
-                onOpenInBrowser()
-            },
-        )
+    } else {
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onCollapseMenu,
+        ) {
+            DropdownMenuItem(
+                text = { Text(copyLabel) },
+                onClick = {
+                    onCopyName()
+                    onCollapseMenu()
+                },
+            )
+            DropdownMenuSeparator()
+            DropdownMenuItem(
+                text = { Text(openLabel) },
+                onClick = {
+                    onOpenInBrowser()
+                },
+            )
+        }
     }
 }
 

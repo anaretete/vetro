@@ -328,60 +328,116 @@ private fun TrackInfoItemMenu(
     onTogglePrivate: (() -> Unit)?,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+    val openInBrowserLabel = stringResource(MR.strings.action_open_in_browser)
+    val copyLinkLabel = stringResource(MR.strings.action_copy_link)
+    val togglePrivateLabel = stringResource(
+        if (private) {
+            MR.strings.action_toggle_private_off
+        } else {
+            MR.strings.action_toggle_private_on
+        },
+    )
+    val removeLabel = stringResource(MR.strings.action_remove)
+
     Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
-        IconButton(onClick = { expanded = true }) {
-            Icon(
-                imageVector = Icons.Default.MoreHoriz,
-                contentDescription = stringResource(MR.strings.label_more),
+        if (isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu) {
+            val items = buildList {
+                add(
+                    expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                        id = "open_in_browser",
+                        title = openInBrowserLabel,
+                        onClick = {
+                            onOpenInBrowser()
+                            expanded = false
+                        },
+                    ),
+                )
+                add(
+                    expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                        id = "copy_link",
+                        title = copyLinkLabel,
+                        onClick = {
+                            onCopyLink()
+                            expanded = false
+                        },
+                    ),
+                )
+                if (onTogglePrivate != null) {
+                    add(
+                        expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                            id = "toggle_private",
+                            title = togglePrivateLabel,
+                            onClick = {
+                                onTogglePrivate()
+                                expanded = false
+                            },
+                        ),
+                    )
+                }
+                add(
+                    expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                        id = "remove",
+                        title = removeLabel,
+                        destructive = true,
+                        onClick = {
+                            onRemoved()
+                            expanded = false
+                        },
+                    ),
+                )
+            }
+            tachiyomi.presentation.core.components.material.GlassMenuAnchor(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                items = items,
+                modifier = Modifier.matchParentSize(),
             )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            DropdownMenuItem(
-                text = { Text(stringResource(MR.strings.action_open_in_browser)) },
-                onClick = {
-                    onOpenInBrowser()
-                    expanded = false
-                },
-            )
-            DropdownMenuSeparator()
-            DropdownMenuItem(
-                text = { Text(stringResource(MR.strings.action_copy_link)) },
-                onClick = {
-                    onCopyLink()
-                    expanded = false
-                },
-            )
-            if (onTogglePrivate != null) {
+        } else {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                DropdownMenuItem(
+                    text = { Text(openInBrowserLabel) },
+                    onClick = {
+                        onOpenInBrowser()
+                        expanded = false
+                    },
+                )
                 DropdownMenuSeparator()
                 DropdownMenuItem(
-                    text = {
-                        Text(
-                            stringResource(
-                                if (private) {
-                                    MR.strings.action_toggle_private_off
-                                } else {
-                                    MR.strings.action_toggle_private_on
-                                },
-                            ),
-                        )
-                    },
+                    text = { Text(copyLinkLabel) },
                     onClick = {
-                        onTogglePrivate()
+                        onCopyLink()
+                        expanded = false
+                    },
+                )
+                if (onTogglePrivate != null) {
+                    DropdownMenuSeparator()
+                    DropdownMenuItem(
+                        text = { Text(togglePrivateLabel) },
+                        onClick = {
+                            onTogglePrivate()
+                            expanded = false
+                        },
+                    )
+                }
+                DropdownMenuSeparator()
+                DropdownMenuItem(
+                    text = { Text(removeLabel) },
+                    destructive = true,
+                    onClick = {
+                        onRemoved()
                         expanded = false
                     },
                 )
             }
-            DropdownMenuSeparator()
-            DropdownMenuItem(
-                text = { Text(stringResource(MR.strings.action_remove)) },
-                destructive = true,
-                onClick = {
-                    onRemoved()
-                    expanded = false
-                },
+        }
+        IconButton(onClick = { expanded = true }) {
+            Icon(
+                imageVector = Icons.Default.MoreHoriz,
+                contentDescription = stringResource(MR.strings.label_more),
             )
         }
     }

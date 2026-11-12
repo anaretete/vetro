@@ -101,14 +101,15 @@ fun AlertDialogContent(
     content: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
-    val dialogShape = RoundedCornerShape(20.dp)
-    val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
+    val dialogShape = RoundedCornerShape(22.dp)
     val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-    val dividerColor = if (isDark) Color(0x1FFFFFFF) else Color(0x14000000)
 
-    val dialogModifier = if (isGlass) {
+    val dialogModifier = if (useNativeGlass) {
+        modifier.sizeIn(minWidth = 280.dp, maxWidth = 340.dp)
+    } else if (isGlass) {
         modifier
             .sizeIn(minWidth = 280.dp, maxWidth = 340.dp)
             .shadow(
@@ -134,65 +135,72 @@ fun AlertDialogContent(
             .clip(dialogShape)
             .background(if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9))
     }
-    if (isGlass) {
-        EnableWindowBlurBehind(radiusDp = 28.dp)
-    }
-    Column(
-        modifier = dialogModifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        if (icon != null || title != null) {
-            Column(
-                modifier = Modifier
-                    .padding(
-                        start = 16.dp,
-                        top = 18.dp,
-                        end = 16.dp,
-                        bottom = 8.dp,
-                    )
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                icon?.let {
-                    CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.secondary,
-                    ) {
-                        Box(
-                            Modifier
-                                .padding(IconPadding)
-                                .align(Alignment.CenterHorizontally),
-                        ) {
-                            icon()
-                        }
-                    }
-                }
-                title?.let {
-                    CompositionLocalProvider(
-                        LocalContentColor provides (if (isDark) Color.White else Color(0xFF111113)),
-                    ) {
-                        val textStyle = MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 17.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            color = if (isDark) Color.White else Color(0xFF111113),
+
+    Box(modifier = dialogModifier) {
+        if (useNativeGlass) {
+            NativeGlassSurface(
+                modifier = Modifier.matchParentSize(),
+                cornerRadius = 22.dp,
+                topCornersOnly = false,
+            )
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (icon != null || title != null) {
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            start = 16.dp,
+                            top = 18.dp,
+                            end = 16.dp,
+                            bottom = 8.dp,
                         )
-                        ProvideTextStyle(textStyle) {
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    icon?.let {
+                        CompositionLocalProvider(
+                            LocalContentColor provides MaterialTheme.colorScheme.secondary,
+                        ) {
                             Box(
                                 Modifier
-                                    .padding(PaddingValues(bottom = 6.dp))
+                                    .padding(IconPadding)
                                     .align(Alignment.CenterHorizontally),
                             ) {
-                                title()
+                                icon()
+                            }
+                        }
+                    }
+                    title?.let {
+                        CompositionLocalProvider(
+                            LocalContentColor provides (if (isDark) Color.White else Color(0xFF111113)),
+                        ) {
+                            val textStyle = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = 17.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                color = if (isDark) Color.White else Color(0xFF111113),
+                            )
+                            ProvideTextStyle(textStyle) {
+                                Box(
+                                    Modifier
+                                        .padding(PaddingValues(bottom = 6.dp))
+                                        .align(Alignment.CenterHorizontally),
+                                ) {
+                                    title()
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        CompositionLocalProvider(
-            LocalContentColor provides (if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113)),
-        ) {
-            content?.invoke(this)
+            CompositionLocalProvider(
+                LocalContentColor provides (if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113)),
+            ) {
+                content?.invoke(this)
+            }
         }
     }
 }

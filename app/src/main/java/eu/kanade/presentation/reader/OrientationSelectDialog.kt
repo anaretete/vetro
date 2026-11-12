@@ -62,25 +62,56 @@ private fun DialogContent(
     var selected by remember { mutableStateOf(orientation) }
     val isGlass = LocalLiquidGlassConfig.current.enabled
 
-    ModeSelectionDialog(
-        onUseDefault = {
-            onChangeOrientation(
-                ReaderOrientation.DEFAULT,
-            )
-        }.takeIf { orientation != ReaderOrientation.DEFAULT },
-        onApply = { onChangeOrientation(selected) },
-    ) {
-        SettingsIconGrid(MR.strings.rotation_type) {
-            items(ReaderOrientationsWithoutDefault) { mode ->
-                IconToggleButton(
-                    checked = mode == selected,
-                    onCheckedChange = {
-                        selected = mode
+    if (isGlass) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            tachiyomi.presentation.core.components.HeadingItem(MR.strings.rotation_type)
+            ReaderOrientation.entries.forEachIndexed { index, mode ->
+                val isSelected = mode == orientation
+                tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                    text = { androidx.compose.material3.Text(text = stringResource(mode.stringRes)) },
+                    onClick = { onChangeOrientation(mode) },
+                    selected = isSelected,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = mode.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                        )
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    imageVector = mode.icon,
-                    title = stringResource(mode.stringRes),
+                    trailingIcon = if (isSelected) {
+                        {
+                            tachiyomi.presentation.core.components.material.CupertinoListCheckmark(selected = true)
+                        }
+                    } else {
+                        null
+                    },
                 )
+                if (index < ReaderOrientation.entries.lastIndex) {
+                    tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                }
+            }
+        }
+    } else {
+        ModeSelectionDialog(
+            onUseDefault = {
+                onChangeOrientation(
+                    ReaderOrientation.DEFAULT,
+                )
+            }.takeIf { orientation != ReaderOrientation.DEFAULT },
+            onApply = { onChangeOrientation(selected) },
+        ) {
+            SettingsIconGrid(MR.strings.rotation_type) {
+                items(ReaderOrientationsWithoutDefault) { mode ->
+                    IconToggleButton(
+                        checked = mode == selected,
+                        onCheckedChange = {
+                            selected = mode
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        imageVector = mode.icon,
+                        title = stringResource(mode.stringRes),
+                    )
+                }
             }
         }
     }

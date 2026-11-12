@@ -197,6 +197,12 @@ internal class GlassRenderer(private val density: Float, private val minimumFiel
     canvas.drawRenderNode(glassNode)
   }
 
+  fun drawCachedGlass(canvas: Canvas) {
+    if (glassNode.hasDisplayList()) {
+      canvas.drawRenderNode(glassNode)
+    }
+  }
+
   fun drawForeground(
     canvas: Canvas, state: GlassSurfaceState, warp: Boolean, portalBlur: Float,
     record: (RecordingCanvas) -> Unit,

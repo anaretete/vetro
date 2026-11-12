@@ -89,14 +89,17 @@ fun CupertinoAlertDialog(
     properties: DialogProperties = DialogProperties(),
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
-    val dialogShape = RoundedCornerShape(20.dp)
+    val dialogShape = RoundedCornerShape(22.dp)
     val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
     val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
     val dividerColor = if (isDark) Color(0x1FFFFFFF) else Color(0x14000000)
 
-    val dialogModifier = if (isGlass) {
+    val dialogModifier = if (useNativeGlass) {
+        modifier.widthIn(min = 280.dp, max = 320.dp)
+    } else if (isGlass) {
         modifier
             .widthIn(min = 280.dp, max = 320.dp)
             .shadow(
@@ -127,66 +130,98 @@ fun CupertinoAlertDialog(
         modifier = dialogModifier,
         properties = properties,
     ) {
-        if (isGlass) {
-            EnableWindowBlurBehind(radiusDp = 28.dp)
-        }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            if (useNativeGlass) {
+                NativeGlassSurface(
+                    modifier = Modifier.matchParentSize(),
+                    cornerRadius = 22.dp,
+                    topCornersOnly = false,
+                )
+            }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                if (icon != null) {
-                    Box(modifier = Modifier.padding(bottom = 6.dp)) {
-                        icon()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    if (icon != null) {
+                        Box(modifier = Modifier.padding(bottom = 6.dp)) {
+                            icon()
+                        }
                     }
-                }
-                if (title != null) {
-                    ProvideTextStyle(
-                        value = MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Center,
-                            color = popupTextColor,
-                            letterSpacing = (-0.3).sp,
-                        ),
-                    ) {
-                        title()
+                    if (title != null) {
+                        ProvideTextStyle(
+                            value = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center,
+                                color = popupTextColor,
+                                letterSpacing = (-0.3).sp,
+                            ),
+                        ) {
+                            title()
+                        }
                     }
-                }
-                if (text != null) {
-                    ProvideTextStyle(
-                        value = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 13.5.sp,
-                            textAlign = TextAlign.Center,
-                            color = if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113),
-                            lineHeight = 18.sp,
-                        ),
-                    ) {
-                        Box(modifier = Modifier.weight(1f, fill = false)) {
-                            text()
+                    if (text != null) {
+                        ProvideTextStyle(
+                            value = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = 13.5.sp,
+                                textAlign = TextAlign.Center,
+                                color = if (isDark) Color(0xCCFFFFFF) else Color(0xCC111113),
+                                lineHeight = 18.sp,
+                            ),
+                        ) {
+                            Box(modifier = Modifier.weight(1f, fill = false)) {
+                                text()
+                            }
                         }
                     }
                 }
-            }
 
-            HorizontalDivider(
-                thickness = 0.5.dp,
-                color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-            )
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (dismissButton != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (dismissButton != null) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(46.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CompositionLocalProvider(
+                                LocalContentColor provides MaterialTheme.colorScheme.primary,
+                            ) {
+                                ProvideTextStyle(
+                                    value = MaterialTheme.typography.labelLarge.copy(
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    ),
+                                ) {
+                                    dismissButton()
+                                }
+                            }
+                        }
+
+                        VerticalDivider(
+                            thickness = 0.5.dp,
+                            color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                        )
+                    }
+
                     Box(
                         modifier = Modifier
                             .weight(1f)
@@ -199,38 +234,12 @@ fun CupertinoAlertDialog(
                             ProvideTextStyle(
                                 value = MaterialTheme.typography.labelLarge.copy(
                                     fontSize = 17.sp,
-                                    fontWeight = FontWeight.Normal,
+                                    fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary,
                                 ),
                             ) {
-                                dismissButton()
+                                confirmButton()
                             }
-                        }
-                    }
-
-                    VerticalDivider(
-                        thickness = 0.5.dp,
-                        color = if (isGlass) dividerColor else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(46.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.primary,
-                    ) {
-                        ProvideTextStyle(
-                            value = MaterialTheme.typography.labelLarge.copy(
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary,
-                            ),
-                        ) {
-                            confirmButton()
                         }
                     }
                 }
@@ -551,34 +560,51 @@ fun CupertinoActionSheetCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
     val sheetShape = RoundedCornerShape(20.dp)
     val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-    val cardModifier = if (isGlass) {
-        modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 24.dp,
-                shape = sheetShape,
-                ambientColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.20f),
-                spotColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.22f),
-            )
-            .clip(sheetShape)
-            .background(surfaceColor)
-            .border(width = 0.75.dp, color = borderColor, shape = sheetShape)
-    } else {
-        modifier
-            .fillMaxWidth()
-            .clip(sheetShape)
-            .background(if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9))
-    }
 
-    Column(
-        modifier = cardModifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        content = content,
-    )
+    if (useNativeGlass) {
+        Box(modifier = modifier.fillMaxWidth()) {
+            NativeGlassSurface(
+                modifier = Modifier.matchParentSize(),
+                cornerRadius = 20.dp,
+                topCornersOnly = false,
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                content = content,
+            )
+        }
+    } else {
+        val cardModifier = if (isGlass) {
+            modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 24.dp,
+                    shape = sheetShape,
+                    ambientColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.20f),
+                    spotColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.22f),
+                )
+                .clip(sheetShape)
+                .background(surfaceColor)
+                .border(width = 0.75.dp, color = borderColor, shape = sheetShape)
+        } else {
+            modifier
+                .fillMaxWidth()
+                .clip(sheetShape)
+                .background(if (isDark) Color(0xFF222226) else Color(0xFFF9F9F9))
+        }
+
+        Column(
+            modifier = cardModifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            content = content,
+        )
+    }
 }
 
 /**
@@ -591,11 +617,16 @@ fun CupertinoCancelPill(
     text: String = "Cancel",
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
+    val useNativeGlass = isGlass && supportsNativeGlassMenu
     val isDark = isSystemInDarkTheme()
     val pillShape = RoundedCornerShape(20.dp)
     val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-    val pillModifier = if (isGlass) {
+    val pillModifier = if (useNativeGlass) {
+        modifier
+            .fillMaxWidth()
+            .height(54.dp)
+    } else if (isGlass) {
         modifier
             .fillMaxWidth()
             .height(54.dp)
@@ -621,6 +652,13 @@ fun CupertinoCancelPill(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
+        if (useNativeGlass) {
+            NativeGlassSurface(
+                modifier = Modifier.matchParentSize(),
+                cornerRadius = 20.dp,
+                topCornersOnly = false,
+            )
+        }
         Text(
             text = text,
             color = MaterialTheme.colorScheme.primary,
@@ -686,7 +724,11 @@ fun CupertinoSegmentedControl(
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
-    val trackBg = if (isDark) Color(0x282C2C2E) else Color(0x38E5E5EA)
+    val trackBg = if (isGlass) {
+        if (isDark) Color(0x24FFFFFF) else Color(0x14000000)
+    } else {
+        if (isDark) Color(0x282C2C2E) else Color(0x38E5E5EA)
+    }
     val thumbBg = MaterialTheme.colorScheme.primary
     val primaryLum = 0.299f * thumbBg.red + 0.587f * thumbBg.green + 0.114f * thumbBg.blue
     val textSelected = if (primaryLum > 0.5f) Color(0xFF111113) else Color.White
@@ -695,21 +737,8 @@ fun CupertinoSegmentedControl(
     BoxWithConstraints(
         modifier = modifier
             .height(36.dp)
-            .then(
-                if (isGlass) {
-                    Modifier.liquidGlassSurface(
-                        shape = Capsule(),
-                        blurRadius = 6.dp,
-                        refractionHeight = 14.dp,
-                        refractionAmount = 18.dp,
-                        tintColor = trackBg,
-                    )
-                } else {
-                    Modifier
-                        .clip(Capsule())
-                        .background(trackBg)
-                },
-            )
+            .clip(Capsule())
+            .background(trackBg)
             .padding(2.dp),
     ) {
         val tabCount = tabs.size.coerceAtLeast(1)
@@ -816,7 +845,7 @@ fun <T> CupertinoGroupedSelectionCard(
     val isDark = isSystemInDarkTheme()
     val shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color(0x331C1C1E) else Color(0x44FFFFFF)
+        if (isDark) Color(0x16FFFFFF) else Color(0x0D000000)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
@@ -824,7 +853,13 @@ fun <T> CupertinoGroupedSelectionCard(
     val cardModifier = if (isGlass) {
         Modifier
             .fillMaxWidth()
-            .liquidGlassPopupSurface(shape = shape)
+            .clip(shape)
+            .background(cardBg)
+            .border(
+                width = 0.5.dp,
+                color = if (isDark) Color(0x22FFFFFF) else Color(0x14000000),
+                shape = shape,
+            )
     } else {
         Modifier
             .fillMaxWidth()
@@ -909,7 +944,7 @@ fun CupertinoGroupedCard(
     val isDark = isSystemInDarkTheme()
     val shape = RoundedRectangle(18.dp, RoundedCornerStyle.Continuous)
     val cardBg = if (isGlass) {
-        if (isDark) Color(0x331C1C1E) else Color(0x44FFFFFF)
+        if (isDark) Color(0x16FFFFFF) else Color(0x0D000000)
     } else {
         if (isDark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)
     }
@@ -917,7 +952,13 @@ fun CupertinoGroupedCard(
     val cardModifier = if (isGlass) {
         Modifier
             .fillMaxWidth()
-            .liquidGlassPopupSurface(shape = shape)
+            .clip(shape)
+            .background(cardBg)
+            .border(
+                width = 0.5.dp,
+                color = if (isDark) Color(0x22FFFFFF) else Color(0x14000000),
+                shape = shape,
+            )
     } else {
         Modifier
             .fillMaxWidth()

@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
@@ -149,12 +150,14 @@ fun CupertinoFrostedPopup(
     val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
     val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
     val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
-    val cornerPx = with(density) { 18.dp.toPx() }
+    val cornerPx = with(density) { 20.dp.toPx() }
     val borderPx = with(density) { 0.75.dp.toPx() }
     val geometry = remember { UnfoldGeometry() }
     val positionProvider = remember(density) {
         GlassPopupPositionProvider(with(density) { 16.dp.roundToPx() }, geometry)
     }
+    var popupSize by remember { mutableStateOf(IntSize.Zero) }
+    val useNativeGlass = supportsNativeGlassMenu
 
     Popup(
         popupPositionProvider = positionProvider,
@@ -165,46 +168,77 @@ fun CupertinoFrostedPopup(
             dismissOnClickOutside = true,
         ),
     ) {
-        EnableWindowBlurBehind(radiusDp = 28.dp)
-        Column(
+        val currentFrame = if (popupSize.width > 0 && popupSize.height > 0) {
+            geometry.frame(unfoldX.value, unfoldY.value, Size(popupSize.width.toFloat(), popupSize.height.toFloat()))
+        } else {
+            null
+        }
+        val currentRadius = if (currentFrame != null) {
+            geometry.radius(unfoldY.value, currentFrame, cornerPx)
+        } else {
+            cornerPx
+        }
+        Box(
             modifier = modifier
                 .widthIn(min = 210.dp, max = 290.dp)
                 .width(IntrinsicSize.Max)
-                .graphicsLayer {
-                    val frame = geometry.frame(unfoldX.value, unfoldY.value, size)
-                    shape = UnfoldShape(frame, geometry.radius(unfoldY.value, frame, cornerPx))
-                    clip = true
-                }
-                .drawWithContent {
-                    val frame = geometry.frame(unfoldX.value, unfoldY.value, size)
-                    val radius = geometry.radius(unfoldY.value, frame, cornerPx)
-                    drawRect(surfaceColor)
-                    drawContent()
-                    if (frame.width > borderPx && frame.height > borderPx) {
-                        drawRoundRect(
-                            color = borderColor,
-                            topLeft = Offset(frame.left + borderPx / 2f, frame.top + borderPx / 2f),
-                            size = Size(frame.width - borderPx, frame.height - borderPx),
-                            cornerRadius = CornerRadius(radius),
-                            style = Stroke(width = borderPx),
-                        )
-                    }
-                }
-                .verticalScroll(rememberScrollState())
-                .padding(vertical = 5.dp)
-                .graphicsLayer {
-                    alpha = ((unfoldY.value - 0.35f) / 0.65f).coerceIn(0f, 1f)
-                },
+                .onSizeChanged { popupSize = it },
         ) {
-            CompositionLocalProvider(
-                LocalContentColor provides popupTextColor,
+            if (useNativeGlass) {
+                NativeGlassSurface(
+                    modifier = Modifier.matchParentSize(),
+                    cornerRadius = 20.dp,
+                    topCornersOnly = false,
+                    materialProgress = unfoldY.value,
+                    customFrame = currentFrame,
+                    customCornerRadiusPx = currentRadius,
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        val frame = geometry.frame(unfoldX.value, unfoldY.value, size)
+                        shape = UnfoldShape(frame, geometry.radius(unfoldY.value, frame, cornerPx))
+                        clip = true
+                    }
+                    .then(
+                        if (!useNativeGlass) {
+                            Modifier.drawWithContent {
+                                val frame = geometry.frame(unfoldX.value, unfoldY.value, size)
+                                val radius = geometry.radius(unfoldY.value, frame, cornerPx)
+                                drawRect(surfaceColor)
+                                drawContent()
+                                if (frame.width > borderPx && frame.height > borderPx) {
+                                    drawRoundRect(
+                                        color = borderColor,
+                                        topLeft = Offset(frame.left + borderPx / 2f, frame.top + borderPx / 2f),
+                                        size = Size(frame.width - borderPx, frame.height - borderPx),
+                                        cornerRadius = CornerRadius(radius),
+                                        style = Stroke(width = borderPx),
+                                    )
+                                }
+                            }
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 5.dp)
+                    .graphicsLayer {
+                        alpha = ((unfoldY.value - 0.35f) / 0.65f).coerceIn(0f, 1f)
+                    },
             ) {
-                ProvideTextStyle(
-                    value = MaterialTheme.typography.bodyLarge.copy(
-                        color = popupTextColor,
-                    ),
+                CompositionLocalProvider(
+                    LocalContentColor provides popupTextColor,
                 ) {
-                    content()
+                    ProvideTextStyle(
+                        value = MaterialTheme.typography.bodyLarge.copy(
+                            color = popupTextColor,
+                        ),
+                    ) {
+                        content()
+                    }
                 }
             }
         }

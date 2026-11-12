@@ -92,26 +92,20 @@ fun TabbedDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val isDark = isSystemInDarkTheme()
-                    val trackBg = if (isDark) Color(0x282C2C2E) else Color(0x38E5E5EA)
+                    val trackBg = if (isDark) Color(0x22FFFFFF) else Color(0x14000000)
                     val pillBg = MaterialTheme.colorScheme.primary
-                    val closeBg = if (isDark) Color(0x442C2C2E) else Color(0x55E5E5EA)
+                    val closeBg = if (isDark) Color(0x22FFFFFF) else Color(0x14000000)
 
-                    // Segmented Control Stadium Track with Untinted Liquid Glass
+                    // Segmented Control Stadium Track
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(1f)
                             .height(36.dp)
-                            .liquidGlassSurface(
-                                shape = Capsule(),
-                                blurRadius = 10.dp,
-                                refractionHeight = 14.dp,
-                                refractionAmount = 18.dp,
-                                tintColor = Color.Unspecified,
-                                surfaceColor = Color.Unspecified,
-                            )
+                            .clip(Capsule())
+                            .background(trackBg)
                             .border(
                                 width = 0.5.dp,
-                                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                                color = if (isDark) Color(0x28FFFFFF) else Color(0x18000000),
                                 shape = Capsule(),
                             )
                             .padding(2.dp),
@@ -172,22 +166,16 @@ fun TabbedDialog(
                         }
                     }
 
-                    // iOS circular close button "X" with Untinted Liquid Glass
+                    // iOS circular close button "X"
                     Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .liquidGlassSurface(
-                                shape = CircleShape,
-                                blurRadius = 10.dp,
-                                refractionHeight = 12.dp,
-                                refractionAmount = 16.dp,
-                                tintColor = Color.Unspecified,
-                                surfaceColor = Color.Unspecified,
-                            )
+                            .clip(CircleShape)
+                            .background(closeBg)
                             .border(
                                 width = 0.5.dp,
-                                color = if (isDark) Color(0x35FFFFFF) else Color(0x20000000),
+                                color = if (isDark) Color(0x28FFFFFF) else Color(0x18000000),
                                 shape = CircleShape,
                             )
                             .clickable(onClick = onDismissRequest),

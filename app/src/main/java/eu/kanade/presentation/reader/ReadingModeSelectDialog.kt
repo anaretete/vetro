@@ -64,21 +64,52 @@ private fun DialogContent(
     var selected by remember { mutableStateOf(readingMode) }
     val isGlass = LocalLiquidGlassConfig.current.enabled
 
-    ModeSelectionDialog(
-        onUseDefault = { onChangeReadingMode(ReadingMode.DEFAULT) }.takeIf { readingMode != ReadingMode.DEFAULT },
-        onApply = { onChangeReadingMode(selected) },
-    ) {
-        SettingsIconGrid(MR.strings.pref_category_reading_mode) {
-            items(ReadingModesWithoutDefault) { mode ->
-                IconToggleButton(
-                    checked = mode == selected,
-                    onCheckedChange = {
-                        selected = mode
+    if (isGlass) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            tachiyomi.presentation.core.components.HeadingItem(MR.strings.pref_category_reading_mode)
+            ReadingMode.entries.forEachIndexed { index, mode ->
+                val isSelected = mode == readingMode
+                tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                    text = { androidx.compose.material3.Text(text = stringResource(mode.stringRes)) },
+                    onClick = { onChangeReadingMode(mode) },
+                    selected = isSelected,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(mode.iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                        )
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    imageVector = ImageVector.vectorResource(mode.iconRes),
-                    title = stringResource(mode.stringRes),
+                    trailingIcon = if (isSelected) {
+                        {
+                            tachiyomi.presentation.core.components.material.CupertinoListCheckmark(selected = true)
+                        }
+                    } else {
+                        null
+                    },
                 )
+                if (index < ReadingMode.entries.lastIndex) {
+                    tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                }
+            }
+        }
+    } else {
+        ModeSelectionDialog(
+            onUseDefault = { onChangeReadingMode(ReadingMode.DEFAULT) }.takeIf { readingMode != ReadingMode.DEFAULT },
+            onApply = { onChangeReadingMode(selected) },
+        ) {
+            SettingsIconGrid(MR.strings.pref_category_reading_mode) {
+                items(ReadingModesWithoutDefault) { mode ->
+                    IconToggleButton(
+                        checked = mode == selected,
+                        onCheckedChange = {
+                            selected = mode
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        imageVector = ImageVector.vectorResource(mode.iconRes),
+                        title = stringResource(mode.stringRes),
+                    )
+                }
             }
         }
     }

@@ -325,13 +325,27 @@ private fun ColumnScope.DisplayPage(
     screenModel: LibrarySettingsScreenModel,
 ) {
     val displayMode by screenModel.libraryPreferences.displayMode().collectAsState()
-    SettingsChipRow(MR.strings.action_display_mode) {
-        displayModes.map { (titleRes, mode) ->
-            FilterChip(
-                selected = displayMode == mode,
-                onClick = { screenModel.setDisplayMode(mode) },
-                label = { Text(stringResource(titleRes)) },
-            )
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    if (isGlass) {
+        val modeLabels = displayModes.map { (titleRes, _) -> stringResource(titleRes) }.toTypedArray()
+        val selectedIndex = displayModes.indexOfFirst { (_, mode) -> mode == displayMode }.coerceAtLeast(0)
+        tachiyomi.presentation.core.components.SelectItem(
+            label = stringResource(MR.strings.action_display_mode),
+            options = modeLabels,
+            selectedIndex = selectedIndex,
+            onSelect = { index ->
+                displayModes.getOrNull(index)?.second?.let(screenModel::setDisplayMode)
+            },
+        )
+    } else {
+        SettingsChipRow(MR.strings.action_display_mode) {
+            displayModes.map { (titleRes, mode) ->
+                FilterChip(
+                    selected = displayMode == mode,
+                    onClick = { screenModel.setDisplayMode(mode) },
+                    label = { Text(stringResource(titleRes)) },
+                )
+            }
         }
     }
 

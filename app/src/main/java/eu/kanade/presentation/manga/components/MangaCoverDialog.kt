@@ -137,6 +137,61 @@ fun MangaCoverDialog(
                         if (onEditClick != null && manga.favorite) {
                             Box {
                                 var expanded by remember { mutableStateOf(false) }
+                                val isGlass = LocalLiquidGlassConfig.current.enabled
+                                val editLabel = stringResource(MR.strings.action_edit)
+                                val deleteLabel = stringResource(MR.strings.action_delete)
+                                if (isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu) {
+                                    val items = remember(editLabel, deleteLabel) {
+                                        listOf(
+                                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                                id = "edit",
+                                                title = editLabel,
+                                                onClick = {
+                                                    onEditClick(EditCoverAction.EDIT)
+                                                    expanded = false
+                                                },
+                                            ),
+                                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                                id = "delete",
+                                                title = deleteLabel,
+                                                destructive = true,
+                                                onClick = {
+                                                    onEditClick(EditCoverAction.DELETE)
+                                                    expanded = false
+                                                },
+                                            ),
+                                        )
+                                    }
+                                    tachiyomi.presentation.core.components.material.GlassMenuAnchor(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false },
+                                        items = items,
+                                        modifier = Modifier.matchParentSize(),
+                                    )
+                                } else {
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false },
+                                        offset = DpOffset(8.dp, 0.dp),
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(text = editLabel) },
+                                            onClick = {
+                                                onEditClick(EditCoverAction.EDIT)
+                                                expanded = false
+                                            },
+                                        )
+                                        DropdownMenuSeparator()
+                                        DropdownMenuItem(
+                                            text = { Text(text = deleteLabel) },
+                                            destructive = true,
+                                            onClick = {
+                                                onEditClick(EditCoverAction.DELETE)
+                                                expanded = false
+                                            },
+                                        )
+                                    }
+                                }
                                 IconButton(
                                     onClick = {
                                         if (isCustomCover) {
@@ -152,28 +207,6 @@ fun MangaCoverDialog(
                                         // KMK -->
                                         tint = iconColor,
                                         // KMK <--
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                    offset = DpOffset(8.dp, 0.dp),
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(text = stringResource(MR.strings.action_edit)) },
-                                        onClick = {
-                                            onEditClick(EditCoverAction.EDIT)
-                                            expanded = false
-                                        },
-                                    )
-                                    DropdownMenuSeparator()
-                                    DropdownMenuItem(
-                                        text = { Text(text = stringResource(MR.strings.action_delete)) },
-                                        destructive = true,
-                                        onClick = {
-                                            onEditClick(EditCoverAction.DELETE)
-                                            expanded = false
-                                        },
                                     )
                                 }
                             }

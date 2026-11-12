@@ -465,35 +465,75 @@ fun ExpandableMangaDescription(
             ) {
                 var showMenu by remember { mutableStateOf(false) }
                 var tagSelected by remember { mutableStateOf("") }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(MR.strings.action_search)) },
-                        onClick = {
-                            onTagSearch(tagSelected)
-                            showMenu = false
-                        },
+                val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+                val searchLabel = stringResource(MR.strings.action_search)
+                val globalSearchLabel = stringResource(MR.strings.action_global_search)
+                val copyLabel = stringResource(MR.strings.action_copy_to_clipboard)
+                if (isGlass && tachiyomi.presentation.core.components.material.supportsNativeGlassMenu) {
+                    val items = remember(tagSelected, searchLabel, globalSearchLabel, copyLabel) {
+                        listOf(
+                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                id = "search",
+                                title = searchLabel,
+                                onClick = {
+                                    onTagSearch(tagSelected)
+                                    showMenu = false
+                                },
+                            ),
+                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                id = "global_search",
+                                title = globalSearchLabel,
+                                onClick = {
+                                    doSearch(tagSelected, true)
+                                    showMenu = false
+                                },
+                            ),
+                            expo.modules.glassmenuandroid.records.GlassMenuItemRecord(
+                                id = "copy",
+                                title = copyLabel,
+                                onClick = {
+                                    onCopyTagToClipboard(tagSelected)
+                                    showMenu = false
+                                },
+                            ),
+                        )
+                    }
+                    tachiyomi.presentation.core.components.material.GlassMenuAnchor(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                        items = items,
                     )
-                    DropdownMenuSeparator()
-                    // SY -->
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(MR.strings.action_global_search)) },
-                        onClick = {
-                            doSearch(tagSelected, true)
-                            showMenu = false
-                        },
-                    )
-                    // SY <--
-                    DropdownMenuSeparator()
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(MR.strings.action_copy_to_clipboard)) },
-                        onClick = {
-                            onCopyTagToClipboard(tagSelected)
-                            showMenu = false
-                        },
-                    )
+                } else {
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = searchLabel) },
+                            onClick = {
+                                onTagSearch(tagSelected)
+                                showMenu = false
+                            },
+                        )
+                        DropdownMenuSeparator()
+                        // SY -->
+                        DropdownMenuItem(
+                            text = { Text(text = globalSearchLabel) },
+                            onClick = {
+                                doSearch(tagSelected, true)
+                                showMenu = false
+                            },
+                        )
+                        // SY <--
+                        DropdownMenuSeparator()
+                        DropdownMenuItem(
+                            text = { Text(text = copyLabel) },
+                            onClick = {
+                                onCopyTagToClipboard(tagSelected)
+                                showMenu = false
+                            },
+                        )
+                    }
                 }
                 if (expanded) {
                     // SY -->

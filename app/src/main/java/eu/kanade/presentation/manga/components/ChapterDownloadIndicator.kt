@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,8 +37,12 @@ import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.components.DropdownMenu
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.model.Download
+import expo.modules.glassmenuandroid.records.GlassMenuItemRecord
 import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.components.material.GlassMenuAnchor
 import tachiyomi.presentation.core.components.material.IconButtonTokens
+import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
+import tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.secondaryItemAlpha
 
@@ -119,6 +124,10 @@ private fun DownloadingIndicator(
     modifier: Modifier = Modifier,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val currentOnClick by rememberUpdatedState(onClick)
+    val startNowLabel = stringResource(MR.strings.action_start_downloading_now)
+    val cancelLabel = stringResource(MR.strings.action_cancel)
     Box(
         modifier = modifier
             .size(IconButtonTokens.StateLayerSize)
@@ -130,6 +139,54 @@ private fun DownloadingIndicator(
             ),
         contentAlignment = Alignment.Center,
     ) {
+        if (isGlass && supportsNativeGlassMenu) {
+            val items = remember(startNowLabel, cancelLabel) {
+                listOf(
+                    GlassMenuItemRecord(
+                        id = "start_now",
+                        title = startNowLabel,
+                        onClick = {
+                            currentOnClick(ChapterDownloadAction.START_NOW)
+                            isMenuExpanded = false
+                        },
+                    ),
+                    GlassMenuItemRecord(
+                        id = "cancel",
+                        title = cancelLabel,
+                        destructive = true,
+                        onClick = {
+                            currentOnClick(ChapterDownloadAction.CANCEL)
+                            isMenuExpanded = false
+                        },
+                    ),
+                )
+            }
+            GlassMenuAnchor(
+                expanded = isMenuExpanded,
+                onDismissRequest = { isMenuExpanded = false },
+                items = items,
+                modifier = Modifier.matchParentSize(),
+            )
+        } else {
+            DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
+                DropdownMenuItem(
+                    text = { Text(text = startNowLabel) },
+                    onClick = {
+                        onClick(ChapterDownloadAction.START_NOW)
+                        isMenuExpanded = false
+                    },
+                )
+                DropdownMenuSeparator()
+                DropdownMenuItem(
+                    text = { Text(text = cancelLabel) },
+                    destructive = true,
+                    onClick = {
+                        onClick(ChapterDownloadAction.CANCEL)
+                        isMenuExpanded = false
+                    },
+                )
+            }
+        }
         val arrowColor: Color
         val strokeColor = MaterialTheme.colorScheme.primary // KMK: onSurfaceVariant
         val downloadProgress = downloadProgressProvider()
@@ -164,24 +221,6 @@ private fun DownloadingIndicator(
                 gapSize = 0.dp,
             )
         }
-        DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(MR.strings.action_start_downloading_now)) },
-                onClick = {
-                    onClick(ChapterDownloadAction.START_NOW)
-                    isMenuExpanded = false
-                },
-            )
-            DropdownMenuSeparator()
-            DropdownMenuItem(
-                text = { Text(text = stringResource(MR.strings.action_cancel)) },
-                destructive = true,
-                onClick = {
-                    onClick(ChapterDownloadAction.CANCEL)
-                    isMenuExpanded = false
-                },
-            )
-        }
         Icon(
             imageVector = Icons.Outlined.ArrowDownward,
             contentDescription = null,
@@ -198,6 +237,9 @@ private fun DownloadedIndicator(
     onClick: (ChapterDownloadAction) -> Unit,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
+    val currentOnClick by rememberUpdatedState(onClick)
+    val deleteLabel = stringResource(MR.strings.action_delete)
     Box(
         modifier = modifier
             .size(IconButtonTokens.StateLayerSize)
@@ -209,22 +251,44 @@ private fun DownloadedIndicator(
             ),
         contentAlignment = Alignment.Center,
     ) {
+        if (isGlass && supportsNativeGlassMenu) {
+            val items = remember(deleteLabel) {
+                listOf(
+                    GlassMenuItemRecord(
+                        id = "delete",
+                        title = deleteLabel,
+                        destructive = true,
+                        onClick = {
+                            currentOnClick(ChapterDownloadAction.DELETE)
+                            isMenuExpanded = false
+                        },
+                    ),
+                )
+            }
+            GlassMenuAnchor(
+                expanded = isMenuExpanded,
+                onDismissRequest = { isMenuExpanded = false },
+                items = items,
+                modifier = Modifier.matchParentSize(),
+            )
+        } else {
+            DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
+                DropdownMenuItem(
+                    text = { Text(text = deleteLabel) },
+                    destructive = true,
+                    onClick = {
+                        onClick(ChapterDownloadAction.DELETE)
+                        isMenuExpanded = false
+                    },
+                )
+            }
+        }
         Icon(
             imageVector = Icons.Filled.CheckCircle,
             contentDescription = null,
             modifier = Modifier.size(IndicatorSize),
             tint = MaterialTheme.colorScheme.primary, // KMK: onSurfaceVariant
         )
-        DropdownMenu(expanded = isMenuExpanded, onDismissRequest = { isMenuExpanded = false }) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(MR.strings.action_delete)) },
-                destructive = true,
-                onClick = {
-                    onClick(ChapterDownloadAction.DELETE)
-                    isMenuExpanded = false
-                },
-            )
-        }
     }
 }
 

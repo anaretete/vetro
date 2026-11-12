@@ -89,7 +89,7 @@ open class GlassMenuAndroidView @JvmOverloads constructor(
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    val root = rootView as? ViewGroup ?: return
+    val root = (rootView.findViewById<ViewGroup>(android.R.id.content)) ?: (rootView as? ViewGroup) ?: return
     overlay = GlassMenuOverlay.obtain(root).also { it.register(this) }
     refreshDrawing()
   }

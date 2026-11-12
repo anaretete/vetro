@@ -1,10 +1,12 @@
 package eu.kanade.presentation.manga.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.FlipToBack
 import androidx.compose.material.icons.outlined.SelectAll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
@@ -30,6 +32,7 @@ import kotlinx.collections.immutable.persistentListOf
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
+import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.theme.active
 import uy.kohesive.injekt.Injekt
@@ -107,13 +110,22 @@ fun MangaToolbar(
         navigateUp = navigateUp,
         actions = {
             var downloadExpanded by remember { mutableStateOf(false) }
-            if (onClickDownload != null) {
-                val onDismissRequest = { downloadExpanded = false }
-                DownloadDropdownMenu(
-                    expanded = downloadExpanded,
-                    onDismissRequest = onDismissRequest,
-                    onDownloadClicked = onClickDownload,
-                )
+            if (!isActionMode && onClickDownload != null) {
+                val downloadTitle = stringResource(MR.strings.manga_download)
+                Box {
+                    DownloadDropdownMenu(
+                        expanded = downloadExpanded,
+                        onDismissRequest = { downloadExpanded = false },
+                        onDownloadClicked = onClickDownload,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                    IconButton(onClick = { downloadExpanded = !downloadExpanded }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Download,
+                            contentDescription = downloadTitle,
+                        )
+                    }
+                }
             }
 
             val filterTint = if (hasFilters) MaterialTheme.colorScheme.active else LocalContentColor.current
@@ -135,15 +147,6 @@ fun MangaToolbar(
                             ),
                         )
                         return@apply
-                    }
-                    if (onClickDownload != null) {
-                        add(
-                            AppBar.Action(
-                                title = stringResource(MR.strings.manga_download),
-                                icon = Icons.Outlined.Download,
-                                onClick = { downloadExpanded = !downloadExpanded },
-                            ),
-                        )
                     }
                     add(
                         AppBar.Action(
