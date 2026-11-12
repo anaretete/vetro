@@ -5,6 +5,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -1056,6 +1057,10 @@ object SettingsEhScreen : SearchableSettings {
 
     @Composable
     fun UpdaterStatisticsLoadingDialog() {
+        val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+        val dialogShape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp)
+        val surfaceColor = if (isDark) androidx.compose.ui.graphics.Color(0xD9141418) else androidx.compose.ui.graphics.Color(0xEBFAFBFD)
+        val borderColor = if (isDark) androidx.compose.ui.graphics.Color(0x35FFFFFF) else androidx.compose.ui.graphics.Color(0x1F000000)
         Dialog(
             onDismissRequest = {},
             properties = DialogProperties(
@@ -1063,9 +1068,14 @@ object SettingsEhScreen : SearchableSettings {
                 dismissOnClickOutside = false,
             ),
         ) {
+            tachiyomi.presentation.core.components.material.EnableWindowBlurBehind(radiusDp = 28.dp)
             Surface(
-                modifier = Modifier.sizeIn(minWidth = 280.dp, maxWidth = 560.dp),
-                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .sizeIn(minWidth = 280.dp, maxWidth = 560.dp)
+                    .border(width = 0.75.dp, color = borderColor, shape = dialogShape),
+                shape = dialogShape,
+                color = surfaceColor,
+                shadowElevation = 24.dp,
             ) {
                 Text(
                     text = stringResource(SYMR.strings.gallery_updater_statistics_collection),

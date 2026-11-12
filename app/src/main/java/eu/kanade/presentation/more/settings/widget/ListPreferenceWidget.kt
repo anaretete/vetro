@@ -96,6 +96,15 @@ fun <T> ListPreferenceWidget(
                 onClick = { isPopupExpanded = true },
                 widget = {
                     Box(contentAlignment = Alignment.CenterEnd) {
+                        CupertinoFrostedPopupMenu(
+                            expanded = isPopupExpanded,
+                            onDismissRequest = { isPopupExpanded = false },
+                            entries = entries,
+                            selectedValue = value,
+                            onSelect = onValueChange,
+                            modifier = Modifier.matchParentSize(),
+                        )
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -116,15 +125,6 @@ fun <T> ListPreferenceWidget(
                                 modifier = Modifier.size(18.dp),
                             )
                         }
-
-                        CupertinoFrostedPopupMenu(
-                            expanded = isPopupExpanded,
-                            onDismissRequest = { isPopupExpanded = false },
-                            entries = entries,
-                            selectedValue = value,
-                            onSelect = onValueChange,
-                            modifier = Modifier.heightIn(max = 360.dp),
-                        )
                     }
                 },
             )

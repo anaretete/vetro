@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
@@ -340,83 +341,105 @@ fun SelectItem(
     onSelect: (Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val isGlass = LocalLiquidGlassConfig.current.enabled
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-    ) {
-        OutlinedTextField(
-            modifier = Modifier
-                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth()
-                .padding(
-                    horizontal = SettingsItemsPaddings.Horizontal,
-                    vertical = SettingsItemsPaddings.Vertical,
-                ),
-            label = { Text(text = label) },
-            value = options[selectedIndex].toString(),
-            onValueChange = {},
-            enabled = false,
-            readOnly = true,
-            singleLine = true,
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded,
+    if (isGlass) {
+        val entries = remember(options) {
+            options.indices.associateWith { options[it].toString() }
+        }
+        val currentLabel = options.getOrNull(selectedIndex)?.toString() ?: ""
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .clickable { expanded = true }
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SettingsItemsPaddings.Horizontal,
+                        vertical = SettingsItemsPaddings.Vertical,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 12.dp),
                 )
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            ),
-        )
 
-        val isGlass = LocalLiquidGlassConfig.current.enabled
-        val isDark = isSystemInDarkTheme()
-        val menuShape = RoundedCornerShape(16.dp)
-
-        ExposedDropdownMenu(
-            modifier = Modifier
-                .exposedDropdownSize()
-                .then(
-                    if (isGlass) {
-                        Modifier.liquidGlassPopupSurface(shape = menuShape)
-                    } else {
-                        Modifier
-                    },
-                ),
-            shape = menuShape,
-            containerColor = if (isGlass) Color.Transparent else androidx.compose.material3.MenuDefaults.containerColor,
-            shadowElevation = if (isGlass) 14.dp else androidx.compose.material3.MenuDefaults.ShadowElevation,
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            if (isGlass) {
-                tachiyomi.presentation.core.components.material.EnableWindowBlurBehind(radiusDp = 28.dp)
-            }
-            options.forEachIndexed { index, text ->
-                if (isGlass) {
-                    CupertinoGlassMenuItem(
-                        text = {
-                            Text(
-                                text = text.toString(),
-                                color = LiquidGlassDefaults.popupTextColor(isDark),
-                            )
-                        },
-                        onClick = {
-                            onSelect(index)
-                            expanded = false
-                        },
-                        selected = index == selectedIndex,
+                Box(contentAlignment = Alignment.CenterEnd) {
+                    tachiyomi.presentation.core.components.material.CupertinoFrostedPopupMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        entries = entries,
+                        selectedValue = selectedIndex,
+                        onSelect = onSelect,
+                        modifier = Modifier.matchParentSize(),
                     )
-                    if (index < options.lastIndex) {
-                        CupertinoGlassMenuSeparator()
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            text = currentLabel,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 16.sp,
+                                color = Color(0xFF8E8E93),
+                            ),
+                            maxLines = 1,
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = Color(0xFF8E8E93).copy(alpha = 0.7f),
+                            modifier = Modifier.size(18.dp),
+                        )
                     }
-                } else {
+                }
+            }
+            CupertinoGlassMenuSeparator()
+        }
+    } else {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SettingsItemsPaddings.Horizontal,
+                        vertical = SettingsItemsPaddings.Vertical,
+                    ),
+                label = { Text(text = label) },
+                value = options[selectedIndex].toString(),
+                onValueChange = {},
+                enabled = false,
+                readOnly = true,
+                singleLine = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = expanded,
+                    )
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                ),
+            )
+
+            ExposedDropdownMenu(
+                modifier = Modifier.exposedDropdownSize(),
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                options.forEachIndexed { index, text ->
                     DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = text.toString(),
-                            )
-                        },
+                        text = { Text(text = text.toString()) },
                         onClick = {
                             onSelect(index)
                             expanded = false
@@ -438,43 +461,48 @@ fun TriStateItem(
 ) {
     val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
 
-    Row(
-        modifier = Modifier
-            .clickable(
-                enabled = enabled && onClick != null,
-                onClick = {
-                    when (state) {
-                        TriState.DISABLED -> onClick?.invoke(TriState.ENABLED_IS)
-                        TriState.ENABLED_IS -> onClick?.invoke(TriState.ENABLED_NOT)
-                        TriState.ENABLED_NOT -> onClick?.invoke(TriState.DISABLED)
-                    }
-                },
-            )
-            .fillMaxWidth()
-            .padding(
-                horizontal = SettingsItemsPaddings.Horizontal,
-                vertical = SettingsItemsPaddings.Vertical,
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.large),
-    ) {
-        val stateAlpha = if (enabled && onClick != null) 1f else DISABLED_ALPHA
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .clickable(
+                    enabled = enabled && onClick != null,
+                    onClick = {
+                        when (state) {
+                            TriState.DISABLED -> onClick?.invoke(TriState.ENABLED_IS)
+                            TriState.ENABLED_IS -> onClick?.invoke(TriState.ENABLED_NOT)
+                            TriState.ENABLED_NOT -> onClick?.invoke(TriState.DISABLED)
+                        }
+                    },
+                )
+                .fillMaxWidth()
+                .padding(
+                    horizontal = SettingsItemsPaddings.Horizontal,
+                    vertical = SettingsItemsPaddings.Vertical,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.large),
+        ) {
+            val stateAlpha = if (enabled && onClick != null) 1f else DISABLED_ALPHA
 
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-            modifier = Modifier.weight(1f),
-        )
-        tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
-            state = when (state) {
-                TriState.ENABLED_IS -> androidx.compose.ui.state.ToggleableState.On
-                TriState.DISABLED -> androidx.compose.ui.state.ToggleableState.Off
-                TriState.ENABLED_NOT -> androidx.compose.ui.state.ToggleableState.Indeterminate
-            },
-            excludeIsCross = true,
-            enabled = enabled && onClick != null,
-        )
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = stateAlpha),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                modifier = Modifier.weight(1f),
+            )
+            tachiyomi.presentation.core.components.material.CupertinoTriStateCheckmark(
+                state = when (state) {
+                    TriState.ENABLED_IS -> androidx.compose.ui.state.ToggleableState.On
+                    TriState.DISABLED -> androidx.compose.ui.state.ToggleableState.Off
+                    TriState.ENABLED_NOT -> androidx.compose.ui.state.ToggleableState.Indeterminate
+                },
+                excludeIsCross = true,
+                enabled = enabled && onClick != null,
+            )
+        }
+        if (isGlass) {
+            CupertinoGlassMenuSeparator()
+        }
     }
 }
 
@@ -563,31 +591,36 @@ private fun BaseSettingsItem(
     onClick: () -> Unit,
 ) {
     val isGlass = LocalLiquidGlassConfig.current.enabled
-    Row(
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .fillMaxWidth()
-            .padding(
-                horizontal = SettingsItemsPaddings.Horizontal,
-                vertical = SettingsItemsPaddings.Vertical,
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (isGlass) Arrangement.SpaceBetween else Arrangement.spacedBy(24.dp),
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .fillMaxWidth()
+                .padding(
+                    horizontal = SettingsItemsPaddings.Horizontal,
+                    vertical = SettingsItemsPaddings.Vertical,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (isGlass) Arrangement.SpaceBetween else Arrangement.spacedBy(24.dp),
+        ) {
+            if (isGlass) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                widget(this)
+            } else {
+                widget(this)
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
         if (isGlass) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f),
-            )
-            widget(this)
-        } else {
-            widget(this)
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            CupertinoGlassMenuSeparator()
         }
     }
 }

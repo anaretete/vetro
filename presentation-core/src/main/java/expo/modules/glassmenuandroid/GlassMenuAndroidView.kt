@@ -150,12 +150,6 @@ open class GlassMenuAndroidView @JvmOverloads constructor(
     state.rimLift = LightRimLift * glow
   }
 
-  override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-    setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
-  }
-
-  override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) = Unit
-
   private fun iconHost(): ViewGroup? {
     for (index in 0 until childCount) {
       val child = getChildAt(index)
@@ -218,10 +212,11 @@ open class GlassMenuAndroidView @JvmOverloads constructor(
     return result
   }
 
-  fun open(x: Double? = null, y: Double? = null, width: Double? = null, height: Double? = null) {
-    val target = overlay ?: return
-    if (items.isEmpty() || this.width == 0 || this.height == 0) return
-    if (menuActive && target.menuSession?.expanded == true) return
+  /** Opens the menu. Returns false when the menu could not be shown (detached, unmeasured or empty). */
+  fun open(x: Double? = null, y: Double? = null, width: Double? = null, height: Double? = null): Boolean {
+    val target = overlay ?: return false
+    if (items.isEmpty() || this.width == 0 || this.height == 0) return false
+    if (menuActive && target.menuSession?.expanded == true) return true
     val pressed = if (followsPress) pressedRect(target) else null
     val through = pressed ?: if (x != null && y != null && width != null && height != null) {
       RectF(
@@ -232,6 +227,7 @@ open class GlassMenuAndroidView @JvmOverloads constructor(
     menuActive = true
     target.open(this, through)
     invalidate()
+    return true
   }
 
   internal val followsPress get() = triggerConfig.morphOrigin == MorphFromPress

@@ -3,6 +3,7 @@ package tachiyomi.presentation.core.components
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -42,6 +44,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -59,10 +63,9 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import tachiyomi.presentation.core.components.material.CupertinoGrabber
+import tachiyomi.presentation.core.components.material.EnableWindowBlurBehind
 import tachiyomi.presentation.core.components.material.LocalLayerBackdrop
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
-import tachiyomi.presentation.core.components.material.liquidGlassPopupSurface
-import tachiyomi.presentation.core.components.material.liquidGlassSurface
 import kotlin.math.roundToInt
 
 @Composable
@@ -78,12 +81,19 @@ fun AdaptiveSheet(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val existingBackdrop = LocalLayerBackdrop.current
-    val sheetBg = if (isDark) Color(0x2416161A) else Color(0x24F2F2F6)
     val sheetBackdrop = existingBackdrop ?: rememberCanvasBackdrop {
         val baseColor = if (isDark) Color(0x3016161A) else Color(0x45F2F2F6)
         drawRect(baseColor)
     }
     val sheetExportedBackdrop = rememberLayerBackdrop()
+
+    val popupTextColor = if (isDark) Color(0xFFF5F5F7) else Color(0xFF1C1C1E)
+    val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
+    val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
+
+    if (isGlass) {
+        EnableWindowBlurBehind(radiusDp = 28.dp)
+    }
 
     if (isTabletUi) {
         var targetAlpha by remember { mutableFloatStateOf(0f) }
@@ -98,7 +108,7 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
-        val tabletShape = RoundedCornerShape(24.dp)
+        val tabletShape = RoundedCornerShape(20.dp)
         val tabletModifier: Modifier = if (isGlass) {
             Modifier
                 .requiredWidthIn(max = 460.dp)
@@ -110,11 +120,22 @@ fun AdaptiveSheet(
                 )
                 .systemBarsPadding()
                 .padding(vertical = 16.dp)
-                .liquidGlassPopupSurface(
+                .shadow(
+                    elevation = 24.dp,
                     shape = tabletShape,
-                    backdrop = sheetBackdrop,
-                    exportedBackdrop = sheetExportedBackdrop,
+                    ambientColor = if (isDark) Color(0x66000000) else Color(0x22000000),
+                    spotColor = if (isDark) Color(0x88000000) else Color(0x33000000),
                 )
+                .border(
+                    width = 0.75.dp,
+                    color = borderColor,
+                    shape = tabletShape,
+                )
+                .background(
+                    color = surfaceColor,
+                    shape = tabletShape,
+                )
+                .clip(tabletShape)
                 .then(modifier)
         } else {
             Modifier
@@ -145,9 +166,11 @@ fun AdaptiveSheet(
                 modifier = tabletModifier,
                 shape = tabletShape,
                 color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = if (isGlass) popupTextColor else MaterialTheme.colorScheme.onSurface,
                 content = {
                     CompositionLocalProvider(
                         LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+                        LocalContentColor provides if (isGlass) popupTextColor else LocalContentColor.current,
                     ) {
                         BackHandler(
                             enabled = remember { derivedStateOf { alpha > 0f } }.value,
@@ -185,7 +208,12 @@ fun AdaptiveSheet(
                 onDismissRequest()
             }
         }
-        val bottomSheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        val bottomSheetShape = RoundedCornerShape(
+            topStart = 24.dp,
+            topEnd = 24.dp,
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp,
+        )
 
         Box(
             modifier = Modifier
@@ -216,7 +244,7 @@ fun AdaptiveSheet(
                     onClick = {},
                 )
                 .then(
-                    if (enableSwipeDismiss && !isGlass) {
+                    if (enableSwipeDismiss) {
                         Modifier.nestedScroll(
                             remember(anchoredDraggableState) {
                                 anchoredDraggableState.preUpPostDownNestedScrollConnection {
@@ -248,28 +276,33 @@ fun AdaptiveSheet(
                             ?: 0,
                     )
                 }
-                .then(
-                    if (!isGlass) {
-                        Modifier.anchoredDraggable(
-                            state = anchoredDraggableState,
-                            orientation = Orientation.Vertical,
-                            enabled = enableSwipeDismiss,
-                            flingBehavior = flingBehavior,
-                        )
-                    } else {
-                        Modifier
-                    },
+                .anchoredDraggable(
+                    state = anchoredDraggableState,
+                    orientation = Orientation.Vertical,
+                    enabled = enableSwipeDismiss,
+                    flingBehavior = flingBehavior,
                 )
                 .then(if (isGlass) Modifier else Modifier.navigationBarsPadding())
                 .statusBarsPadding()
 
             val phoneModifier: Modifier = if (isGlass) {
                 phoneBaseModifier
-                    .liquidGlassPopupSurface(
+                    .shadow(
+                        elevation = 24.dp,
                         shape = bottomSheetShape,
-                        backdrop = sheetBackdrop,
-                        exportedBackdrop = sheetExportedBackdrop,
+                        ambientColor = if (isDark) Color(0x66000000) else Color(0x22000000),
+                        spotColor = if (isDark) Color(0x88000000) else Color(0x33000000),
                     )
+                    .border(
+                        width = 0.75.dp,
+                        color = borderColor,
+                        shape = bottomSheetShape,
+                    )
+                    .background(
+                        color = surfaceColor,
+                        shape = bottomSheetShape,
+                    )
+                    .clip(bottomSheetShape)
             } else {
                 phoneBaseModifier
             }
@@ -278,9 +311,11 @@ fun AdaptiveSheet(
                 modifier = phoneModifier,
                 shape = bottomSheetShape,
                 color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = if (isGlass) popupTextColor else MaterialTheme.colorScheme.onSurface,
                 content = {
                     CompositionLocalProvider(
                         LocalLayerBackdrop provides if (isGlass) sheetExportedBackdrop else sheetBackdrop,
+                        LocalContentColor provides if (isGlass) popupTextColor else LocalContentColor.current,
                     ) {
                         BackHandler(
                             enabled = anchoredDraggableState.targetValue == 0,
@@ -297,12 +332,6 @@ fun AdaptiveSheet(
                                     contentAlignment = Alignment.Center,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .anchoredDraggable(
-                                            state = anchoredDraggableState,
-                                            orientation = Orientation.Vertical,
-                                            enabled = enableSwipeDismiss,
-                                            flingBehavior = flingBehavior,
-                                        )
                                         .padding(top = 2.dp),
                                 ) {
                                     CupertinoGrabber()

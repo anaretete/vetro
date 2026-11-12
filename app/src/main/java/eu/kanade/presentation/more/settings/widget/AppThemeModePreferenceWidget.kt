@@ -46,35 +46,37 @@ internal fun AppThemeModePreferenceWidget(
             title = stringResource(MR.strings.pref_category_theme),
             onClick = { isPopupExpanded = true },
             widget = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    Text(
-                        text = currentLabel,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 17.sp,
-                            color = Color(0xFF8E8E93),
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                Box(contentAlignment = Alignment.CenterEnd) {
+                    CupertinoFrostedPopupMenu(
+                        expanded = isPopupExpanded,
+                        onDismissRequest = { isPopupExpanded = false },
+                        entries = options.mapValues { stringResource(it.value) },
+                        selectedValue = value,
+                        onSelect = onItemClick,
+                        modifier = Modifier.matchParentSize(),
                     )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = Color(0xFF8E8E93).copy(alpha = 0.7f),
-                        modifier = Modifier.size(18.dp),
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            text = currentLabel,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 17.sp,
+                                color = Color(0xFF8E8E93),
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = Color(0xFF8E8E93).copy(alpha = 0.7f),
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
                 }
             },
-        )
-
-        CupertinoFrostedPopupMenu(
-            expanded = isPopupExpanded,
-            onDismissRequest = { isPopupExpanded = false },
-            entries = options.mapValues { stringResource(it.value) },
-            selectedValue = value,
-            onSelect = onItemClick,
         )
     }
 }

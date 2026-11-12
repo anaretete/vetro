@@ -1,98 +1,89 @@
 package tachiyomi.presentation.core.components.material
 
 import android.os.Build
-import android.view.ViewGroup
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import expo.modules.glassmenuandroid.GlassMenuAndroidView
-import expo.modules.glassmenuandroid.records.GlassMenuConfigRecord
 import expo.modules.glassmenuandroid.records.GlassMenuItemRecord
-import expo.modules.glassmenuandroid.records.GlassTriggerConfigRecord
+
+/** True when the native rit3zh/expo-glass-custom-menu engine can run (AGSL needs Android 13+). */
+val supportsNativeGlassMenu: Boolean
+    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
 /**
- * A Jetpack Compose wrapper for rit3zh/expo-glass-custom-menu's GlassMenuAndroidView.
- * Provides organic 2-pass metaball SDF morphing from the trigger into the liquid glass popup menu,
- * with backdrop capture, jelly physics, and AGSL runtime shaders.
+ * Invisible anchor for the native rit3zh/expo-glass-custom-menu engine.
+ *
+ * Place it exactly over the control that opens the menu (for example the `›` chevron of a settings
+ * row or a toolbar `⋯` button), typically as the first child of a `Box` with `Modifier.matchParentSize()`
+ * so the real control stays on top and keeps receiving touches.
+ *
+ * The anchor runs in the library's plain-trigger mode (`glass = false`): nothing is drawn while the
+ * menu is closed, and the liquid glass menu unfolds out of the anchor's bounds when [expanded] is true.
+ *
+ * Does nothing below Android 13; callers should fall back to [CupertinoFrostedPopup] there.
  */
 @Composable
-fun GlassMenuBox(
+fun GlassMenuAnchor(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
     items: List<GlassMenuItemRecord>,
     modifier: Modifier = Modifier,
-    expanded: Boolean = false,
-    onDismissRequest: () -> Unit = {},
-    menuConfig: GlassMenuConfigRecord = remember { GlassMenuConfigRecord() },
-    triggerConfig: GlassTriggerConfigRecord = remember { GlassTriggerConfigRecord() },
-    content: @Composable () -> Unit,
+    alignment: String = "auto",
 ) {
+    if (!supportsNativeGlassMenu) return
+
     val isDark = isSystemInDarkTheme()
+    val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
+    var anchorView by remember { mutableStateOf<GlassMenuAndroidView?>(null) }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        var anchorView by remember { mutableStateOf<GlassMenuAndroidView?>(null) }
-
-        AndroidView<GlassMenuAndroidView>(
-            modifier = modifier,
-            factory = { context ->
-                GlassMenuAndroidView(context).apply {
-                    this.config = menuConfig
-                    this.triggerConfig = triggerConfig
-                    this.colorScheme = if (isDark) "dark" else "light"
-                    this.items = items
-                    this.onMenuOpenChange = { map ->
-                        if (map["open"] == false) {
-                            onDismissRequest()
-                        }
-                    }
-                    val composeView = ComposeView(context).apply {
-                        setContent {
-                            content()
-                        }
-                    }
-                    addView(
-                        composeView,
-                        ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ),
-                    )
-                    anchorView = this
+    AndroidView(
+        modifier = modifier.defaultMinSize(minWidth = 18.dp, minHeight = 18.dp),
+        factory = { context ->
+            GlassMenuAndroidView(context).apply {
+                glass = false
+                this.alignment = alignment
+                colorScheme = if (isDark) "dark" else "light"
+                this.items = items
+                onMenuOpenChange = { map ->
+                    if (map["open"] == false) currentOnDismissRequest()
                 }
-            },
-            update = { view ->
-                view.config = menuConfig
-                view.triggerConfig = triggerConfig
-                view.colorScheme = if (isDark) "dark" else "light"
-                view.items = items
-                anchorView = view
-            },
-        )
-
-        LaunchedEffect(expanded, anchorView) {
-            val anchor = anchorView ?: return@LaunchedEffect
-            if (expanded) {
-                anchor.post { anchor.open() }
-            } else {
-                anchor.close()
+                anchorView = this
             }
-        }
+        },
+        update = { view ->
+            view.glass = false
+            view.alignment = alignment
+            view.colorScheme = if (isDark) "dark" else "light"
+            if (view.items != items) view.items = items
+            anchorView = view
+        },
+    )
 
-        DisposableEffect(Unit) {
-            onDispose {
-                anchorView?.close()
+    LaunchedEffect(expanded, anchorView) {
+        val anchor = anchorView ?: return@LaunchedEffect
+        if (expanded) {
+            anchor.post {
+                // If the engine cannot open (not attached / not measured yet), reset the caller's
+                // state so the next tap tries again instead of leaving the menu stuck "open".
+                if (!anchor.open()) currentOnDismissRequest()
             }
+        } else {
+            anchor.close()
         }
-    } else {
-        Box(modifier = modifier) {
-            content()
-        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { anchorView?.close() }
     }
 }

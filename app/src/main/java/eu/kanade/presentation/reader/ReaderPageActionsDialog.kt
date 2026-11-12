@@ -44,6 +44,8 @@ import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.CupertinoActionSheetCard
 import tachiyomi.presentation.core.components.material.CupertinoAlertDialog
 import tachiyomi.presentation.core.components.material.CupertinoCancelPill
+import tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator
+import tachiyomi.presentation.core.components.material.EnableWindowBlurBehind
 import tachiyomi.presentation.core.i18n.stringResource
 
 @Composable
@@ -63,6 +65,7 @@ fun ReaderPageActionsDialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
+        EnableWindowBlurBehind(radiusDp = 28.dp)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -99,10 +102,7 @@ fun ReaderPageActionsDialog(
                         },
                     )
 
-                    HorizontalDivider(
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                    )
+                    CupertinoGlassMenuSeparator()
 
                     CupertinoActionItem(
                         title = stringResource(
@@ -115,10 +115,7 @@ fun ReaderPageActionsDialog(
                         },
                     )
 
-                    HorizontalDivider(
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                    )
+                    CupertinoGlassMenuSeparator()
 
                     CupertinoActionItem(
                         title = stringResource(
@@ -131,10 +128,7 @@ fun ReaderPageActionsDialog(
                         },
                     )
 
-                    HorizontalDivider(
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                    )
+                    CupertinoGlassMenuSeparator()
 
                     CupertinoActionItem(
                         title = stringResource(
@@ -148,10 +142,7 @@ fun ReaderPageActionsDialog(
                     )
 
                     if (hasExtraPage) {
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(SYMR.strings.action_set_second_page_cover),
@@ -162,10 +153,7 @@ fun ReaderPageActionsDialog(
                             },
                         )
 
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(KMR.strings.action_copy_to_clipboard_second_page),
@@ -176,10 +164,7 @@ fun ReaderPageActionsDialog(
                             },
                         )
 
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(SYMR.strings.action_share_second_page),
@@ -190,10 +175,7 @@ fun ReaderPageActionsDialog(
                             },
                         )
 
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(SYMR.strings.action_save_second_page),
@@ -204,10 +186,7 @@ fun ReaderPageActionsDialog(
                             },
                         )
 
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(KMR.strings.action_copy_to_clipboard_combined_page),
@@ -218,10 +197,7 @@ fun ReaderPageActionsDialog(
                             },
                         )
 
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(SYMR.strings.action_share_combined_page),
@@ -232,10 +208,7 @@ fun ReaderPageActionsDialog(
                             },
                         )
 
-                        HorizontalDivider(
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                        )
+                        CupertinoGlassMenuSeparator()
 
                         CupertinoActionItem(
                             title = stringResource(SYMR.strings.action_save_combined_page),

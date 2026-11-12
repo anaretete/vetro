@@ -150,56 +150,51 @@ fun EhLoginWebViewScreen(
                 }
             }
             if (showAdvancedOptions) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(Color(0xb5000000)),
-                ) {
-                    Dialog(onDismissRequest = { showAdvancedOptions = false }) {
-                        fun loadUrl(url: String) {
-                            state.content = WebContent.Url(url)
-                        }
-                        Column(Modifier.fillMaxWidth(0.8F)) {
-                            Button(
-                                onClick = {
-                                    onClickRecheckLoginStatus(::loadUrl)
-                                    showAdvancedOptions = false
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(text = stringResource(SYMR.strings.recheck_login_status))
-                            }
-                            Button(
-                                onClick = {
-                                    onClickAlternateLoginPage(::loadUrl)
-                                    showAdvancedOptions = false
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(text = stringResource(SYMR.strings.alternative_login_page))
-                            }
-                            Button(
-                                onClick = {
-                                    onClickSkipPageRestyling(::loadUrl)
-                                    showAdvancedOptions = false
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(text = stringResource(SYMR.strings.skip_page_restyling))
-                            }
-                            Button(
-                                onClick = {
-                                    onClickCustomIgneousCookie()
-                                    showAdvancedOptions = false
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(text = stringResource(SYMR.strings.custom_igneous_cookie))
-                            }
-                            Button(onClick = { showAdvancedOptions = false }, Modifier.fillMaxWidth()) {
-                                Text(text = stringResource(MR.strings.action_cancel))
-                            }
-                        }
+                Dialog(onDismissRequest = { showAdvancedOptions = false }) {
+                    tachiyomi.presentation.core.components.material.EnableWindowBlurBehind(radiusDp = 28.dp)
+                    fun loadUrl(url: String) {
+                        state.content = WebContent.Url(url)
+                    }
+                    tachiyomi.presentation.core.components.material.CupertinoActionSheetCard(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                    ) {
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                            text = { Text(text = stringResource(SYMR.strings.recheck_login_status)) },
+                            onClick = {
+                                onClickRecheckLoginStatus(::loadUrl)
+                                showAdvancedOptions = false
+                            },
+                        )
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                            text = { Text(text = stringResource(SYMR.strings.alternative_login_page)) },
+                            onClick = {
+                                onClickAlternateLoginPage(::loadUrl)
+                                showAdvancedOptions = false
+                            },
+                        )
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                            text = { Text(text = stringResource(SYMR.strings.skip_page_restyling)) },
+                            onClick = {
+                                onClickSkipPageRestyling(::loadUrl)
+                                showAdvancedOptions = false
+                            },
+                        )
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                            text = { Text(text = stringResource(SYMR.strings.custom_igneous_cookie)) },
+                            onClick = {
+                                onClickCustomIgneousCookie()
+                                showAdvancedOptions = false
+                            },
+                        )
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                        tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                            text = { Text(text = stringResource(MR.strings.action_cancel)) },
+                            destructive = true,
+                            onClick = { showAdvancedOptions = false },
+                        )
                     }
                 }
             }

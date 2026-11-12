@@ -553,10 +553,20 @@ fun CupertinoActionSheetCard(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val sheetShape = RoundedCornerShape(20.dp)
+    val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
+    val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
     val cardModifier = if (isGlass) {
         modifier
             .fillMaxWidth()
-            .liquidGlassPopupSurface(shape = sheetShape)
+            .shadow(
+                elevation = 24.dp,
+                shape = sheetShape,
+                ambientColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.20f),
+                spotColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.22f),
+            )
+            .clip(sheetShape)
+            .background(surfaceColor)
+            .border(width = 0.75.dp, color = borderColor, shape = sheetShape)
     } else {
         modifier
             .fillMaxWidth()
@@ -583,11 +593,21 @@ fun CupertinoCancelPill(
     val isGlass = LocalLiquidGlassConfig.current.enabled
     val isDark = isSystemInDarkTheme()
     val pillShape = RoundedCornerShape(20.dp)
+    val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
+    val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
     val pillModifier = if (isGlass) {
         modifier
             .fillMaxWidth()
             .height(54.dp)
-            .liquidGlassPopupSurface(shape = pillShape)
+            .shadow(
+                elevation = 24.dp,
+                shape = pillShape,
+                ambientColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.20f),
+                spotColor = Color.Black.copy(alpha = if (isDark) 0.55f else 0.22f),
+            )
+            .clip(pillShape)
+            .background(surfaceColor)
+            .border(width = 0.75.dp, color = borderColor, shape = pillShape)
     } else {
         modifier
             .fillMaxWidth()

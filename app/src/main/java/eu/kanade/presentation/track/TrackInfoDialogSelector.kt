@@ -57,34 +57,46 @@ fun TrackStatusSelector(
         content = {
             val state = rememberLazyListState()
             val isGlass = tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig.current.enabled
+            val entries = selections.entries.toList()
             ScrollbarLazyColumn(state = state) {
-                selections.forEach { (key, value) ->
+                entries.forEachIndexed { index, entry ->
+                    val key = entry.key
+                    val value = entry.value
                     val isSelected = selection == key
                     item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .selectable(
+                        if (isGlass) {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                tachiyomi.presentation.core.components.material.CupertinoGlassMenuItem(
+                                    text = { Text(text = value?.let { stringResource(it) } ?: "") },
                                     selected = isSelected,
+                                    trailingIcon = if (isSelected) {
+                                        {
+                                            tachiyomi.presentation.core.components.material.CupertinoCheckmark(
+                                                checked = true,
+                                            )
+                                        }
+                                    } else {
+                                        null
+                                    },
                                     onClick = { onSelectionChange(key) },
                                 )
-                                .fillMaxWidth()
-                                .minimumInteractiveComponentSize()
-                                .padding(horizontal = 4.dp),
-                        ) {
-                            if (isGlass) {
-                                Text(
-                                    text = value?.let { stringResource(it) } ?: "",
-                                    style = MaterialTheme.typography.bodyLarge.merge(),
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 16.dp),
-                                )
-                                tachiyomi.presentation.core.components.material.CupertinoCheckmark(
-                                    checked = isSelected,
-                                )
-                            } else {
+                                if (index < entries.lastIndex) {
+                                    tachiyomi.presentation.core.components.material.CupertinoGlassMenuSeparator()
+                                }
+                            }
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .selectable(
+                                        selected = isSelected,
+                                        onClick = { onSelectionChange(key) },
+                                    )
+                                    .fillMaxWidth()
+                                    .minimumInteractiveComponentSize()
+                                    .padding(horizontal = 4.dp),
+                            ) {
                                 RadioButton(
                                     selected = isSelected,
                                     onClick = null,

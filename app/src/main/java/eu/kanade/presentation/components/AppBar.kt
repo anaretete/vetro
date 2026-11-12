@@ -70,14 +70,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyant.backdrop.catalog.components.LiquidIconButton
 import com.kyant.shapes.Capsule
+import expo.modules.glassmenuandroid.records.GlassMenuItemRecord
 import kotlinx.collections.immutable.ImmutableList
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.CupertinoFrostedPopup
+import tachiyomi.presentation.core.components.material.GlassMenuAnchor
 import tachiyomi.presentation.core.components.material.IconButton
 import tachiyomi.presentation.core.components.material.LocalInGlassBar
 import tachiyomi.presentation.core.components.material.LocalLiquidGlassConfig
 import tachiyomi.presentation.core.components.material.MoreHoriz
 import tachiyomi.presentation.core.components.material.liquidGlassSurface
+import tachiyomi.presentation.core.components.material.supportsNativeGlassMenu
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.clearFocusOnSoftKeyboardHide
 import tachiyomi.presentation.core.util.runOnEnterKeyPressed
@@ -397,53 +400,78 @@ fun AppBarActions(
 
     val overflowActions = actions.filterIsInstance<AppBar.OverflowAction>()
     if (overflowActions.isNotEmpty()) {
-        TooltipBox(
-            positionProvider = rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-            tooltip = {
-                PlainTooltip {
-                    Text(stringResource(MR.strings.action_menu_overflow_description))
+        Box {
+            if (isGlass && supportsNativeGlassMenu) {
+                val items = remember(overflowActions) {
+                    overflowActions.mapIndexed { index, action ->
+                        GlassMenuItemRecord(
+                            id = index.toString(),
+                            title = action.title,
+                            onClick = {
+                                showMenu = false
+                                action.onClick()
+                            },
+                        )
+                    }
                 }
-            },
-            state = rememberTooltipState(),
-            focusable = false,
-        ) {
-            if (isGlass) {
-                LiquidIconButton(
-                    onClick = { showMenu = !showMenu },
-                    size = 40.dp,
-                ) {
-                    Icon(
-                        Icons.Outlined.MoreHoriz,
-                        contentDescription = stringResource(MR.strings.action_menu_overflow_description),
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            } else {
-                IconButton(
-                    onClick = { showMenu = !showMenu },
-                ) {
-                    Icon(
-                        Icons.Outlined.MoreHoriz,
-                        contentDescription = stringResource(MR.strings.action_menu_overflow_description),
-                    )
+                GlassMenuAnchor(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                    items = items,
+                    modifier = Modifier.matchParentSize(),
+                )
+            }
+
+            TooltipBox(
+                positionProvider = rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    PlainTooltip {
+                        Text(stringResource(MR.strings.action_menu_overflow_description))
+                    }
+                },
+                state = rememberTooltipState(),
+                focusable = false,
+            ) {
+                if (isGlass) {
+                    LiquidIconButton(
+                        onClick = { showMenu = !showMenu },
+                        size = 40.dp,
+                    ) {
+                        Icon(
+                            Icons.Outlined.MoreHoriz,
+                            contentDescription = stringResource(MR.strings.action_menu_overflow_description),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { showMenu = !showMenu },
+                    ) {
+                        Icon(
+                            Icons.Outlined.MoreHoriz,
+                            contentDescription = stringResource(MR.strings.action_menu_overflow_description),
+                        )
+                    }
                 }
             }
-        }
 
-        CupertinoFrostedPopup(
-            expanded = showMenu,
-            onDismissRequest = { showMenu = false },
-        ) {
-            overflowActions.forEachIndexed { index, it ->
-                DropdownMenuItem(
-                    onClick = {
-                        it.onClick()
-                        showMenu = false
-                    },
-                    text = { Text(it.title, fontWeight = FontWeight.Normal) },
-                )
-                if (index < overflowActions.lastIndex) {
-                    DropdownMenuSeparator()
+            if (!isGlass || !supportsNativeGlassMenu) {
+                CupertinoFrostedPopup(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                ) {
+                    overflowActions.forEachIndexed { index, it ->
+                        DropdownMenuItem(
+                            onClick = {
+                                it.onClick()
+                                showMenu = false
+                            },
+                            text = { Text(it.title, fontWeight = FontWeight.Normal) },
+                        )
+                        if (index < overflowActions.lastIndex) {
+                            DropdownMenuSeparator()
+                        }
+                    }
                 }
             }
         }

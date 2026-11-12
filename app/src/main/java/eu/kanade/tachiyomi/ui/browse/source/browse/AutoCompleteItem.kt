@@ -200,23 +200,26 @@ fun AutoCompleteTextField(
             val isGlass = LocalLiquidGlassConfig.current.enabled
             val isDark = isSystemInDarkTheme()
             val menuShape = RoundedCornerShape(16.dp)
+            val surfaceColor = if (isDark) Color(0xD9141418) else Color(0xEBFAFBFD)
+            val borderColor = if (isDark) Color(0x35FFFFFF) else Color(0x1F000000)
 
             ExposedDropdownMenu(
                 modifier = Modifier
                     .exposedDropdownSize(matchAnchorWidth = true)
                     .then(
                         if (isGlass) {
-                            Modifier.liquidGlassPopupSurface(shape = menuShape)
+                            Modifier.border(width = 0.75.dp, color = borderColor, shape = menuShape)
                         } else {
                             Modifier
                         },
                     ),
                 shape = menuShape,
-                containerColor = if (isGlass) Color.Transparent else androidx.compose.material3.MenuDefaults.containerColor,
-                shadowElevation = if (isGlass) 14.dp else androidx.compose.material3.MenuDefaults.ShadowElevation,
+                containerColor = if (isGlass) surfaceColor else androidx.compose.material3.MenuDefaults.containerColor,
+                shadowElevation = if (isGlass) 24.dp else androidx.compose.material3.MenuDefaults.ShadowElevation,
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {
+                tachiyomi.presentation.core.components.material.EnableWindowBlurBehind(radiusDp = 28.dp)
                 filteredValues.forEachIndexed { index, it ->
                     DropdownMenuItem(
                         text = {

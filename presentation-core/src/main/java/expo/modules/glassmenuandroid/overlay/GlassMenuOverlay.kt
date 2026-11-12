@@ -62,7 +62,7 @@ internal class GlassMenuOverlay private constructor(
   }
 
   fun unregister(anchor: GlassMenuAndroidView) {
-    if (session?.anchor === anchor) finishSession(notify = false)
+    if (session?.anchor === anchor) finishSession(notify = true)
     anchors.remove(anchor)
     if (anchors.isEmpty()) {
       root.post {
@@ -79,6 +79,7 @@ internal class GlassMenuOverlay private constructor(
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     viewTreeObserver.addOnPreDrawListener(this)
+    if (session != null) requestFrame()
   }
 
   override fun onDetachedFromWindow() {
@@ -89,6 +90,7 @@ internal class GlassMenuOverlay private constructor(
   }
 
   override fun onPreDraw(): Boolean {
+    if (session == null && anchors.none { it.drawsGlass }) return true
     if (backdropChanged() or anchorsMoved()) invalidate()
     return true
   }
@@ -117,8 +119,9 @@ internal class GlassMenuOverlay private constructor(
   }
 
   override fun onDraw(canvas: Canvas) {
-    limits.set(0, 0, width, height)
     val active = session
+    if (active == null && anchors.none { it.drawsGlass }) return
+    limits.set(0, 0, width, height)
     if (!supportsGlass || !canvas.isHardwareAccelerated) {
       active?.drawFallback(canvas)
       return
@@ -190,17 +193,24 @@ internal class GlassMenuOverlay private constructor(
     anchor.getLocationInWindow(location)
     val x = location[0].toFloat()
     val y = location[1].toFloat()
-    getLocationInWindow(location)
+    val base = if (isAttachedToWindow && width > 0) this else root
+    base.getLocationInWindow(location)
     out.set(x - location[0], y - location[1], x - location[0] + anchor.width, y - location[1] + anchor.height)
   }
 
   fun open(anchor: GlassMenuAndroidView, through: RectF?) {
+    if (parent == null) {
+      root.addView(this, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    }
+    bringToFront()
     if (session?.anchor !== anchor) finishSession(notify = true)
     val current = session
     if (current != null) {
       current.reopen()
     } else {
-      session = GlassMenuSession(this, anchor, density, supportsGlass, through, width, height, insets())
+      val w = if (width > 0) width else root.width
+      val h = if (height > 0) height else root.height
+      session = GlassMenuSession(this, anchor, density, supportsGlass, through, w, h, insets())
     }
     startupFrames = StartupFrames
     isFocusable = true
