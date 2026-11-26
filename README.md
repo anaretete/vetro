@@ -1,117 +1,67 @@
-<div align="center">
+# Vetro
 
-  <h1>Vetro</h1>
-  <p><strong>The Liquid Glass Manga & Comic Reader for Android</strong></p>
+Vetro is a free and open-source manga, comic, and webtoon reader for Android. Built as a fork of Mihon and TachiyomiSY, it features an updated glass-inspired interface, smooth gestures, and flexible reading controls.
 
-  <p>
-    <a href="https://github.com/anaretete/vetro/releases/latest">
-      <img src="https://img.shields.io/badge/Latest_Release-v1.14.72-0A84FF?style=for-the-badge&logo=android&logoColor=white" alt="Latest Release" />
-    </a>
-    <a href="https://github.com/anaretete/vetro/actions">
-      <img src="https://img.shields.io/badge/Build-Passing-30D158?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build Status" />
-    </a>
-    <a href="LICENSE">
-      <img src="https://img.shields.io/badge/License-Apache_2.0-BF5AF2?style=for-the-badge" alt="License" />
-    </a>
-    <img src="https://img.shields.io/badge/Android-8.0%2B-FF9F0A?style=for-the-badge&logo=android" alt="Android 8.0+" />
-  </p>
-
-</div>
+[![Latest Release](https://img.shields.io/badge/Release-v1.14.72-blue?style=flat-square)](https://github.com/anaretete/vetro/releases/latest)
+[![License](https://img.shields.io/badge/License-Apache_2.0-purple?style=flat-square)](LICENSE)
+[![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-green?style=flat-square)](https://github.com/anaretete/vetro/releases)
 
 ---
 
-## Overview
+## Features
 
-**Vetro** is a high-performance, open-source manga, comic, and webtoon reader for Android. Built upon the robust foundation of Tachiyomi, Mihon, and TachiyomiSY, Vetro introduces a state-of-the-art **Liquid Glass UI engine** that brings dynamic optical refraction, caustic reflections, chromatic aberration, and tactile spring physics to every corner of the interface.
-
-Whether browsing expansive libraries, tracking reading progress, or immersing yourself in high-resolution chapters, Vetro delivers an authentic, fluid experience designed with continuous-curvature Apple HIG aesthetics and cutting-edge Android Graphics Shading Language (AGSL) shaders.
-
----
-
-## Key Features
-
-### 🔮 Liquid Glass Optical Engine
-- **AGSL Refraction Shaders:** Authentic signed distance field (SDF) optical simulation with real-time caustics and edge light refraction.
-- **Chromatic Aberration:** Physically modeled RGB light dispersion along curved glass borders.
-- **LayerBackdrop Architecture:** Hardware-accelerated offscreen sampling allows smooth 120 FPS glass rendering without UI thread hitching or recursive canvas captures.
-- **Viscoelastic Spring Physics:** Tactile button and slider interactions with natural velocity squish, stretch, and spring release.
-
-### 📖 Superior Reader Experience
-- **Reading Modes:** Seamless Webtoon reader with automatic detection, Continuous Vertical, Left-to-Right, Right-to-Left, and Double Page viewers.
-- **Refractive HUD:** Frosted liquid glass top and bottom bars that keep the manga artwork visible underneath with minimal obstruction.
-- **True Color Filter Refraction:** Reading filters (color overlay, brightness reduction, grayscale, and inversion) cleanly refract through glass overlays without hue clipping.
-- **Smooth Scrubbing Slider:** 1:1 proportional page tracking with continuous tactile engagement.
-
-### 🎨 Cupertino & Apple HIG Design System
-- **Floating Pill Navigation:** Ergonomic floating navigation capsules with continuous squircle corners (`RoundedRectangle` with continuous styling).
-- **Segmented Selectors:** Multi-section selectors featuring a refractive glass track and a solid theme-matched sliding indicator.
-- **Accessible Contrast:** Rigorous dynamic color contrast ensures no light-on-light or dark-on-dark text across both dark and light modes.
-- **Lucide Iconography:** Clean, modern vector icon set across all menus and preference pages.
+- **Custom UI & Styling:** Glass-style navigation and toolbars designed to stay readable over artwork without getting in the way.
+- **Reading Modes:** Webtoon (vertical scroll), left-to-right, right-to-left, and double-page view.
+- **Reading Filters:** Color filters, brightness reduction, grayscale, and invert mode.
+- **Library Management:** Custom categories, progress tracking, updates feed, and automatic chapter downloads.
+- **Tracker Integration:** Sync reading progress with AniList, MyAnimeList, Kitsu, Shikimori, MangaUpdates, and Bangumi.
+- **Backup & Restore:** Compatible with Mihon/Tachiyomi backup files.
 
 ---
 
-## Downloads
+## Download
 
-Download the latest APK releases directly from [GitHub Releases](https://github.com/anaretete/vetro/releases/latest):
+Get the latest APKs from the [Releases page](https://github.com/anaretete/vetro/releases/latest):
 
-| Architecture | Description | Download |
-|:---|:---|:---:|
-| **ARM64-v8a** | Optimized for modern 64-bit Android smartphones & tablets *(Recommended)* | [Download APK](https://github.com/anaretete/vetro/releases/latest) |
-| **Universal** | Contains binaries for all CPU architectures (ARM64, ARMv7, x86_64, x86) | [Download APK](https://github.com/anaretete/vetro/releases/latest) |
+| Architecture | Description |
+|:---|:---|
+| **ARM64-v8a** | For modern 64-bit phones and tablets *(recommended)* |
+| **Universal** | Works on all supported Android devices |
 
-*System Requirements: Android 8.0 (Oreo) or higher. Android 13+ recommended for full AGSL hardware shader acceleration.*
+*Requires Android 8.0 or newer.*
 
 ---
 
-## Building from Source
+## Building
 
-### Prerequisites
+### Requirements
 - Android Studio Ladybug (2024.2.1+) or newer
-- JDK 17 or higher
+- JDK 17+
 - Android SDK 35
 
-### Clone & Compile
+### Build Commands
 ```bash
-# Clone the repository
 git clone https://github.com/anaretete/vetro.git
 cd vetro
 
-# Build the release APK
+# Build release APK
 ./gradlew assembleStandardRelease
 ```
 
-The output APKs will be located in:
-```
-app/build/outputs/apk/standard/release/
-```
+Compiled APKs will be in `app/build/outputs/apk/standard/release/`.
 
 ---
 
-## Credits & Acknowledgments
+## Credits
 
-Vetro is made possible thanks to the incredible open-source community:
-- [Mihon](https://github.com/mihonapp/mihon) & [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) for the foundational manga reader architecture.
-- [TachiyomiSY](https://github.com/jobobby04/TachiyomiSY) for rich feed discovery and extension capabilities.
-- [Komikku](https://github.com/komikku-app/komikku) for cover-based theming and multi-source features.
-- [Kyant0](https://github.com/Kyant0) for pioneering Android AGSL Liquid Glass concepts.
-- [Lucide](https://lucide.dev) for the clean vector icon designs.
+Vetro builds upon the work of several open-source projects:
+- [Mihon](https://github.com/mihonapp/mihon) & [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi)
+- [TachiyomiSY](https://github.com/jobobby04/TachiyomiSY)
+- [Komikku](https://github.com/komikku-app/komikku)
+- [Lucide Icons](https://lucide.dev)
 
 ---
 
 ## License
 
-```
-Copyright (C) 2026 Vetro Contributors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Vetro is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
